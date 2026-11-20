@@ -1,20 +1,19 @@
-# TerImpact
+# PD&I Impacto
 
-Ferramenta online de apoio à avaliação ex ante do potencial de impacto de propostas de pesquisa. Destina-se ao pesquisador que deseja examinar sua proposta nas dimensões econômica, social, ambiental, política, institucional e científica, bem como a consistência de sua trajetória de impacto, antes da submissão.
+Ferramentas e referenciais para uma pesquisa agrícola orientada ao impacto, fundamentados nos princípios de pesquisa e inovação responsável e de avaliação responsável da pesquisa.
 
-O instrumento tem origem na planilha de Avaliação Ex Ante de Projetos de Pesquisa da Embrapa Territorial.
+## Camadas
 
-## Estrutura
+| Pasta | Conteúdo | Situação |
+|---|---|---|
+| `terimpact/` | TerImpact: avaliação ex ante do potencial de impacto de propostas de pesquisa | Em desenvolvimento |
 
-- `instrumento/terimpact_v1.json`: itens, escalas, perguntas orientadoras e regras de cálculo.
-- `src/`: código da aplicação (estilos e script).
-- `tools/build.py`: gera o `index.html` a partir de `src/` e do instrumento.
-- `index.html`: página publicada. Não deve ser editada diretamente.
+Novas camadas serão incluídas para o Plano de Transferência de Tecnologia orientado ao impacto, o AgroRadarEval e outros trabalhos sobre avaliação de impacto da pesquisa agrícola.
 
-## Atualização
+## TerImpact
 
-Após alterar o instrumento ou o código em `src/`, execute:
+- `terimpact/instrumento/terimpact_v1.json`: itens, escalas, perguntas orientadoras e regras de cálculo.
+- `terimpact/src/`: código da aplicação.
+- `terimpact/tools/build.py`: gera `terimpact/index.html` a partir de `src/` e do instrumento.
 
-```
-python tools/build.py
-```
+Após alterar o instrumento ou o código, execute `python terimpact/tools/build.py`.
