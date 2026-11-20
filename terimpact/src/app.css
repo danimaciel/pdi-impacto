@@ -253,3 +253,11 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 
 /* Texto corrido justificado */
 .stack > p, .guide, .esboco p, .esboco li, .footer { text-align: justify; hyphens: auto; }
+
+/* Inclusão de itens e parceiros */
+.add-row { display: flex; gap: 8px; margin-top: 8px; }
+.add-row input { flex: 1; min-width: 0; }
+.chips-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag-chip { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-soft); border-radius: 999px; padding: 3px 4px 3px 12px; font-size: 0.92rem; }
+.tag-chip button { border: none; background: transparent; cursor: pointer; font-size: 1.05rem; line-height: 1; padding: 4px 8px; border-radius: 999px; color: var(--muted); }
+.tag-chip button:hover { color: var(--crit); }

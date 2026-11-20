@@ -1,7 +1,7 @@
 {
   "instrumento": "TerImpact - Avaliação Ex Ante",
-  "versao": "2.1.0-rascunho",
-  "situacao": "Rascunho para revisão. Perguntas redigidas a partir da primeira rodada da matriz de referenciais.",
+  "versao": "2.2.0",
+  "situacao": "Em desenvolvimento. Perguntas redigidas a partir da primeira rodada da matriz de referenciais, em revisão.",
   "contexto": {
     "tipos_projeto": [
       "Pesquisa científica",
@@ -50,7 +50,8 @@
             "Chamada ou edital de financiamento",
             "Iniciativa da equipe de pesquisa"
           ],
-          "fundamento": "Owen, Macnaghten e Stilgoe (2012); Spaapen e van Drooge (2011)"
+          "fundamento": "Owen, Macnaghten e Stilgoe (2012); Spaapen e van Drooge (2011)",
+          "permite_outro": true
         },
         {
           "codigo": "PD3",
@@ -297,32 +298,17 @@
           "codigo": "CA1",
           "tipo": "multipla",
           "pergunta": "Quais serão os principais produtos da proposta?",
-          "opcoes": [
-            "Tecnologia, produto ou processo",
-            "Software, aplicativo ou plataforma",
-            "Base de dados ou mapa",
-            "Método ou metodologia",
-            "Publicação técnica ou científica",
-            "Recomendação para políticas ou gestão",
-            "Capacitação ou formação"
-          ],
-          "fundamento": "Mayne (2015), produtos"
+          "fundamento": "Mayne (2015), produtos",
+          "fonte": "produtos",
+          "permite_outro": true
         },
         {
           "codigo": "CA2",
           "tipo": "multipla",
-          "pergunta": "Quem deverá usar os resultados?",
-          "opcoes": [
-            "Produtores rurais",
-            "Técnicos de assistência técnica e extensão rural",
-            "Gestores públicos",
-            "Formuladores de políticas",
-            "Setor privado",
-            "Organizações sociais",
-            "Pesquisadores",
-            "Outros"
-          ],
-          "fundamento": "Mayne (2015), alcance"
+          "pergunta": "Entre os públicos da proposta, quem deverá usar diretamente os resultados?",
+          "fundamento": "Mayne (2015), alcance",
+          "fonte": "publicos_selecionados",
+          "permite_outro": true
         },
         {
           "codigo": "CA3",

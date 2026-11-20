@@ -15,6 +15,8 @@ css = (RAIZ / "src" / "app.css").read_text(encoding="utf-8")
 js = (RAIZ / "src" / "app.js").read_text(encoding="utf-8")
 inst = json.loads((RAIZ / "instrumento" / "agroradareval.json").read_text(encoding="utf-8"))
 inst_txt = json.dumps(inst, ensure_ascii=False).replace("</", "<\\/")
+listas = json.loads((RAIZ.parent / "listas" / "listas.json").read_text(encoding="utf-8"))
+listas_txt = json.dumps(listas, ensure_ascii=False).replace("</", "<\\/")
 
 head = (
     "<title>AgroRadarEval</title>\n"
@@ -29,6 +31,7 @@ head = (
 body = (
     '<div id="app"></div>\n'
     f'<script type="application/json" id="instrumento">{inst_txt}</script>\n'
+    f'<script type="application/json" id="listas">{listas_txt}</script>\n'
     f"<script>\n{js}\n</script>\n"
 )
 

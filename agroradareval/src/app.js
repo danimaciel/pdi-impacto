@@ -3,6 +3,7 @@
 
   var INST = JSON.parse(document.getElementById("instrumento").textContent);
   var DIMS = INST.dimensoes;
+  var LISTAS = JSON.parse(document.getElementById("listas").textContent);
   var ESC = INST.escala.rotulos;
   var REF = INST.referencia.percentual;
   var KEY = "agroradareval.v2.respostas";
@@ -64,6 +65,7 @@
 
   /* ---------- Consolidação de respondentes ---------- */
 
+  function dp(a) { if (a.length < 2) return null; var m = avg(a); return Math.sqrt(a.reduce(function (x, v) { return x + (v - m) * (v - m); }, 0) / (a.length - 1)); }
   function mediana(a) { var b = a.slice().sort(function (x, y) { return x - y; }); var m = Math.floor(b.length / 2); return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; }
 
   function consolidar(lista) {
@@ -84,10 +86,15 @@
           else if (amp >= 3 || ad > 0.83) padrao = "divergencia";
           else if (amp === 2) padrao = "moderada";
         }
-        disp[c] = { notas: notas, mediana: md, ad: ad, amplitude: amp, padrao: padrao };
+        disp[c] = { notas: notas, mediana: md, ad: ad, amplitude: amp, padrao: padrao, dp: dp(notas), min: Math.min.apply(null, notas), max: Math.max.apply(null, notas) };
       }
     });
-    return { n: lista.length, respondentes: lista.map(function (s) { return s.organizacao || {}; }), medias: medias, dispersao: disp };
+    var porResp = lista.map(function (s) { return porDimensao(s.respostas); });
+    var dimStats = DIMS.map(function (d, i) {
+      var v = porResp.map(function (r) { return r[i].pct; }).filter(function (x) { return x !== null; });
+      return { dim: d, n: v.length, media: v.length ? avg(v) : null, dp: dp(v), min: v.length ? Math.min.apply(null, v) : null, max: v.length ? Math.max.apply(null, v) : null };
+    });
+    return { n: lista.length, respondentes: lista.map(function (s) { return s.organizacao || {}; }), medias: medias, dispersao: disp, dimStats: dimStats };
   }
 
   var PADRAO = {
@@ -143,6 +150,16 @@
       '<div class="stack"><h3>Pilares</h3><ul class="stack" style="margin:0;padding-left:1.1em">' + pil + "</ul></div>" +
       '<div class="stack"><h3>Dimensões</h3><ul class="scale">' + dims + "</ul></div>" +
       "<p>Cada afirmação é respondida em uma escala de concordância de 1 (" + esc(ESC[0].toLowerCase()) + ") a 5 (" + esc(ESC[4].toLowerCase()) + "). A opção \"" + esc(INST.escala.nao_sei) + "\" exclui a afirmação do cálculo. O resultado de cada dimensão é expresso em percentual da pontuação máxima e comparado ao valor de referência de " + REF + "%, adotado na versão original.</p>" +
+      '<div class="stack"><h3>Conceitos de base</h3>' +
+      "<p>A pesquisa orientada ao impacto busca que os resultados da pesquisa contribuam para mudanças econômicas, sociais, ambientais e institucionais, e não apenas para a produção de conhecimento. A avaliação de impacto é parte desse processo, mas seu valor depende do uso que se faz de seus resultados. Na pesquisa agrícola, esse uso ainda se concentra na prestação de contas, com pouco aproveitamento para aprendizagem, alocação de recursos e formulação de políticas (Pinto, 2026).</p>" +
+      "<p>O AgroRadarEval examina as condições organizacionais para esse uso. Parte de três pilares: o desenvolvimento de capacidades avaliativas, a cultura de avaliação orientada ao impacto e a aprendizagem reflexiva. Está alinhado aos princípios de pesquisa e inovação responsável, como antecipação, reflexividade, inclusão e responsividade, e de avaliação responsável da pesquisa, como transparência e julgamento qualitativo apoiado por indicadores.</p></div>" +
+      '<div class="stack"><h3>Como preencher</h3><ol class="stack" style="margin:0;padding-left:1.2em">' +
+      "<li>A organização define quem vai responder, considerando o perfil recomendado abaixo. Podem responder uma ou várias pessoas.</li>" +
+      "<li>Cada pessoa informa a organização e sua função e responde às afirmações das oito dimensões, indicando o grau de concordância com cada uma. Quando não conhecer a prática descrita, deve marcar a opção de não saber avaliar.</li>" +
+      "<li>Ao final, cada pessoa obtém o resultado individual, com o radar das dimensões, os destaques e os pontos a melhorar, e baixa ou copia suas respostas.</li>" +
+      "<li>Quem coordena reúne as respostas na seção de consolidação, que calcula a média e as estatísticas de cada dimensão e indica as afirmações em que as respostas divergem.</li>" +
+      "<li>O resultado consolidado é discutido pela equipe, com atenção às afirmações divergentes e aos pontos a melhorar, para definir ações.</li>" +
+      "</ol></div>" +
       '<details><summary>Perfil recomendado de quem responde</summary><div><p class="small">A escolha de quem responde cabe à organização. Recomenda-se envolver pessoas com as características abaixo. Quando várias pessoas da mesma organização respondem, os resultados podem ser consolidados na tela de resultado.</p><div class="table-wrap"><table><tbody>' + perfil + "</tbody></table></div></div></details>" +
       '<div class="note">As respostas ficam armazenadas apenas neste navegador. Nenhuma informação é enviada a servidores.</div>' +
       '<div class="actions">' + (tem ? '<button class="btn primary" data-go="1">Continuar diagnóstico</button><button class="btn" data-act="pedir-novo">Novo diagnóstico</button>'
@@ -158,7 +175,8 @@
     }
     return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">Identificação</p><h2>Organização e respondente</h2>' +
       '<p class="muted">Nenhum campo é obrigatório. O nome da organização é usado para reunir respostas de várias pessoas na consolidação.</p></div>' +
-      campo("org", "Organização", "nome") +
+      '<div class="field"><label for="f-org">Organização</label><span class="hint">Digite para buscar na lista. Se a organização não estiver na lista, digite o nome completo. Pessoas da mesma organização devem usar o mesmo nome, para que as respostas possam ser consolidadas.</span><input type="text" id="f-org" data-org="nome" list="lista-orgs" value="' + esc(o.nome) + '">' +
+      '<datalist id="lista-orgs">' + LISTAS.organizacoes.map(function (x) { return '<option value="' + esc(x.nome) + '">' + esc(x.pais) + "</option>"; }).join("") + "</datalist></div>" +
       '<div class="grid2">' + campo("uni", "Unidade ou área", "unidade") + campo("pais", "País", "pais") + "</div>" +
       campo("funcao", "Função de quem responde", "funcao", "Por exemplo: gestão de PD&amp;I, equipe de avaliação, transferência de tecnologia.") +
       "</div>" + nav();
@@ -261,6 +279,22 @@
         }).join("") + "</ul>" : '<p class="muted">Nenhuma afirmação com divergência relevante entre os respondentes.</p>') + "</div>";
     }
 
+    var statsHtml = "";
+    if (cons) {
+      statsHtml = '<div class="panel"><h3>Estatísticas entre respondentes</h3><p class="small muted">Resultado de cada dimensão calculado por respondente, em percentual da pontuação máxima. O desvio-padrão indica a dispersão entre as pessoas que responderam.</p>' +
+        '<div class="table-wrap"><table><thead><tr><th>Dimensão</th><th class="num">n</th><th class="num">Média</th><th class="num">Desvio-padrão</th><th class="num">Mínimo</th><th class="num">Máximo</th></tr></thead><tbody>' +
+        CONS.dimStats.map(function (x) {
+          return "<tr><td>" + esc(x.dim.nome) + '</td><td class="num">' + x.n + '</td><td class="num">' + (x.media === null ? "–" : fmt(x.media, 0) + "%") + '</td><td class="num">' + (x.dp === null ? "–" : fmt(x.dp, 1)) +
+            '</td><td class="num">' + (x.min === null ? "–" : fmt(x.min, 0) + "%") + '</td><td class="num">' + (x.max === null ? "–" : fmt(x.max, 0) + "%") + "</td></tr>";
+        }).join("") + "</tbody></table></div>" +
+        '<details><summary>Estatísticas por afirmação</summary><div><div class="table-wrap"><table><thead><tr><th>Código</th><th class="num">n</th><th class="num">Média</th><th class="num">Mediana</th><th class="num">Desvio-padrão</th><th class="num">Mín.</th><th class="num">Máx.</th></tr></thead><tbody>' +
+        Object.keys(AFIRM).map(function (c) {
+          var d = CONS.dispersao[c], m = CONS.medias[c];
+          if (!d) return "<tr><td>" + c + '</td><td class="num">' + (m ? 1 : 0) + '</td><td class="num">' + (m ? fmt(m) : "–") + '</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>';
+          return '<tr><td title="' + esc(AFIRM[c].texto) + '">' + c + '</td><td class="num">' + d.notas.length + '</td><td class="num">' + fmt(m) + '</td><td class="num">' + fmt(d.mediana) + '</td><td class="num">' + fmt(d.dp, 2) + '</td><td class="num">' + d.min + '</td><td class="num">' + d.max + "</td></tr>";
+        }).join("") + "</tbody></table></div></div></details></div>";
+    }
+
     var consPanel = '<div class="panel no-print"><h3>Consolidar respostas da organização</h3>' +
       '<p class="small">Quando várias pessoas da mesma organização respondem, cada uma baixa ou copia suas respostas e as envia a quem coordena. A consolidação calcula a média de cada afirmação e indica as afirmações em que as respostas divergem, para discussão.</p>' +
       '<label class="small" for="cons-files">Arquivos de respostas (.json), um por respondente</label><input type="file" id="cons-files" accept=".json,application/json" multiple>' +
@@ -287,7 +321,7 @@
       '<div class="panel"><h3>Radar das dimensões</h3><p class="small muted">Percentual da pontuação máxima em cada dimensão. A linha tracejada indica o valor de referência de ' + REF + "%.</p>" + radar(linhas) +
       '<div class="legend"><span><i></i>' + (cons ? "Organização (consolidado)" : "Organização") + '</span><span><i class="ref"></i>Referência (' + REF + '%)</span><span><i class="max"></i>Máximo (100%)</span></div>' +
       '<div class="table-wrap"><table><thead><tr><th>Dimensão</th><th class="num">Resultado</th><th>Situação</th><th class="num">Respostas</th></tr></thead><tbody>' + tabela + "</tbody></table></div></div>" +
-      divergHtml +
+      statsHtml + divergHtml +
       '<div class="panel"><h3>Destaques e pontos a melhorar</h3><p class="small muted">Destaques: afirmações com resposta média igual ou superior a ' + INST.regras.destaque_min + ". Pontos a melhorar: resposta média igual ou inferior a " + INST.regras.melhorar_max + ". " + L.intermediarios + " afirmações ficaram na faixa intermediária.</p>" +
       '<div class="lists"><div class="stack"><h3 class="tag-ok">Destaques</h3>' + listaHtml(L.destaques, resp) + '</div><div class="stack"><h3 class="tag-warn">Pontos a melhorar</h3>' + listaHtml(L.melhorar, resp) + "</div></div></div>" +
       consPanel + exportar + "</div>" + nav();
@@ -304,6 +338,9 @@
       return { li: [{ t: l.dim.nome + ": ", b: true }, { t: l.pct === null ? "sem respostas." : fmt(l.pct, 0) + "% (" + (l.pct >= REF ? "acima" : "abaixo") + " da referência; " + l.n + " de " + l.total + " afirmações avaliadas)." }] };
     })) });
     if (cons) {
+      secoes.push({ h: "Estatísticas entre respondentes", blocos: CONS.dimStats.map(function (x) {
+        return { li: [{ t: x.dim.nome + ": ", b: true }, { t: x.media === null ? "sem respostas." : "média " + fmt(x.media, 0) + "%; desvio-padrão " + (x.dp === null ? "–" : fmt(x.dp, 1)) + "; mínimo " + fmt(x.min, 0) + "%; máximo " + fmt(x.max, 0) + "% (n = " + x.n + ")." }] };
+      }) });
       var it = Object.keys(CONS.dispersao).filter(function (c) { return CONS.dispersao[c].padrao !== "consenso"; });
       secoes.push({ h: "Afirmações para discussão", blocos: it.length ? it.map(function (c) { var d = CONS.dispersao[c]; return { li: [{ t: PADRAO[d.padrao][0] + " (" + c + "): ", b: true }, { t: AFIRM[c].texto + " Respostas: " + d.notas.slice().sort().join(", ") + "." }] }; }) : [{ p: [{ t: "Nenhuma afirmação com divergência relevante." }] }] });
     }

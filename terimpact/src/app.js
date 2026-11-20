@@ -2,6 +2,8 @@
   "use strict";
 
   var INST = JSON.parse(document.getElementById("instrumento").textContent);
+  var LISTAS = JSON.parse(document.getElementById("listas").textContent);
+  var ORGS = LISTAS.organizacoes.map(function (o) { return o.nome; });
   var BLOCOS = INST.blocos;
   var MAPA = BLOCOS.filter(function (b) { return b.tipo === "mapa"; })[0];
   var ITEM_BLOCOS = BLOCOS.filter(function (b) { return b.tipo === "itens"; });
@@ -26,7 +28,7 @@
     return {
       instrumento: INST.instrumento, versao: INST.versao,
       criado: new Date().toISOString(), atualizado: null, exemplo: false, modo: "conceber",
-      contexto: { titulo: "", tipo: "", escala: "", duracao: "", transformacao: "", parceiros: "" },
+      contexto: { titulo: "", tipo: "", escala: "", duracao: "", transformacao: "", publicos: [], parceiros: [] },
       respostas: {}, mapa: {}
     };
   }
@@ -35,6 +37,8 @@
     var b = blank();
     Object.keys(b).forEach(function (k) { if (s[k] === undefined) s[k] = b[k]; });
     Object.keys(b.contexto).forEach(function (k) { if (s.contexto[k] === undefined) s.contexto[k] = b.contexto[k]; });
+    if (typeof s.contexto.parceiros === "string") s.contexto.parceiros = s.contexto.parceiros ? s.contexto.parceiros.split(/;\s*/).filter(Boolean) : [];
+    if (!Array.isArray(s.contexto.publicos)) s.contexto.publicos = [];
     return s;
   }
   function load() {
@@ -82,6 +86,17 @@
     return { total: total, resp: resp, mudancas: marcadas().length };
   }
 
+  function opcoesItem(it) {
+    var r = S.respostas[it.codigo] || {};
+    var base = it.fonte === "produtos" ? LISTAS.produtos
+      : it.fonte === "publicos_selecionados" ? (S.contexto.publicos.length ? S.contexto.publicos : LISTAS.publicos)
+      : it.opcoes;
+    var extras = (r.opcoes || []).filter(function (x) { return base.indexOf(x) < 0; });
+    return base.concat(extras);
+  }
+  function incluirOutroHtml(alvo, rotulo, lista) {
+    return '<div class="add-row no-print"><input type="text" id="add-' + alvo + '" aria-label="' + esc(rotulo) + '" placeholder="' + esc(rotulo) + '"' + (lista ? ' list="' + lista + '"' : "") + '><button class="btn" data-add="' + alvo + '">Incluir</button></div>';
+  }
   function opcoes(code) { var r = S.respostas[code]; return r && r.opcoes ? r.opcoes : []; }
   function nota(code) { if (S.modo === "conceber") return null; var r = S.respostas[code]; return r && r.nota && !r.na ? r.nota : null; }
   function texto(code) { var r = S.respostas[code]; return r && r.texto ? r.texto.trim() : ""; }
@@ -106,7 +121,7 @@
     var mk = marcadas();
     var dimsCom = resumoMapa().filter(function (x) { return x.n > 0; });
     var usuarios = opcoes("CA2");
-    function temUsuario(l) { return usuarios.some(function (u) { return l.indexOf(u) >= 0; }); }
+    function temUsuario(re) { return usuarios.concat(S.contexto.publicos).some(function (u) { return re.test(u); }); }
     function dimMarcada(id) { return mk.some(function (c) { return MUD[c].dim === id; }); }
     var mCam = S.modo === "conceber" ? null : blocoMedia(BLOCOS.filter(function (b) { return b.id === "caminho"; })[0]);
 
@@ -114,9 +129,9 @@
     if (p.resp < p.total) A.push({ n: "info", t: "Preenchimento", x: (p.total - p.resp) + " de " + p.total + " perguntas ainda não foram respondidas. A devolutiva considera apenas as respostas registradas." });
     if (!mk.length) A.push({ n: "crit", t: "Mapa de impactos", x: "Nenhuma mudança foi marcada no mapa de impactos. Sem mudanças pretendidas, não é possível examinar o caminho para o impacto." });
 
-    if (dimMarcada("politica") && !temUsuario(["Gestores públicos", "Formuladores de políticas"]))
+    if (dimMarcada("politica") && !temUsuario(/gestor|formulador|legislador|regula/i))
       A.push({ n: "warn", t: "Coerência", x: "Há mudanças pretendidas na dimensão Política, mas gestores públicos e formuladores de políticas não estão entre os usuários dos resultados." });
-    if (dimMarcada("economica") && !temUsuario(["Produtores rurais", "Setor privado", "Técnicos de assistência técnica e extensão rural"]))
+    if (dimMarcada("economica") && !temUsuario(/produtor|agricultor|cooperativ|empresa|agroind|extens|assentad/i))
       A.push({ n: "warn", t: "Coerência", x: "Há mudanças pretendidas na dimensão Econômica, mas nenhum ator produtivo está entre os usuários dos resultados. Verifique quem se apropria do ganho econômico." });
 
     var condCurto = mk.filter(function (c) { return S.mapa[c].nivel === 3 && S.mapa[c].horizonte === MAPA.campos.horizonte.opcoes[0]; });
@@ -240,7 +255,14 @@
       '<div class="field"><label for="f-duracao">Duração prevista (meses)</label><input type="number" min="1" max="120" id="f-duracao" data-ctx="duracao" value="' + esc(c.duracao) + '"></div>' +
       '<div class="field"><label for="f-transf">Nível de transformação esperado</label><select id="f-transf" data-ctx="transformacao">' + opts(L.nivel_transformacao, c.transformacao) + "</select></div>" +
       "</div>" +
-      '<div class="field"><label for="f-parc">Parceiros principais</label><input type="text" id="f-parc" data-ctx="parceiros" value="' + esc(c.parceiros) + '"></div>' +
+      '<fieldset class="field"><legend>Públicos da proposta</legend><span class="hint">Selecione os grupos que a proposta pretende alcançar ou beneficiar. Se algum não estiver na lista, inclua-o.</span><div class="checks">' +
+      LISTAS.publicos.concat(c.publicos.filter(function (x) { return LISTAS.publicos.indexOf(x) < 0; })).map(function (u, i) {
+        return '<label><input type="checkbox" id="pub-' + i + '" data-pub="' + esc(u) + '"' + (c.publicos.indexOf(u) >= 0 ? " checked" : "") + "> " + esc(u) + "</label>";
+      }).join("") + "</div>" + incluirOutroHtml("publico", "Incluir outro público") + "</fieldset>" +
+      '<div class="field"><span class="small"><strong>Parceiros principais</strong></span><span class="hint">Digite para buscar na lista de organizações. Se a organização não estiver na lista, digite o nome completo e inclua.</span>' +
+      '<div class="chips-list">' + c.parceiros.map(function (p, i) { return '<span class="tag-chip">' + esc(p) + ' <button data-rm-parc="' + i + '" aria-label="Remover ' + esc(p) + '">×</button></span>'; }).join("") + "</div>" +
+      incluirOutroHtml("parceiro", "Nome da organização parceira", "lista-orgs") +
+      '<datalist id="lista-orgs">' + ORGS.map(function (o) { return '<option value="' + esc(o) + '">'; }).join("") + "</datalist></div>" +
       "</div>" + nav();
   }
 
@@ -251,9 +273,10 @@
       corpo = (it.ajuda ? '<p class="small muted">' + esc(it.ajuda) + "</p>" : "") +
         '<textarea id="t-' + it.codigo + '" data-texto="' + it.codigo + '" aria-label="' + esc(it.pergunta) + '">' + esc(r.texto || "") + "</textarea>";
     } else if (it.tipo === "multipla") {
-      corpo = '<div class="opts">' + it.opcoes.map(function (o, i) {
+      corpo = (it.fonte === "publicos_selecionados" && S.contexto.publicos.length ? '<p class="small muted">Opções a partir dos públicos indicados na caracterização da proposta.</p>' : "") +
+        '<div class="opts">' + opcoesItem(it).map(function (o, i) {
         return '<label><input type="checkbox" id="o-' + it.codigo + "-" + i + '" data-opt="' + it.codigo + '" data-val="' + esc(o) + '"' + ((r.opcoes || []).indexOf(o) >= 0 ? " checked" : "") + "> <span>" + esc(o) + "</span></label>";
-      }).join("") + "</div>";
+      }).join("") + "</div>" + (it.permite_outro ? incluirOutroHtml(it.codigo, "Incluir outra opção") : "");
     } else if (S.modo === "conceber") {
       return '<div class="item" id="item-' + it.codigo + '"><div class="item-head"><span class="code">' + it.codigo + '</span><p class="q">' + esc(it.pergunta_concepcao || it.pergunta) + "</p></div>" +
         '<textarea id="j-' + it.codigo + '" data-just="' + it.codigo + '" aria-label="' + esc(it.pergunta_concepcao || it.pergunta) + '" placeholder="Escreva livremente. Em branco, vira ponto a desenvolver.">' + esc(r.justificativa || "") + "</textarea>" +
@@ -358,7 +381,7 @@
       if (!v) pend.push(falta);
       return { p: [{ t: rotulo + ": ", b: true }, v ? { t: v } : { t: "a desenvolver.", pend: true }] };
     }
-    var carac = [["Tipo de projeto", c.tipo], ["Escala territorial", c.escala], ["Duração prevista", c.duracao ? c.duracao + " meses" : ""], ["Nível de transformação esperado", c.transformacao], ["Parceiros principais", c.parceiros]]
+    var carac = [["Tipo de projeto", c.tipo], ["Escala territorial", c.escala], ["Duração prevista", c.duracao ? c.duracao + " meses" : ""], ["Nível de transformação esperado", c.transformacao], ["Públicos", c.publicos.join("; ")], ["Parceiros principais", c.parceiros.join("; ")]]
       .filter(function (x) { return x[1]; }).map(function (x) { return { li: [{ t: x[0] + ": ", b: true }, { t: x[1] }] }; });
     if (carac.length) secoes.push({ h: "Caracterização", blocos: carac });
 
@@ -654,6 +677,19 @@
   app.addEventListener("click", function (ev) {
     var t = ev.target.closest("button"); if (!t) return;
     if (t.dataset.go !== undefined) { go(parseInt(t.dataset.go, 10)); return; }
+    if (t.dataset.add) {
+      var alvo = t.dataset.add, campo = document.getElementById("add-" + alvo), novo = (campo.value || "").trim();
+      if (!novo) { campo.focus(); return; }
+      if (alvo === "publico") { if (S.contexto.publicos.indexOf(novo) < 0) S.contexto.publicos.push(novo); }
+      else if (alvo === "parceiro") { if (S.contexto.parceiros.indexOf(novo) < 0) S.contexto.parceiros.push(novo); }
+      else { var ra = R(alvo); ra.opcoes = ra.opcoes || []; if (ra.opcoes.indexOf(novo) < 0) ra.opcoes.push(novo); }
+      save(); var y = window.scrollY; render(); window.scrollTo(0, y);
+      var c2 = document.getElementById("add-" + alvo); if (c2) c2.focus();
+      return;
+    }
+    if (t.dataset.rmParc !== undefined) {
+      S.contexto.parceiros.splice(parseInt(t.dataset.rmParc, 10), 1); save(); var y2 = window.scrollY; render(); window.scrollTo(0, y2); return;
+    }
     if (t.dataset.code) {
       var code = t.dataset.code, v = parseInt(t.dataset.v, 10), r = R(code);
       r.nota = r.nota === v && !r.na ? null : v; r.na = false; save();
@@ -716,6 +752,12 @@
     }
   });
 
+  app.addEventListener("keydown", function (ev) {
+    if (ev.key === "Enter" && ev.target.id && ev.target.id.indexOf("add-") === 0) {
+      ev.preventDefault(); var b = ev.target.parentNode.querySelector("button[data-add]"); if (b) b.click();
+    }
+  });
+
   app.addEventListener("input", function (ev) {
     var t = ev.target;
     if (t.dataset.just) { R(t.dataset.just).justificativa = t.value; save(); }
@@ -726,7 +768,12 @@
 
   app.addEventListener("change", function (ev) {
     var t = ev.target;
-    if (t.dataset.opt) {
+    if (t.dataset.pub !== undefined) {
+      var lp = S.contexto.publicos, ip = lp.indexOf(t.dataset.pub);
+      if (t.checked && ip < 0) lp.push(t.dataset.pub);
+      if (!t.checked && ip >= 0) lp.splice(ip, 1);
+      save();
+    } else if (t.dataset.opt) {
       var r = R(t.dataset.opt), l = r.opcoes || (r.opcoes = []), i = l.indexOf(t.dataset.val);
       if (t.checked && i < 0) l.push(t.dataset.val);
       if (!t.checked && i >= 0) l.splice(i, 1);
@@ -745,14 +792,14 @@
 
   function exemplo() {
     var s = blank(); s.exemplo = true; s.modo = "revisar";
-    s.contexto = { titulo: "Exemplo: monitoramento do uso da terra para apoio ao planejamento municipal", tipo: "Sistema de monitoramento", escala: "Regional", duracao: "36", transformacao: "3 - Método/ferramenta", parceiros: "Universidade estadual; consórcio intermunicipal" };
+    s.contexto = { titulo: "Exemplo: monitoramento do uso da terra para apoio ao planejamento municipal", tipo: "Sistema de monitoramento", escala: "Regional", duracao: "36", transformacao: "3 - Método/ferramenta", publicos: ["Gestores públicos municipais", "Técnicos de assistência técnica e extensão rural", "Agricultores familiares"], parceiros: ["Universidade Estadual de Campinas (Unicamp)", "Consórcio intermunicipal da região"] };
     s.respostas = {
       PD1: { texto: "Municípios da região não dispõem de informação atualizada sobre o uso da terra para elaborar planos diretores rurais." },
       PD2: { opcoes: ["Demanda formal de usuários, parceiros ou gestores", "Programação ou agenda estratégica da instituição"] },
       PD3: { nota: 3, justificativa: "Oficinas com técnicos de dois consórcios municipais em 2025." },
       PD4: { opcoes: ["Interações diretas: reuniões, oficinas, visitas, unidades de referência", "Interações indiretas: publicações técnicas, plataformas, bases de dados, mídias"] },
       CA1: { opcoes: ["Base de dados ou mapa", "Software, aplicativo ou plataforma", "Capacitação ou formação"] },
-      CA2: { opcoes: ["Gestores públicos", "Técnicos de assistência técnica e extensão rural"] },
+      CA2: { opcoes: ["Gestores públicos municipais", "Técnicos de assistência técnica e extensão rural"] },
       CA3: { nota: 4, justificativa: "Secretarias de agricultura de 12 municípios dos dois consórcios." },
       CA4: { texto: "Os técnicos municipais passarão a consultar o painel para delimitar zonas rurais nos planos diretores." },
       CA5: { nota: 3, justificativa: "Painel e capacitação previstos; responsáveis ainda não definidos." },

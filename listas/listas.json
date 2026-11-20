@@ -1,0 +1,689 @@
+{
+  "versao": "2026-11-20",
+  "observacao": "Elaboração inicial. Itens com situacao 'revisar' aguardam conferência.",
+  "organizacoes": [
+    {
+      "nome": "Embrapa (Sede)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Acre",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agricultura Digital",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agrobiologia",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agroenergia",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agroindústria de Alimentos",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agroindústria Tropical",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agropecuária Oeste",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Agrossilvipastoril",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Algodão",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Alimentos e Territórios",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Amapá",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Amazônia Ocidental",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Amazônia Oriental",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Arroz e Feijão",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Café",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Caprinos e Ovinos",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Cerrados",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Clima Temperado",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Cocais",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Florestas",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Gado de Corte",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Gado de Leite",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Hortaliças",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Instrumentação",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Mandioca e Fruticultura",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Meio Ambiente",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Meio-Norte",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Milho e Sorgo",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Pantanal",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Pecuária Sudeste",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Pecuária Sul",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Pesca e Aquicultura",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Recursos Genéticos e Biotecnologia",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Rondônia",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Roraima",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Semiárido",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Soja",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Solos",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Suínos e Aves",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Tabuleiros Costeiros",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Territorial",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Trigo",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Embrapa Uva e Vinho",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Agronômico (IAC)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Biológico (IB)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto de Economia Agrícola (IEA)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto de Zootecnia (IZ)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto de Tecnologia de Alimentos (Ital)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto de Desenvolvimento Rural do Paraná (IDR-Paraná)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa e extensão estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa de Pesquisa Agropecuária e Extensão Rural de Santa Catarina (Epagri)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa e extensão estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa de Pesquisa Agropecuária de Minas Gerais (Epamig)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa de Pesquisa Agropecuária do Estado do Rio de Janeiro (Pesagro-Rio)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Capixaba de Pesquisa, Assistência Técnica e Extensão Rural (Incaper)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa e extensão estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Departamento de Diagnóstico e Pesquisa Agropecuária (DDPA/Seapi-RS)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Agronômico de Pernambuco (IPA)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa de Pesquisa Agropecuária do Rio Grande do Norte (Emparn)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa Mato-Grossense de Pesquisa, Assistência e Extensão Rural (Empaer)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa e extensão estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Agência Goiana de Assistência Técnica, Extensão Rural e Pesquisa Agropecuária (Emater-GO)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa e extensão estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa Estadual de Pesquisa Agropecuária da Paraíba (Empaer-PB)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa agropecuária estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Empresa de Desenvolvimento Agropecuário de Sergipe (Emdagro)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa e extensão estadual",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Agência Nacional de Assistência Técnica e Extensão Rural (Anater)",
+      "pais": "Brasil",
+      "tipo": "Extensão rural",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Ministério da Agricultura e Pecuária (Mapa)",
+      "pais": "Brasil",
+      "tipo": "Governo",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Ministério do Desenvolvimento Agrário e Agricultura Familiar (MDA)",
+      "pais": "Brasil",
+      "tipo": "Governo",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Companhia Nacional de Abastecimento (Conab)",
+      "pais": "Brasil",
+      "tipo": "Governo",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Nacional de Colonização e Reforma Agrária (Incra)",
+      "pais": "Brasil",
+      "tipo": "Governo",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Nacional de Pesquisas Espaciais (Inpe)",
+      "pais": "Brasil",
+      "tipo": "Pesquisa",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Brasileiro de Geografia e Estatística (IBGE)",
+      "pais": "Brasil",
+      "tipo": "Governo",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Escola Superior de Agricultura Luiz de Queiroz (Esalq/USP)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Estadual de Campinas (Unicamp)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Federal de Viçosa (UFV)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Federal de Lavras (Ufla)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Federal Rural de Pernambuco (UFRPE)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Federal Rural do Rio de Janeiro (UFRRJ)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Federal Rural da Amazônia (Ufra)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Federal do Rio Grande do Sul (UFRGS)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade de Brasília (UnB)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Universidade Estadual Paulista (Unesp)",
+      "pais": "Brasil",
+      "tipo": "Universidade",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Nacional de Tecnología Agropecuaria (INTA)",
+      "pais": "Argentina",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Nacional de Investigación Agropecuaria (INIA)",
+      "pais": "Uruguai",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto de Investigaciones Agropecuarias (INIA)",
+      "pais": "Chile",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Nacional de Innovación Agraria (INIA)",
+      "pais": "Peru",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Corporación Colombiana de Investigación Agropecuaria (Agrosavia)",
+      "pais": "Colômbia",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Nacional de Investigaciones Agropecuarias (Iniap)",
+      "pais": "Equador",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Paraguayo de Tecnología Agraria (IPTA)",
+      "pais": "Paraguai",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Cirad",
+      "pais": "França",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "INRAE",
+      "pais": "França",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Teagasc",
+      "pais": "Irlanda",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "AgResearch",
+      "pais": "Nova Zelândia",
+      "tipo": "Pesquisa agropecuária pública",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Wageningen University & Research",
+      "pais": "Países Baixos",
+      "tipo": "Universidade e pesquisa",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "CSIRO",
+      "pais": "Austrália",
+      "tipo": "Pesquisa",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Alliance of Bioversity International and CIAT",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "CIMMYT",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Centro Internacional de la Papa (CIP)",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "ICARDA",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "ICRISAT",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "IFPRI",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "IITA",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "ILRI",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "IRRI",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "IWMI",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "CIFOR-ICRAF",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "WorldFish",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "AfricaRice",
+      "pais": "Internacional",
+      "tipo": "CGIAR",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "FAO",
+      "pais": "Internacional",
+      "tipo": "Organismo internacional",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Instituto Interamericano de Cooperação para a Agricultura (IICA)",
+      "pais": "Internacional",
+      "tipo": "Organismo internacional",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Procisur",
+      "pais": "Internacional",
+      "tipo": "Cooperação regional",
+      "situacao": "revisar"
+    },
+    {
+      "nome": "Fontagro",
+      "pais": "Internacional",
+      "tipo": "Cooperação regional",
+      "situacao": "revisar"
+    }
+  ],
+  "publicos": [
+    "Agricultores familiares",
+    "Médios e grandes produtores rurais",
+    "Povos indígenas e comunidades tradicionais",
+    "Assentados da reforma agrária",
+    "Cooperativas e associações de produtores",
+    "Técnicos de assistência técnica e extensão rural",
+    "Gestores públicos municipais",
+    "Gestores públicos estaduais",
+    "Gestores públicos federais",
+    "Formuladores de políticas e legisladores",
+    "Órgãos de regulação e fiscalização",
+    "Agentes financeiros e de crédito rural",
+    "Empresas de insumos, máquinas e serviços",
+    "Agroindústrias e empresas de processamento",
+    "Startups e empresas de tecnologia",
+    "Organizações da sociedade civil",
+    "Pesquisadores e instituições de pesquisa",
+    "Universidades, professores e estudantes",
+    "Consumidores",
+    "Mídia e público em geral",
+    "Organismos internacionais e de cooperação"
+  ],
+  "produtos": [
+    "Tecnologia, produto ou processo",
+    "Cultivar ou material genético",
+    "Software, aplicativo ou plataforma",
+    "Base de dados ou mapa",
+    "Sistema de monitoramento",
+    "Método ou metodologia",
+    "Prática ou sistema de produção",
+    "Publicação técnica ou científica",
+    "Recomendação para políticas ou gestão",
+    "Capacitação ou formação"
+  ]
+}
