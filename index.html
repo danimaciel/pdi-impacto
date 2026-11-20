@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PD&amp;I Impacto</title>
+<meta name="description" content="Ferramentas e referenciais para uma pesquisa agropecuária orientada ao impacto, com base em pesquisa e inovação responsável e em avaliação responsável da pesquisa.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: coluna de leitura com faixa de abertura, ciclo em quatro tempos e cartões das ferramentas. */
+:root {
+  --bg: #f4f7f5; --surface: #ffffff; --fg: #14211c; --muted: #586a63; --line: #d6e0db;
+  --accent: #1c6a58; --accent-fg: #ffffff; --accent-soft: #e1efe9; --earth: #8a5300;
+  --font-display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1412; --surface: #161f1c; --fg: #e3ebe7; --muted: #98a9a2; --line: #2a3632;
+    --accent: #5dbfa3; --accent-fg: #08201a; --accent-soft: #1a2f28; --earth: #e3a64c; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1412; --surface: #161f1c; --fg: #e3ebe7; --muted: #98a9a2; --line: #2a3632;
+  --accent: #5dbfa3; --accent-fg: #08201a; --accent-soft: #1a2f28; --earth: #e3a64c; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wrap { max-width: 920px; margin: 0 auto; padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+
+.hero { background: var(--surface); border-bottom: 1px solid var(--line); }
+.hero .wrap { padding-block: 56px 48px; display: grid; gap: 18px; }
+.hero h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em; }
+.hero h1 span { color: var(--accent); }
+.hero .lead { font-size: 1.2rem; max-width: 62ch; }
+.hero .meta { color: var(--muted); font-size: 0.95rem; }
+
+main .wrap { padding-block: 44px 56px; display: grid; gap: 52px; }
+section { display: grid; gap: 18px; }
+section > h2 { font-size: 1.5rem; }
+.prose { max-width: 66ch; display: grid; gap: 12px; }
+
+.cycle { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; counter-reset: c; }
+.cycle li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 6px; align-content: start; counter-increment: c; min-width: 0; }
+.cycle li::before { content: counter(c); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 6px; justify-self: start; }
+.cycle h3 { font-size: 1rem; }
+.cycle p { font-size: 0.93rem; color: var(--muted); }
+.cycle .tool { font-weight: 700; color: var(--fg); }
+
+.tools { display: grid; gap: 16px; }
+.tool-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 12px; min-width: 0; }
+.tool-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; }
+.tool-card h3 { font-size: 1.35rem; }
+.status { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 10px; border-radius: 999px; border: 1px solid currentColor; }
+.status.dev { color: var(--earth); }
+.status.ok { color: var(--accent); }
+.status.soon { color: var(--muted); }
+.tool-card ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; color: var(--muted); font-size: 0.95rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font-weight: 600; text-decoration: none; }
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+
+.refs { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.refs li { padding-left: 14px; border-left: 3px solid var(--line); font-size: 0.97rem; }
+.refs .year { font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); margin-right: 6px; }
+.principles { display: flex; flex-wrap: wrap; gap: 8px; }
+.principles span { background: var(--accent-soft); color: var(--fg); border-radius: 999px; padding: 4px 12px; font-size: 0.92rem; }
+
+footer { border-top: 1px solid var(--line); }
+footer .wrap { padding-block: 24px 32px; color: var(--muted); font-size: 0.9rem; display: grid; gap: 6px; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow">Pesquisa e avaliação responsáveis</p>
+    <h1>PD&amp;I <span>Impacto</span></h1>
+    <p class="lead">Ferramentas e referenciais para uma pesquisa agropecuária orientada ao impacto, fundamentados nos princípios de pesquisa e inovação responsável e de avaliação responsável da pesquisa.</p>
+    <p class="meta">Ferramentas abertas e gratuitas, que funcionam no navegador. As respostas ficam no dispositivo de quem usa.</p>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <section aria-labelledby="proposito">
+      <h2 id="proposito">Propósito</h2>
+      <div class="prose">
+        <p>A pesquisa pública agropecuária é cada vez mais chamada a demonstrar sua contribuição para a sociedade. Demonstrar impacto depois que ele ocorre, porém, não basta: a orientação ao impacto precisa estar presente desde a concepção da pesquisa, acompanhar a transferência dos resultados e se completar com o uso das avaliações para aprender e decidir.</p>
+        <p>Este espaço reúne ferramentas para apoiar pesquisadores, equipes e gestores de PD&amp;I nesses diferentes momentos. Em todas, a finalidade é formativa: apoiar a reflexão e a decisão, e não classificar pessoas ou propostas.</p>
+      </div>
+      <div class="principles" aria-label="Princípios">
+        <span>Antecipação</span><span>Reflexividade</span><span>Inclusão</span><span>Responsividade</span><span>Transparência</span><span>Julgamento qualitativo apoiado por indicadores</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="ciclo">
+      <h2 id="ciclo">Um ciclo orientado ao impacto</h2>
+      <ol class="cycle">
+        <li><h3>Concepção</h3><p>A proposta é pensada em função do impacto, antes da submissão.</p><p class="tool">TerImpact</p></li>
+        <li><h3>Percurso</h3><p>A trajetória vira ações para que os resultados cheguem aos usuários e sejam usados.</p><p class="tool">Plano de TT orientado ao impacto</p></li>
+        <li><h3>Avaliação</h3><p>Os impactos são verificados com os usuários, pelas dimensões econômica, social, ambiental e institucional.</p><p class="tool">Avaliação ex post</p></li>
+        <li><h3>Uso da avaliação</h3><p>A organização examina como usa os resultados das avaliações para aprender e decidir.</p><p class="tool">AgroRadarEval</p></li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="ferramentas">
+      <h2 id="ferramentas">Ferramentas</h2>
+      <div class="tools">
+
+        <article class="tool-card">
+          <div class="tool-head"><h3>TerImpact</h3><span class="status dev">Em desenvolvimento</span></div>
+          <p>Apoia quem está concebendo ou revisando uma proposta de pesquisa a pensá-la em função do impacto. Examina o problema e a demanda, as mudanças pretendidas em seis dimensões, o caminho para o impacto, a responsabilidade e a viabilidade.</p>
+          <ul>
+            <li>Modo Conceber, com perguntas abertas, e modo Revisar, com escalas e devolutiva.</li>
+            <li>Ao final, gera um esboço do projeto orientado ao impacto, em Word ou texto.</li>
+            <li>Dimensões compatíveis com a metodologia de referência de avaliação de impactos da Embrapa.</li>
+          </ul>
+          <div class="actions">
+            <a class="btn primary" href="terimpact/v2/">Abrir o TerImpact</a>
+            <a class="btn" href="terimpact/">Versão 1</a>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-head"><h3>AgroRadarEval</h3><span class="status ok">Publicado</span></div>
+          <p>Diagnóstico do processo de avaliação em organizações de PD&amp;I agropecuária, com foco no uso dos resultados das avaliações para gerar impacto. Organiza-se em três pilares (desenvolvimento de capacidades avaliativas, cultura de avaliação orientada ao impacto e reflexividade) e oito dimensões.</p>
+          <div class="actions">
+            <a class="btn primary" href="https://khi7yy-daniela-maciel0pinto.shinyapps.io/agroradareval_en/">Abrir o AgroRadarEval</a>
+            <a class="btn" href="https://github.com/danimaciel/agroradareval">Dados e código</a>
+            <a class="btn" href="https://doi.org/10.4067/S0718-27242024000400089">Artigo</a>
+          </div>
+        </article>
+
+        <article class="tool-card">
+          <div class="tool-head"><h3>Plano de TT orientado ao impacto</h3><span class="status soon">Em preparação</span></div>
+          <p>Converte a trajetória de impacto de um projeto aprovado em ações de transferência de tecnologia, com responsáveis, indicadores de alcance e de uso e preparação para a avaliação ex post.</p>
+        </article>
+
+      </div>
+    </section>
+
+    <section aria-labelledby="referenciais">
+      <h2 id="referenciais">Referenciais</h2>
+      <p class="prose">As ferramentas se apoiam nos estudos abaixo, sobre o uso dos resultados da avaliação de impacto na pesquisa agrícola.</p>
+      <ul class="refs">
+        <li><span class="year">2026</span>PINTO, D. M. <em>Uso de resultados da avaliação: evidências para uma pesquisa agrícola orientada ao impacto</em>. Tese (Doutorado). Instituto de Geociências, Universidade Estadual de Campinas, 2026.</li>
+        <li><span class="year">2026</span>PINTO, D. M.; BIN, A. Use of evaluation results in S&amp;T and R&amp;D: what does literature tell us? <em>Meta: Avaliação</em>, v. 18, n. 58, 2026. <a href="https://doi.org/10.22347/2175-2753v18i58.5082">doi:10.22347/2175-2753v18i58.5082</a></li>
+        <li><span class="year">2025</span>PINTO, D. M.; BIN, A. Enhancing the use of impact evaluation results: a multi-case study in agricultural research organizations. <em>Revista de Economia e Sociologia Rural</em>, v. 63, e290629, 2025. <a href="https://doi.org/10.1590/1806-9479.2025.290629">doi:10.1590/1806-9479.2025.290629</a></li>
+        <li><span class="year">2024</span>PINTO, D. M. et al. Data-driven R&amp;D&amp;I management for societal impacts: introduction and application of AgroRadarEval. <em>Journal of Technology Management &amp; Innovation</em>, v. 19, n. 4, p. 89-112, 2024. <a href="https://doi.org/10.4067/S0718-27242024000400089">doi:10.4067/S0718-27242024000400089</a></li>
+        <li><span class="year">2024</span>PINTO, D. M.; BIN, A. Impact of agricultural policies: outstanding themes, thematic trends, and methodologies according to systematic review and NLP analysis. <em>Cadernos de Ciência &amp; Tecnologia</em>, v. 41, e27610, 2024. <a href="https://doi.org/10.35977/0104-1096.cct2024.v41.27610">doi:10.35977/0104-1096.cct2024.v41.27610</a></li>
+      </ul>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Desenvolvido por Daniela Maciel Pinto, Embrapa Territorial.</p>
+    <p>Código aberto em <a href="https://github.com/danimaciel/pdi-impacto">github.com/danimaciel/pdi-impacto</a>.</p>
+  </div>
+</footer>
+</body>
+</html>
