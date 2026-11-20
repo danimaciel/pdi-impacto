@@ -165,7 +165,7 @@
       "<li>O resultado consolidado é discutido pela equipe, com atenção às afirmações divergentes e aos pontos a melhorar, para definir ações.</li>" +
       "</ol></div>" +
       '<details><summary>Perfil recomendado de quem responde</summary><div><p class="small">A escolha de quem responde cabe à organização. Recomenda-se envolver pessoas com as características abaixo. Quando várias pessoas da mesma organização respondem, os resultados podem ser consolidados na tela de resultado.</p><div class="table-wrap"><table><tbody>' + perfil + "</tbody></table></div></div></details>" +
-      '<div class="note">As respostas ficam armazenadas apenas neste navegador. Nenhuma informação é enviada a servidores.</div>' +
+      '<div class="note">O preenchimento leva cerca de 15 a 20 minutos, em média 2 minutos por dimensão. As respostas ficam salvas neste navegador e podem ser retomadas a qualquer momento. Nenhuma informação é enviada a servidores.</div>' +
       '<div class="actions">' + (tem ? '<button class="btn primary" data-go="1">Continuar diagnóstico</button><button class="btn" data-act="pedir-novo">Novo diagnóstico</button>'
         : '<button class="btn primary" data-act="comecar">Iniciar diagnóstico</button>') +
       '<button class="btn" data-act="exemplo">Ver exemplo preenchido</button></div><div id="confirm-slot"></div>' +
@@ -186,21 +186,28 @@
       "</div>" + nav();
   }
 
+  var MOSTRAR_EN = false;
+  var CURTO = ["Discordo totalmente", "Discordo", "Neutro", "Concordo", "Concordo totalmente"];
   function afirmHtml(a) {
     var v = S.respostas[a.codigo];
     var btns = ESC.map(function (r, i) {
       var n = i + 1;
-      return '<button class="score" data-code="' + a.codigo + '" data-v="' + n + '" aria-pressed="' + (v === n) + '" aria-label="' + n + ", " + esc(r) + '"><b>' + n + "</b><small>" + esc(r) + "</small></button>";
-    }).join("") + '<button class="score ns" data-code="' + a.codigo + '" data-v="0" aria-pressed="' + (v === 0) + '"><b>' + esc(INST.escala.nao_sei) + "</b></button>";
-    return '<div class="item" id="item-' + a.codigo + '"><div class="item-head"><span class="code">' + a.codigo + '</span><p class="q">' + esc(a.texto) + "</p></div>" +
-      '<div class="scores six" role="group" aria-label="Resposta para ' + a.codigo + '">' + btns + "</div>" +
-      '<div class="anchor" id="anc-' + a.codigo + '">' + (v ? esc(ESC[v - 1]) : v === 0 ? esc(INST.escala.nao_sei) : "") + "</div>" +
-      '<details><summary class="small">Texto original em inglês</summary><div><p class="small muted">' + esc(a.texto_en) + "</p></div></details></div>";
+      return '<button class="lk" data-code="' + a.codigo + '" data-v="' + n + '" aria-pressed="' + (v === n) + '" aria-label="' + n + ", " + esc(r) + '" title="' + esc(r) + '">' + n + "</button>";
+    }).join("") + '<button class="lk ns" data-code="' + a.codigo + '" data-v="0" aria-pressed="' + (v === 0) + '" aria-label="' + esc(INST.escala.nao_sei) + '" title="' + esc(INST.escala.nao_sei) + '">NS</button>';
+    return '<div class="lk-item' + (v !== undefined ? " feito" : "") + '" id="item-' + a.codigo + '"><p class="lk-q"><span class="code">' + a.codigo + "</span> " + esc(a.texto) +
+      (MOSTRAR_EN ? '<span class="lk-en">' + esc(a.texto_en) + "</span>" : "") + "</p>" +
+      '<div class="lk-row" role="group" aria-label="Resposta para ' + a.codigo + '">' + btns + '</div><span class="lk-sel" id="anc-' + a.codigo + '">' + (v ? esc(ESC[v - 1]) : v === 0 ? esc(INST.escala.nao_sei) : "") + "</span></div>";
   }
+  function feitasDim(d) { return d.afirmacoes.filter(function (a) { return S.respostas[a.codigo] !== undefined; }).length; }
 
   function viewDim(d, n) {
-    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">' + esc(PIL[d.pilar].nome) + " · dimensão " + (n - 1) + " de " + DIMS.length + "</p><h2>" + esc(d.nome) + "</h2><p>" + esc(d.descricao) + '</p><p class="small muted">Princípios de RRI e RRA associados: ' + esc(d.principios.join(", ")) + ".</p></div>" +
-      '<div class="stack">' + d.afirmacoes.map(afirmHtml).join("") + "</div>" +
+    var legenda = CURTO.map(function (r, i) { return "<span><b>" + (i + 1) + "</b> " + esc(r) + "</span>"; }).join("") + "<span><b>NS</b> " + esc(INST.escala.nao_sei) + "</span>";
+    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">' + esc(PIL[d.pilar].nome) + " · dimensão " + (n - 1) + " de " + DIMS.length + "</p><h2>" + esc(d.nome) + "</h2>" +
+      '<details><summary class="small">Sobre esta dimensão</summary><div><p>' + esc(d.descricao) + '</p><p class="small muted">Princípios de RRI e RRA associados: ' + esc(d.principios.join(", ")) + ".</p></div></details>" +
+      '<p class="small muted">Indique o grau de concordância com cada afirmação, considerando a prática atual da organização. Ao responder, a página avança para a próxima afirmação.</p></div>' +
+      '<div class="lk-legenda" aria-hidden="true">' + legenda + "</div>" +
+      '<div class="lk-meta"><span id="dim-prog">' + feitasDim(d) + " de " + d.afirmacoes.length + ' respondidas</span><button class="btn link" data-act="en">' + (MOSTRAR_EN ? "Ocultar texto original em inglês" : "Mostrar texto original em inglês") + "</button></div>" +
+      '<div class="lk-lista">' + d.afirmacoes.map(afirmHtml).join("") + "</div>" +
       '<div class="field"><label for="obs-' + d.id + '">Observações sobre esta dimensão</label><textarea id="obs-' + d.id + '" data-obs="' + d.id + '" placeholder="Registre exemplos, práticas existentes ou dificuldades que ajudem a interpretar as respostas.">' + esc(S.comentarios[d.id] || "") + "</textarea></div>" +
       "</div>" + nav();
   }
@@ -438,11 +445,24 @@
       if (S.respostas[c] === v) delete S.respostas[c]; else S.respostas[c] = v;
       save();
       var it = document.getElementById("item-" + c), cur = S.respostas[c];
-      it.querySelectorAll(".score").forEach(function (b) { b.setAttribute("aria-pressed", String(cur !== undefined && parseInt(b.dataset.v, 10) === cur)); });
+      it.querySelectorAll(".lk").forEach(function (b) { b.setAttribute("aria-pressed", String(cur !== undefined && parseInt(b.dataset.v, 10) === cur)); });
+      it.classList.toggle("feito", cur !== undefined);
       document.getElementById("anc-" + c).textContent = cur ? ESC[cur - 1] : cur === 0 ? INST.escala.nao_sei : "";
-      refreshStatus(); return;
+      var dd = STEPS[step].dim; if (dd) { var pg = document.getElementById("dim-prog"); if (pg) pg.textContent = feitasDim(dd) + " de " + dd.afirmacoes.length + " respondidas"; }
+      refreshStatus();
+      if (cur !== undefined) {
+        var prox = it.nextElementSibling;
+        while (prox && prox.classList.contains("feito")) prox = prox.nextElementSibling;
+        var reduz = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        setTimeout(function () {
+          if (prox) prox.scrollIntoView({ behavior: reduz ? "auto" : "smooth", block: "center" });
+          else { var nv = document.querySelector(".nav"); if (nv) nv.scrollIntoView({ behavior: reduz ? "auto" : "smooth", block: "center" }); }
+        }, 180);
+      }
+      return;
     }
     switch (t.dataset.act) {
+      case "en": MOSTRAR_EN = !MOSTRAR_EN; var ye = window.scrollY; render(); window.scrollTo(0, ye); break;
       case "comecar": S = blank(); save(); go(1); break;
       case "exemplo": S = exemplo(); CONS = null; VISTA = "minha"; go(STEPS.length - 1); break;
       case "novo-real": S = load() || blank(); if (S.exemplo) S = blank(); CONS = null; VISTA = "minha"; go(1); break;

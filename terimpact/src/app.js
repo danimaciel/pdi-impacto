@@ -244,11 +244,24 @@
       '<p class="footer">Instrumento versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " As dimensões do mapa de impactos correspondem à metodologia de referência de avaliação de impactos da Embrapa.</p></div>";
   }
 
-  var ddAberto = false;
-  function chipsPublicos() {
-    var l = S.contexto.publicos;
-    if (!l.length) return '<span class="small muted">Nenhum público selecionado.</span>';
-    return l.map(function (p, i) { return '<span class="tag-chip">' + esc(p) + ' <button data-rm-pub="' + i + '" aria-label="Remover ' + esc(p) + '">×</button></span>'; }).join("");
+  var DD = { publicos: false, parceiros: false };
+  function chipsDe(campo) {
+    var l = S.contexto[campo];
+    if (!l.length) return '<span class="small muted">Nenhum item selecionado.</span>';
+    return l.map(function (p, i) { return '<span class="tag-chip">' + esc(p) + ' <button data-rm="' + campo + '" data-i="' + i + '" aria-label="Remover ' + esc(p) + '">×</button></span>'; }).join("");
+  }
+  function multiSelect(campo, alvo, cfg) {
+    var sel = S.contexto[campo], aberto = DD[campo];
+    var nomes = cfg.base.map(function (x) { return x.v; });
+    var todos = cfg.base.concat(sel.filter(function (x) { return nomes.indexOf(x) < 0; }).map(function (x) { return { v: x, extra: "incluído por você" }; }));
+    return '<div class="field"><span class="small"><strong>' + esc(cfg.titulo) + '</strong></span><span class="hint">' + esc(cfg.ajuda) + "</span>" +
+      '<div class="chips-list" id="chips-' + campo + '">' + chipsDe(campo) + "</div>" +
+      '<div class="dropdown"><button class="btn dd-toggle" data-dd="' + campo + '" aria-expanded="' + aberto + '" aria-controls="dd-' + campo + '">' + esc(aberto ? cfg.fechar : cfg.abrir) + "</button>" +
+      '<div class="dd-panel" id="dd-' + campo + '"' + (aberto ? "" : " hidden") + '><input type="search" id="busca-' + campo + '" data-busca="' + campo + '" placeholder="Buscar na lista" aria-label="Buscar">' +
+      '<div class="opts dd-list">' + todos.map(function (x, i) {
+        return '<label data-rotulo="' + esc((x.v + " " + (x.extra || "")).toLowerCase()) + '"><input type="checkbox" id="' + campo + "-" + i + '" data-sel="' + campo + '" data-val="' + esc(x.v) + '"' + (sel.indexOf(x.v) >= 0 ? " checked" : "") + "> <span>" + esc(x.v) + (x.extra ? ' <span class="small muted">' + esc(x.extra) + "</span>" : "") + "</span></label>";
+      }).join("") + "</div>" + incluirOutroHtml(alvo, cfg.incluir) +
+      '<div class="actions"><button class="btn primary" data-dd="' + campo + '">Concluir seleção</button></div></div></div></div>';
   }
   function viewProposta() {
     var c = S.contexto, L = INST.contexto;
@@ -261,18 +274,8 @@
       '<div class="field"><label for="f-duracao">Duração prevista (meses)</label><input type="number" min="1" max="120" id="f-duracao" data-ctx="duracao" value="' + esc(c.duracao) + '"></div>' +
       '<div class="field"><label for="f-transf">Nível de transformação esperado</label><select id="f-transf" data-ctx="transformacao">' + opts(L.nivel_transformacao, c.transformacao) + "</select></div>" +
       "</div>" +
-      '<div class="field"><span class="small"><strong>Públicos da proposta</strong></span><span class="hint">Abra a lista e selecione quantos grupos quiser. Se algum não estiver na lista, inclua-o.</span>' +
-      '<div class="chips-list" id="pub-chips">' + chipsPublicos() + "</div>" +
-      '<div class="dropdown"><button class="btn dd-toggle" data-dd="publicos" aria-expanded="' + ddAberto + '" aria-controls="dd-publicos">' + (ddAberto ? "Fechar lista de públicos" : "Selecionar públicos") + "</button>" +
-      '<div class="dd-panel" id="dd-publicos"' + (ddAberto ? "" : " hidden") + '><input type="search" id="dd-busca" placeholder="Buscar na lista" aria-label="Buscar públicos"><div class="opts dd-list">' +
-      LISTAS.publicos.concat(c.publicos.filter(function (x) { return LISTAS.publicos.indexOf(x) < 0; })).map(function (u, i) {
-        return '<label data-rotulo="' + esc(u.toLowerCase()) + '"><input type="checkbox" id="pub-' + i + '" data-pub="' + esc(u) + '"' + (c.publicos.indexOf(u) >= 0 ? " checked" : "") + "> <span>" + esc(u) + "</span></label>";
-      }).join("") + "</div>" + incluirOutroHtml("publico", "Incluir outro público") +
-      '<div class="actions"><button class="btn primary" data-dd="publicos">Concluir seleção</button></div></div></div></div>' +
-      '<div class="field"><span class="small"><strong>Parceiros principais</strong></span><span class="hint">Digite para buscar na lista de organizações. Se a organização não estiver na lista, digite o nome completo e inclua.</span>' +
-      '<div class="chips-list">' + c.parceiros.map(function (p, i) { return '<span class="tag-chip">' + esc(p) + ' <button data-rm-parc="' + i + '" aria-label="Remover ' + esc(p) + '">×</button></span>'; }).join("") + "</div>" +
-      incluirOutroHtml("parceiro", "Nome da organização parceira", "lista-orgs") +
-      '<datalist id="lista-orgs">' + ORGS.map(function (o) { return '<option value="' + esc(o) + '">'; }).join("") + "</datalist></div>" +
+      multiSelect("publicos", "publico", { titulo: "Públicos da proposta", ajuda: "Abra a lista e selecione quantos grupos quiser. Se algum não estiver na lista, inclua-o.", abrir: "Selecionar públicos", fechar: "Fechar lista de públicos", incluir: "Incluir outro público", base: LISTAS.publicos.map(function (x) { return { v: x }; }) }) +
+      multiSelect("parceiros", "parceiro", { titulo: "Parceiros principais", ajuda: "Abra a lista, busque pelo nome ou pela sigla e selecione quantas organizações quiser. Se alguma não estiver na lista, inclua-a.", abrir: "Selecionar parceiros", fechar: "Fechar lista de parceiros", incluir: "Incluir outra organização", base: LISTAS.organizacoes.map(function (o) { return { v: o.nome, extra: o.pais }; }) }) +
       "</div>" + nav();
   }
 
@@ -690,15 +693,15 @@
     if (t.dataset.add) {
       var alvo = t.dataset.add, campo = document.getElementById("add-" + alvo), novo = (campo.value || "").trim();
       if (!novo) { campo.focus(); return; }
-      if (alvo === "publico") { if (S.contexto.publicos.indexOf(novo) < 0) S.contexto.publicos.push(novo); ddAberto = true; }
-      else if (alvo === "parceiro") { if (S.contexto.parceiros.indexOf(novo) < 0) S.contexto.parceiros.push(novo); }
+      if (alvo === "publico") { if (S.contexto.publicos.indexOf(novo) < 0) S.contexto.publicos.push(novo); DD.publicos = true; }
+      else if (alvo === "parceiro") { if (S.contexto.parceiros.indexOf(novo) < 0) S.contexto.parceiros.push(novo); DD.parceiros = true; }
       else { var ra = R(alvo); ra.opcoes = ra.opcoes || []; if (ra.opcoes.indexOf(novo) < 0) ra.opcoes.push(novo); }
       save(); var y = window.scrollY; render(); window.scrollTo(0, y);
       var c2 = document.getElementById("add-" + alvo); if (c2) c2.focus();
       return;
     }
-    if (t.dataset.dd) { ddAberto = !ddAberto; var yd = window.scrollY; render(); window.scrollTo(0, yd); if (ddAberto) { var bz = document.getElementById("dd-busca"); if (bz) bz.focus(); } return; }
-    if (t.dataset.rmPub !== undefined) { S.contexto.publicos.splice(parseInt(t.dataset.rmPub, 10), 1); save(); var yp = window.scrollY; render(); window.scrollTo(0, yp); return; }
+    if (t.dataset.dd) { var k = t.dataset.dd; DD[k] = !DD[k]; var yd = window.scrollY; render(); window.scrollTo(0, yd); if (DD[k]) { var bz = document.getElementById("busca-" + k); if (bz) bz.focus(); } return; }
+    if (t.dataset.rm) { S.contexto[t.dataset.rm].splice(parseInt(t.dataset.i, 10), 1); save(); var yp = window.scrollY; render(); window.scrollTo(0, yp); return; }
     if (t.dataset.rmParc !== undefined) {
       S.contexto.parceiros.splice(parseInt(t.dataset.rmParc, 10), 1); save(); var y2 = window.scrollY; render(); window.scrollTo(0, y2); return;
     }
@@ -772,9 +775,9 @@
 
   app.addEventListener("input", function (ev) {
     var t = ev.target;
-    if (t.id === "dd-busca") {
+    if (t.dataset.busca) {
       var q = t.value.trim().toLowerCase();
-      document.querySelectorAll(".dd-list label").forEach(function (l) { l.hidden = q && l.dataset.rotulo.indexOf(q) < 0; });
+      document.querySelectorAll("#dd-" + t.dataset.busca + " .dd-list label").forEach(function (l) { l.hidden = q && l.dataset.rotulo.indexOf(q) < 0; });
       return;
     }
     if (t.dataset.just) { R(t.dataset.just).justificativa = t.value; save(); }
@@ -785,12 +788,12 @@
 
   app.addEventListener("change", function (ev) {
     var t = ev.target;
-    if (t.dataset.pub !== undefined) {
-      var lp = S.contexto.publicos, ip = lp.indexOf(t.dataset.pub);
-      if (t.checked && ip < 0) lp.push(t.dataset.pub);
-      if (!t.checked && ip >= 0) lp.splice(ip, 1);
+    if (t.dataset.sel) {
+      var lc = S.contexto[t.dataset.sel], iv = lc.indexOf(t.dataset.val);
+      if (t.checked && iv < 0) lc.push(t.dataset.val);
+      if (!t.checked && iv >= 0) lc.splice(iv, 1);
       save();
-      var pc = document.getElementById("pub-chips"); if (pc) pc.innerHTML = chipsPublicos();
+      var ch = document.getElementById("chips-" + t.dataset.sel); if (ch) ch.innerHTML = chipsDe(t.dataset.sel);
     } else if (t.dataset.opt) {
       var r = R(t.dataset.opt), l = r.opcoes || (r.opcoes = []), i = l.indexOf(t.dataset.val);
       if (t.checked && i < 0) l.push(t.dataset.val);
