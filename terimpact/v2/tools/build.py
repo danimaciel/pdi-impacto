@@ -24,6 +24,7 @@ head = (
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500'
     '&family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">\n'
     f"<style>\n{css}\n</style>\n"
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>\n'
 )
 body = (
     '<div id="app"></div>\n'

@@ -25,7 +25,7 @@
   function blank() {
     return {
       instrumento: INST.instrumento, versao: INST.versao,
-      criado: new Date().toISOString(), atualizado: null, exemplo: false,
+      criado: new Date().toISOString(), atualizado: null, exemplo: false, modo: "conceber",
       contexto: { titulo: "", tipo: "", escala: "", duracao: "", transformacao: "", parceiros: "" },
       respostas: {}, mapa: {}
     };
@@ -61,7 +61,7 @@
   function respondido(it) {
     var r = S.respostas[it.codigo];
     if (!r) return false;
-    if (it.tipo === "escala") return !!r.nota || !!r.na;
+    if (it.tipo === "escala") return S.modo === "conceber" ? (!!(r.justificativa || "").trim() || !!r.na) : (!!r.nota || !!r.na);
     if (it.tipo === "texto") return !!(r.texto || "").trim();
     if (it.tipo === "multipla") return (r.opcoes || []).length > 0;
     return false;
@@ -83,7 +83,7 @@
   }
 
   function opcoes(code) { var r = S.respostas[code]; return r && r.opcoes ? r.opcoes : []; }
-  function nota(code) { var r = S.respostas[code]; return r && r.nota && !r.na ? r.nota : null; }
+  function nota(code) { if (S.modo === "conceber") return null; var r = S.respostas[code]; return r && r.nota && !r.na ? r.nota : null; }
   function texto(code) { var r = S.respostas[code]; return r && r.texto ? r.texto.trim() : ""; }
 
   function resumoMapa() {
@@ -108,7 +108,7 @@
     var usuarios = opcoes("CA2");
     function temUsuario(l) { return usuarios.some(function (u) { return l.indexOf(u) >= 0; }); }
     function dimMarcada(id) { return mk.some(function (c) { return MUD[c].dim === id; }); }
-    var mCam = blocoMedia(BLOCOS.filter(function (b) { return b.id === "caminho"; })[0]);
+    var mCam = S.modo === "conceber" ? null : blocoMedia(BLOCOS.filter(function (b) { return b.id === "caminho"; })[0]);
 
     var p = progresso();
     if (p.resp < p.total) A.push({ n: "info", t: "Preenchimento", x: (p.total - p.resp) + " de " + p.total + " perguntas ainda não foram respondidas. A devolutiva considera apenas as respostas registradas." });
@@ -184,7 +184,7 @@
       return '<button class="chip" data-go="' + idx + '"' + (idx === step ? ' aria-current="step"' : "") + ">" + esc(s.nome) + "</button>";
     }).join("");
     return '<header class="top"><div class="wrap">' +
-      '<div class="top-row"><div class="brand">Ter<span>Impact</span> <span class="draft">versão 2 · rascunho</span></div>' +
+      '<div class="top-row"><div class="brand">Ter<span>Impact</span> <span class="draft">' + (S.modo === "conceber" ? "Conceber" : "Revisar") + " · rascunho v2</span></div>" +
       '<div class="status" id="status">' + statusTxt() + "</div></div>" +
       '<div class="bar" aria-hidden="true"><i id="barfill" style="width:' + pct + '%"></i></div>' +
       (step > 0 ? '<nav class="chips" aria-label="Etapas">' + chips + "</nav>" : "") +
@@ -218,9 +218,13 @@
       "</ul></div>" +
       '<p class="muted small">No mapa de impactos, marque apenas as mudanças que a proposta pretende de fato gerar. Nenhuma proposta precisa ter impacto em todas as dimensões.</p>' +
       '<div class="note">As respostas ficam armazenadas apenas neste navegador. Nenhuma informação é enviada a servidores.</div>' +
-      '<div class="actions">' +
-      (tem ? '<button class="btn primary" data-go="1">Continuar avaliação</button><button class="btn" data-act="pedir-novo">Nova avaliação</button>'
-        : '<button class="btn primary" data-act="comecar">Iniciar avaliação</button>') +
+      '<div class="stack"><h3>Como você quer usar?</h3>' +
+      '<div class="lists">' +
+      '<div class="panel"><h3>Conceber uma proposta</h3><p class="small">' + esc(INST.modos.conceber) + '</p><div class="actions"><button class="btn primary" data-act="modo-conceber">' + (tem && S.modo === "conceber" ? "Continuar" : "Começar") + "</button></div></div>" +
+      '<div class="panel"><h3>Revisar uma proposta</h3><p class="small">' + esc(INST.modos.revisar) + '</p><div class="actions"><button class="btn primary" data-act="modo-revisar">' + (tem && S.modo === "revisar" ? "Continuar" : "Começar") + "</button></div></div>" +
+      "</div>" +
+      '<p class="small muted">As respostas são as mesmas nos dois modos: é possível começar concebendo e depois revisar.</p></div>' +
+      '<div class="actions">' + (tem ? '<button class="btn" data-act="pedir-novo">Nova avaliação</button>' : "") +
       '<button class="btn" data-act="exemplo">Ver exemplo preenchido</button></div><div id="confirm-slot"></div>' +
       '<p class="footer">Instrumento versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " As dimensões do mapa de impactos correspondem à metodologia de referência de avaliação de impactos da Embrapa.</p></div>";
   }
@@ -250,6 +254,12 @@
       corpo = '<div class="opts">' + it.opcoes.map(function (o, i) {
         return '<label><input type="checkbox" id="o-' + it.codigo + "-" + i + '" data-opt="' + it.codigo + '" data-val="' + esc(o) + '"' + ((r.opcoes || []).indexOf(o) >= 0 ? " checked" : "") + "> <span>" + esc(o) + "</span></label>";
       }).join("") + "</div>";
+    } else if (S.modo === "conceber") {
+      return '<div class="item" id="item-' + it.codigo + '"><div class="item-head"><span class="code">' + it.codigo + '</span><p class="q">' + esc(it.pergunta_concepcao || it.pergunta) + "</p></div>" +
+        '<textarea id="j-' + it.codigo + '" data-just="' + it.codigo + '" aria-label="' + esc(it.pergunta_concepcao || it.pergunta) + '" placeholder="Escreva livremente. Em branco, vira ponto a desenvolver.">' + esc(r.justificativa || "") + "</textarea>" +
+        '<div class="anchor" id="anc-' + it.codigo + '" hidden></div>' +
+        (it.permite_na ? '<button class="na-btn" data-na="' + it.codigo + '" aria-pressed="' + !!r.na + '">Não se aplica a esta proposta</button>' : "") +
+        (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
     } else {
       corpo = '<div class="scores" role="group" aria-label="Resposta para ' + it.codigo + '">' + it.ancoras.map(function (a, i) {
         var v = i + 1;
@@ -326,62 +336,288 @@
     return '<svg class="radar" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Perfil da proposta por bloco">' + rings + axes + '<polygon class="shape" points="' + pts.join(" ") + '"/>' + dots + labels + "</svg>";
   }
 
+  /* ---------- Esboço do projeto ---------- */
+
+  function hoje() { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(); }
+
+  function val(code) {
+    var it = ITENS[code], r = S.respostas[code] || {};
+    if (it.tipo === "texto") return (r.texto || "").trim() || null;
+    if (it.tipo === "multipla") return (r.opcoes || []).length ? r.opcoes.join("; ") + "." : null;
+    if (r.na) return "Não se aplica a esta proposta.";
+    var partes = [];
+    if (S.modo === "revisar" && r.nota) partes.push(it.ancoras[r.nota - 1] + ".");
+    if ((r.justificativa || "").trim()) partes.push(r.justificativa.trim());
+    return partes.length ? partes.join(" ") : null;
+  }
+
+  function esboco() {
+    var c = S.contexto, pend = [], secoes = [];
+    function campo(rotulo, code, falta) {
+      var v = val(code);
+      if (!v) pend.push(falta);
+      return { p: [{ t: rotulo + ": ", b: true }, v ? { t: v } : { t: "a desenvolver.", pend: true }] };
+    }
+    var carac = [["Tipo de projeto", c.tipo], ["Escala territorial", c.escala], ["Duração prevista", c.duracao ? c.duracao + " meses" : ""], ["Nível de transformação esperado", c.transformacao], ["Parceiros principais", c.parceiros]]
+      .filter(function (x) { return x[1]; }).map(function (x) { return { li: [{ t: x[0] + ": ", b: true }, { t: x[1] }] }; });
+    if (carac.length) secoes.push({ h: "Caracterização", blocos: carac });
+
+    secoes.push({ h: "1. Problema e justificativa", blocos: [
+      campo("Problema", "PD1", "Descrever o problema e para quem ele é relevante (PD1)"),
+      campo("Origem do problema", "PD2", "Indicar como o problema foi identificado (PD2)"),
+      campo("Participação dos usuários na definição do problema", "PD3", "Descrever a participação dos usuários na definição do problema (PD3)")
+    ] });
+
+    secoes.push({ h: "2. Usuários e beneficiários", blocos: [
+      campo("Usuários dos resultados", "CA2", "Indicar quem usará os resultados (CA2)"),
+      campo("Identificação dos usuários", "CA3", "Identificar os usuários de forma específica (CA3)"),
+      campo("Beneficiários e possíveis excluídos", "RE3", "Indicar quem se beneficia e quem pode ficar de fora (RE3)")
+    ] });
+
+    var mud = [];
+    resumoMapa().forEach(function (x) {
+      if (!x.n) return;
+      mud.push({ sub: x.dim.nome });
+      x.mudancas.forEach(function (m) {
+        var r = S.mapa[m.codigo], det = [];
+        var nv = MAPA.campos.nivel.opcoes.filter(function (o) { return o.valor === r.nivel; })[0];
+        if (nv) det.push("nível: " + nv.rotulo.toLowerCase()); else pend.push("Indicar o nível da mudança " + m.codigo);
+        if (r.alcance) det.push("alcance: " + r.alcance.toLowerCase());
+        if (r.horizonte) det.push("horizonte: " + r.horizonte.toLowerCase());
+        var runs = [{ t: m.rotulo + ". ", b: true }];
+        if (det.length) runs.push({ t: det.join("; ").replace(/^./, function (s) { return s.toUpperCase(); }) + ". " });
+        if ((r.justificativa || "").trim()) runs.push({ t: r.justificativa.trim() });
+        else { runs.push({ t: "Base da expectativa a desenvolver.", pend: true }); pend.push("Registrar o que sustenta a expectativa da mudança " + m.codigo); }
+        mud.push({ li: runs });
+      });
+    });
+    if (!mud.length) { mud.push({ p: [{ t: "Nenhuma mudança pretendida foi indicada.", pend: true }] }); pend.push("Indicar as mudanças pretendidas no mapa de impactos"); }
+    secoes.push({ h: "3. Mudanças pretendidas", blocos: mud });
+
+    secoes.push({ h: "4. Caminho para o impacto", blocos: [
+      campo("Principais produtos", "CA1", "Indicar os principais produtos (CA1)"),
+      campo("O que os usuários farão de diferente", "CA4", "Descrever o que os usuários passarão a saber, fazer ou decidir (CA4)"),
+      campo("Estratégia para que os resultados cheguem aos usuários", "CA5", "Definir a estratégia de uso dos resultados (CA5)"),
+      campo("Pressupostos externos ao projeto", "CA6", "Identificar os pressupostos externos ao projeto (CA6)"),
+      campo("Evidências que sustentam os pressupostos", "CA7", "Indicar as evidências que sustentam os pressupostos (CA7)"),
+      campo("Resultados e avaliações anteriores", "CA8", "Indicar resultados ou avaliações anteriores que orientam a proposta (CA8)"),
+      campo("Parcerias para chegar aos usuários", "CA9", "Descrever as parcerias necessárias (CA9)"),
+      campo("Capacidade de implementação e difusão", "CA10", "Descrever a capacidade de implementação (CA10)")
+    ] });
+
+    secoes.push({ h: "5. Interação com usuários e parceiros", blocos: [campo("Interações previstas durante o projeto", "PD4", "Indicar as interações previstas com usuários e parceiros (PD4)")] });
+
+    secoes.push({ h: "6. Riscos, efeitos indesejados e limites", blocos: [
+      campo("Efeitos indesejados e medidas", "RE1", "Identificar possíveis efeitos indesejados (RE1)"),
+      campo("Conflitos entre dimensões", "RE2", "Examinar possíveis conflitos entre dimensões (RE2)"),
+      campo("Pressupostos, incertezas e limites", "RE4", "Explicitar pressupostos, incertezas e limites (RE4)"),
+      campo("Revisão do rumo do projeto", "RE5", "Prever momentos de revisão do rumo do projeto (RE5)"),
+      campo("Aspectos éticos e proteção de dados", "RE6", "Examinar aspectos éticos e de proteção de dados (RE6)")
+    ] });
+
+    secoes.push({ h: "7. Qualidade e viabilidade", blocos: [
+      campo("Originalidade", "QV1", "Explicitar a originalidade da proposta (QV1)"),
+      campo("Abordagem teórico-metodológica", "QV2", "Descrever a abordagem teórico-metodológica (QV2)"),
+      campo("Integração de conhecimentos", "QV3", "Indicar as áreas de conhecimento e os saberes a integrar (QV3)"),
+      campo("Proporcionalidade entre ambição e recursos", "QV4", "Examinar a compatibilidade entre ambição, recursos e prazo (QV4)")
+    ] });
+
+    var al = alertas().filter(function (a) { return a.n !== "info"; });
+    var falta = pend.map(function (x) { return { li: [{ t: x }] }; }).concat(al.map(function (a) { return { li: [{ t: a.t + ": ", b: true }, { t: a.x }] }; }));
+    secoes.push({ h: "8. Pontos a desenvolver", blocos: falta.length ? falta : [{ p: [{ t: "Nenhum ponto pendente identificado." }] }] });
+
+    return {
+      titulo: c.titulo || "Proposta sem título",
+      subtitulo: "Esboço do projeto orientado ao impacto. Gerado pelo TerImpact (versão " + INST.versao + ", modo " + (S.modo === "conceber" ? "Conceber" : "Revisar") + ") em " + hoje() + ".",
+      secoes: secoes, pendentes: pend.length
+    };
+  }
+
+  function runsHtml(runs) {
+    return runs.map(function (r) {
+      var t = esc(r.t);
+      if (r.pend) return '<em class="tag-warn">' + t + "</em>";
+      return r.b ? "<strong>" + t + "</strong>" : t;
+    }).join("");
+  }
+
+  function esbocoHtml(E) {
+    var h = '<div class="esboco"><h2>' + esc(E.titulo) + '</h2><p class="small muted">' + esc(E.subtitulo) + "</p>";
+    E.secoes.forEach(function (s) {
+      h += "<h3>" + esc(s.h) + "</h3>";
+      var lista = false;
+      s.blocos.forEach(function (b) {
+        if (b.li) { if (!lista) { h += "<ul>"; lista = true; } h += "<li>" + runsHtml(b.li) + "</li>"; return; }
+        if (lista) { h += "</ul>"; lista = false; }
+        if (b.sub) h += "<h4>" + esc(b.sub) + "</h4>";
+        else h += "<p>" + runsHtml(b.p) + "</p>";
+      });
+      if (lista) h += "</ul>";
+    });
+    return h + "</div>";
+  }
+
+  function esbocoTexto(E) {
+    var L = [E.titulo, E.subtitulo, ""];
+    E.secoes.forEach(function (s) {
+      L.push(s.h.toUpperCase());
+      s.blocos.forEach(function (b) {
+        if (b.sub) L.push(b.sub);
+        else if (b.li) L.push("- " + b.li.map(function (r) { return r.t; }).join(""));
+        else L.push(b.p.map(function (r) { return r.t; }).join(""));
+      });
+      L.push("");
+    });
+    return L.join("\n");
+  }
+
+  function xml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function wRuns(runs) {
+    return runs.map(function (r) {
+      var pr = (r.b ? "<w:b/>" : "") + (r.pend ? '<w:i/><w:color w:val="8A5300"/>' : "");
+      return "<w:r>" + (pr ? "<w:rPr>" + pr + "</w:rPr>" : "") + '<w:t xml:space="preserve">' + xml(r.t) + "</w:t></w:r>";
+    }).join("");
+  }
+  function wP(style, inner, ind) {
+    var ppr = (style ? '<w:pStyle w:val="' + style + '"/>' : "") + (ind ? '<w:ind w:left="360" w:hanging="240"/>' : "");
+    return "<w:p>" + (ppr ? "<w:pPr>" + ppr + "</w:pPr>" : "") + inner + "</w:p>";
+  }
+
+  function docxBlob(E) {
+    var body = wP("Title", wRuns([{ t: E.titulo }])) + wP("Subtitle", wRuns([{ t: E.subtitulo }]));
+    E.secoes.forEach(function (s) {
+      body += wP("Heading1", wRuns([{ t: s.h }]));
+      s.blocos.forEach(function (b) {
+        if (b.sub) body += wP("Heading2", wRuns([{ t: b.sub }]));
+        else if (b.li) body += wP(null, wRuns([{ t: "• " }].concat(b.li)), true);
+        else body += wP(null, wRuns(b.p));
+      });
+    });
+    var W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+    var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ' + W + "><w:body>" + body +
+      '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+    function st(id, name, rpr, ppr) { return '<w:style w:type="paragraph" w:styleId="' + id + '"><w:name w:val="' + name + '"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/>' + (ppr ? "<w:pPr>" + ppr + "</w:pPr>" : "") + "<w:rPr>" + rpr + "</w:rPr></w:style>"; }
+    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles ' + W + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults>' +
+      '<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>' +
+      st("Title", "Title", '<w:b/><w:sz w:val="36"/><w:color w:val="1C6A58"/>', '<w:spacing w:after="120"/>') +
+      st("Subtitle", "Subtitle", '<w:i/><w:sz w:val="20"/><w:color w:val="586A63"/>', '<w:spacing w:after="240"/>') +
+      st("Heading1", "heading 1", '<w:b/><w:sz w:val="28"/><w:color w:val="1C6A58"/>', '<w:keepNext/><w:spacing w:before="360" w:after="120"/><w:outlineLvl w:val="0"/>') +
+      st("Heading2", "heading 2", '<w:b/><w:sz w:val="24"/>', '<w:keepNext/><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="1"/>') +
+      "</w:styles>";
+    var z = new JSZip();
+    z.file("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>');
+    z.file("_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    z.file("word/_rels/document.xml.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+    z.file("word/document.xml", doc);
+    z.file("word/styles.xml", styles);
+    return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+  }
+
+  /* ---------- Salvar arquivos ---------- */
+
+  var DL = null;
+  try {
+    if (window.claude && typeof window.claude.use === "function") {
+      window.claude.use("downloads").then(function (ns) { DL = ns; if (STEPS[step].id === "resultado") render(); }, function () {});
+    }
+  } catch (e) {}
+  function podeBaixar() { return !!DL || !framed; }
+  function nomeArquivo(ext) {
+    var base = (S.contexto.titulo || "proposta").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
+    return "terimpact-" + (base || "proposta") + "." + ext;
+  }
+  function salvar(filename, data) {
+    if (DL) {
+      return DL.save({ filename: filename, data: data }).then(function () { msg("Arquivo salvo.", true); }, function (e) {
+        if (e && e.code === "declined") return;
+        msg("Não foi possível salvar o arquivo neste ambiente. Use a opção de copiar.");
+      });
+    }
+    var blob = data instanceof Blob ? data : new Blob([data], { type: "application/octet-stream" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    return Promise.resolve();
+  }
+
+  /* ---------- Devolutiva ---------- */
+
   function viewResultado() {
     var c = S.contexto;
+    var conceber = S.modo === "conceber";
     var A = alertas();
     var RM = resumoMapa();
+    var E = esboco();
     var nivelNome = ["–"].concat(MAPA.campos.nivel.opcoes.map(function (o) { return o.rotulo; }));
-    var eixos = ITEM_BLOCOS.map(function (b) { return { nome: b.nome, valor: blocoMedia(b) }; });
     var mk = marcadas();
     var dimsCom = RM.filter(function (x) { return x.n > 0; }).length;
+    var p = progresso();
 
     var linhas = RM.map(function (x) {
       return "<tr><td>" + esc(x.dim.nome) + '</td><td class="num">' + (x.n || "–") + "</td><td>" + (x.n ? esc(nivelNome[x.nivel]) : '<span class="muted">fora do escopo</span>') +
         "</td><td>" + (x.alcance >= 0 ? esc(MAPA.campos.alcance.opcoes[x.alcance]) : "–") + "</td><td>" + (x.horizonte >= 0 ? esc(MAPA.campos.horizonte.opcoes[x.horizonte]) : "–") + "</td></tr>";
     }).join("");
 
-    var destaques = [], fracos = [];
-    ITEM_BLOCOS.forEach(function (b) {
-      b.itens.forEach(function (it) {
-        var v = nota(it.codigo); if (!v) return;
-        var li = '<li><span class="code">' + it.codigo + "</span> " + esc(it.ancoras[v - 1]) + ' <span class="muted">(' + esc(b.nome) + ")</span></li>";
-        if (v >= 4) destaques.push(li);
-        if (v <= 2) fracos.push(li);
-      });
-    });
-
     var alertHtml = A.length ? '<ul class="alerts">' + A.map(function (a) {
       return '<li class="' + a.n + '"><span class="tag">' + esc(a.t) + "</span>" + esc(a.x) + "</li>";
     }).join("") + "</ul>" : '<p class="muted">Nenhum alerta para as respostas registradas.</p>';
 
-    var guias = ITEM_BLOCOS.filter(function (b) { var m = blocoMedia(b); return m !== null && m < 3; })
-      .map(function (b) { return "<li><strong>" + esc(b.nome) + ".</strong> " + esc(b.pergunta_guia) + "</li>"; }).join("");
+    var acoesEsboco = '<div class="actions no-print">' +
+      (podeBaixar() ? '<button class="btn primary" data-act="baixar-docx">Baixar esboço (Word)</button>' : "") +
+      '<button class="btn" data-act="copiar-esboco">Copiar texto do esboço</button>' +
+      (!framed ? '<button class="btn" data-act="imprimir">Imprimir ou salvar em PDF</button>' : "") + "</div>";
+
+    var cards = '<div class="cards">' +
+      '<div class="card"><span class="eyebrow">Mudanças pretendidas</span><span class="v">' + mk.length + '</span><span class="small muted">em ' + dimsCom + " de 6 dimensões</span></div>";
+    if (conceber) {
+      cards += '<div class="card"><span class="eyebrow">Perguntas respondidas</span><span class="v">' + p.resp + " <small>de " + p.total + '</small></span><span class="small muted">Perguntas em branco viram pontos a desenvolver</span></div>' +
+        '<div class="card"><span class="eyebrow">Pontos a desenvolver</span><span class="v">' + E.pendentes + '</span><span class="small muted">Listados ao final do esboço</span></div>';
+    } else {
+      cards += ITEM_BLOCOS.filter(function (b) { return b.id !== "problema"; }).map(function (b) {
+        return '<div class="card"><span class="eyebrow">' + esc(b.nome) + '</span><span class="v">' + fmt(blocoMedia(b)) + ' <small>de 5</small></span><span class="small muted">Média das perguntas com escala</span></div>';
+      }).join("");
+    }
+    cards += "</div>";
+
+    var avaliacao = "";
+    if (!conceber) {
+      var eixos = ITEM_BLOCOS.map(function (b) { return { nome: b.nome, valor: blocoMedia(b) }; });
+      var destaques = [], fracos = [];
+      ITEM_BLOCOS.forEach(function (b) {
+        b.itens.forEach(function (it) {
+          var v = nota(it.codigo); if (!v) return;
+          var li = '<li><span class="code">' + it.codigo + "</span> " + esc(it.ancoras[v - 1]) + ' <span class="muted">(' + esc(b.nome) + ")</span></li>";
+          if (v >= 4) destaques.push(li);
+          if (v <= 2) fracos.push(li);
+        });
+      });
+      var guias = ITEM_BLOCOS.filter(function (b) { var m = blocoMedia(b); return m !== null && m < 3; })
+        .map(function (b) { return "<li><strong>" + esc(b.nome) + ".</strong> " + esc(b.pergunta_guia) + "</li>"; }).join("");
+      avaliacao = '<div class="panel"><h3>Perfil da proposta</h3><p class="small muted">Cada eixo mostra a média das respostas do bloco. O perfil indica onde a proposta está mais e menos amadurecida, e não constitui uma nota.</p>' + radar(eixos) + "</div>" +
+        '<div class="panel"><h3>Destaques e pontos a fortalecer</h3><div class="lists">' +
+        '<div class="stack"><h3 class="tag-ok">Destaques</h3>' + (destaques.length ? "<ul>" + destaques.join("") + "</ul>" : '<p class="muted small">Nenhuma resposta 4 ou 5.</p>') + "</div>" +
+        '<div class="stack"><h3 class="tag-warn">Pontos a fortalecer</h3>' + (fracos.length ? "<ul>" + fracos.join("") + "</ul>" : '<p class="muted small">Nenhuma resposta 1 ou 2.</p>') + "</div></div>" +
+        (guias ? '<div class="stack"><h3>Questões para a revisão da proposta</h3><ul>' + guias + "</ul></div>" : "") + "</div>";
+    }
 
     var exportar = '<div class="panel no-print"><h3>Guardar e retomar</h3>' +
-      '<p class="small muted">As respostas estão salvas neste navegador. Para usar em outro dispositivo, copie as respostas e importe-as no outro aparelho.</p>' +
+      '<p class="small muted">As respostas estão salvas neste navegador. Para continuar em outro dispositivo, copie ou baixe as respostas e importe-as no outro aparelho.</p>' +
       '<div class="actions"><button class="btn" data-act="copiar">Copiar respostas</button>' +
-      (framed ? "" : '<button class="btn" data-act="baixar">Baixar arquivo</button><button class="btn" data-act="imprimir">Imprimir ou salvar em PDF</button>') + "</div>" +
+      (podeBaixar() ? '<button class="btn" data-act="baixar">Baixar respostas (.json)</button>' : "") + "</div>" +
       '<details><summary>Importar respostas</summary><div><label class="small" for="imp-file">Arquivo de respostas (.json)</label><input type="file" id="imp-file" accept=".json,application/json">' +
       '<label class="small" for="imp-txt">Ou cole o conteúdo copiado</label><textarea id="imp-txt"></textarea><div class="actions"><button class="btn" data-act="importar">Carregar respostas</button></div></div></details>' +
-      '<div id="msg" class="msg" role="status"></div><textarea id="copia" hidden readonly></textarea>' +
-      '<div class="actions"><button class="btn danger" data-act="pedir-novo">Nova avaliação</button></div><div id="confirm-slot"></div></div>';
+      '<textarea id="copia" hidden readonly></textarea>' +
+      '<div class="actions"><button class="btn" data-act="' + (conceber ? "modo-revisar-aqui" : "modo-conceber-aqui") + '">' + (conceber ? "Passar para o modo Revisar" : "Passar para o modo Conceber") + '</button><button class="btn danger" data-act="pedir-novo">Nova avaliação</button></div><div id="confirm-slot"></div></div>';
 
     return exampleBanner() + '<div class="stack-lg">' +
-      '<div class="stack"><p class="eyebrow">Devolutiva</p><h2>' + esc(c.titulo || "Proposta sem título") + "</h2>" +
+      '<div class="stack"><p class="eyebrow">' + (conceber ? "Esboço do projeto" : "Devolutiva e esboço") + "</p><h2>" + esc(c.titulo || "Proposta sem título") + "</h2>" +
       '<p class="muted small">' + [c.tipo, c.escala, c.duracao ? c.duracao + " meses" : ""].filter(Boolean).map(esc).join(" · ") + "</p></div>" +
-      '<div class="cards">' +
-      '<div class="card"><span class="eyebrow">Mudanças pretendidas</span><span class="v">' + mk.length + '</span><span class="small muted">em ' + dimsCom + " de 6 dimensões</span></div>" +
-      ITEM_BLOCOS.filter(function (b) { return b.id !== "problema"; }).map(function (b) {
-        return '<div class="card"><span class="eyebrow">' + esc(b.nome) + '</span><span class="v">' + fmt(blocoMedia(b)) + ' <small>de 5</small></span><span class="small muted">Média das perguntas com escala</span></div>';
-      }).join("") + "</div>" +
+      cards +
       '<div class="panel"><h3>Alertas</h3>' + alertHtml + "</div>" +
       '<div class="panel"><h3>Mapa de impactos</h3><p class="small muted">Nível mais alto, maior alcance e horizonte mais longo entre as mudanças marcadas em cada dimensão.</p>' +
       '<div class="table-wrap"><table><thead><tr><th>Dimensão</th><th class="num">Mudanças</th><th>Nível</th><th>Alcance</th><th>Horizonte</th></tr></thead><tbody>' + linhas + "</tbody></table></div></div>" +
-      '<div class="panel"><h3>Perfil da proposta</h3><p class="small muted">Cada eixo mostra a média das respostas do bloco. O perfil indica onde a proposta está mais e menos amadurecida, e não constitui uma nota.</p>' + radar(eixos) + "</div>" +
-      '<div class="panel"><h3>Destaques e pontos a fortalecer</h3><div class="lists">' +
-      '<div class="stack"><h3 class="tag-ok">Destaques</h3>' + (destaques.length ? "<ul>" + destaques.join("") + "</ul>" : '<p class="muted small">Nenhuma resposta 4 ou 5.</p>') + "</div>" +
-      '<div class="stack"><h3 class="tag-warn">Pontos a fortalecer</h3>' + (fracos.length ? "<ul>" + fracos.join("") + "</ul>" : '<p class="muted small">Nenhuma resposta 1 ou 2.</p>') + "</div></div>" +
-      (guias ? '<div class="stack"><h3>Questões para a revisão da proposta</h3><ul>' + guias + "</ul></div>" : "") + "</div>" +
+      avaliacao +
+      '<div class="panel"><h3>Esboço do projeto orientado ao impacto</h3><p class="small muted">Montado a partir das suas respostas, sem acréscimos. Trechos em itálico indicam o que ainda falta desenvolver.</p>' +
+      acoesEsboco + '<div id="msg" class="msg" role="status"></div>' + esbocoHtml(E) + "</div>" +
       exportar + "</div>" + nav();
   }
 
@@ -442,22 +678,33 @@
       return;
     }
     switch (t.dataset.act) {
-      case "comecar": S = blank(); save(); go(1); break;
+      case "modo-conceber":
+      case "modo-revisar": {
+        var modo = t.dataset.act === "modo-conceber" ? "conceber" : "revisar";
+        if (S.exemplo) S = load() || blank();
+        if (S.exemplo) S = blank();
+        S.modo = modo; save(); go(1); break;
+      }
+      case "modo-conceber-aqui": S.modo = "conceber"; save(); render(); break;
+      case "modo-revisar-aqui": S.modo = "revisar"; save(); render(); break;
       case "exemplo": S = exemplo(); go(STEPS.length - 1); break;
-      case "novo-real": S = load() || blank(); if (S.exemplo) S = blank(); go(1); break;
+      case "novo-real": { var m0 = S.modo; S = load() || blank(); if (S.exemplo) S = blank(); S.modo = m0; go(1); break; }
       case "pedir-novo": pedirNovo(); break;
       case "cancelar": document.getElementById("confirm-slot").innerHTML = ""; break;
-      case "novo": try { localStorage.removeItem(KEY); } catch (e) {} S = blank(); save(); go(1); break;
-      case "copiar": {
-        var txt = JSON.stringify(S, null, 2);
-        var fb = function () { var ta = document.getElementById("copia"); ta.hidden = false; ta.value = txt; ta.focus(); ta.select(); msg("Não foi possível copiar automaticamente. O conteúdo foi selecionado no campo acima; copie-o manualmente."); };
-        try { navigator.clipboard.writeText(txt).then(function () { msg("Respostas copiadas.", true); }, fb); } catch (e) { fb(); }
+      case "novo": { var m1 = S.modo; try { localStorage.removeItem(KEY); } catch (e) {} S = blank(); S.modo = m1; save(); go(1); break; }
+      case "copiar":
+      case "copiar-esboco": {
+        var txt = t.dataset.act === "copiar" ? JSON.stringify(S, null, 2) : esbocoTexto(esboco());
+        var okMsg = t.dataset.act === "copiar" ? "Respostas copiadas." : "Texto do esboço copiado.";
+        var fb = function () { var ta = document.getElementById("copia"); ta.hidden = false; ta.value = txt; ta.focus(); ta.select(); msg("Não foi possível copiar automaticamente. O conteúdo foi selecionado no campo ao final da página; copie-o manualmente."); };
+        try { navigator.clipboard.writeText(txt).then(function () { msg(okMsg, true); }, fb); } catch (e) { fb(); }
         break;
       }
-      case "baixar": {
-        var blob = new Blob([JSON.stringify(S, null, 2)], { type: "application/json" });
-        var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "terimpact-v2.json";
-        document.body.appendChild(a); a.click(); a.remove(); break;
+      case "baixar": salvar(nomeArquivo("json"), JSON.stringify(S, null, 2)); break;
+      case "baixar-docx": {
+        if (typeof JSZip === "undefined") { msg("Não foi possível gerar o arquivo Word neste ambiente. Use a opção de copiar o texto."); break; }
+        docxBlob(esboco()).then(function (b) { return salvar(nomeArquivo("docx"), b); }, function () { msg("Não foi possível gerar o arquivo Word. Use a opção de copiar o texto."); });
+        break;
       }
       case "imprimir": window.print(); break;
       case "importar": {
@@ -497,7 +744,7 @@
   /* ---------- Exemplo fictício ---------- */
 
   function exemplo() {
-    var s = blank(); s.exemplo = true;
+    var s = blank(); s.exemplo = true; s.modo = "revisar";
     s.contexto = { titulo: "Exemplo: monitoramento do uso da terra para apoio ao planejamento municipal", tipo: "Sistema de monitoramento", escala: "Regional", duracao: "36", transformacao: "3 - Método/ferramenta", parceiros: "Universidade estadual; consórcio intermunicipal" };
     s.respostas = {
       PD1: { texto: "Municípios da região não dispõem de informação atualizada sobre o uso da terra para elaborar planos diretores rurais." },
