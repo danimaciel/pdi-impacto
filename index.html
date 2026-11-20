@@ -41,15 +41,17 @@ a { color: var(--accent); }
 .hero .wrap { padding-block: 56px 48px; display: grid; gap: 18px; }
 .hero h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); font-weight: 800; letter-spacing: -0.02em; }
 .hero h1 span { color: var(--accent); }
-.hero .lead { font-size: 1.2rem; max-width: 62ch; }
+.hero .lead { font-size: 1.2rem; }
 .hero .meta { color: var(--muted); font-size: 0.95rem; }
 
 main .wrap { padding-block: 44px 56px; display: grid; gap: 52px; }
 section { display: grid; gap: 18px; }
 section > h2 { font-size: 1.5rem; }
-.prose { max-width: 66ch; display: grid; gap: 12px; }
+.prose { display: grid; gap: 12px; }
 
-.cycle { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; counter-reset: c; }
+.cycle { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; counter-reset: c; }
+@media (max-width: 760px) { .cycle { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .cycle { grid-template-columns: 1fr; } }
 .cycle li { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 6px; align-content: start; counter-increment: c; min-width: 0; }
 .cycle li::before { content: counter(c); font-family: var(--font-mono); font-size: 0.85rem; color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 0 6px; justify-self: start; }
 .cycle h3 { font-size: 1rem; }
