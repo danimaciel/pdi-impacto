@@ -13,7 +13,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 css = (RAIZ / "src" / "app.css").read_text(encoding="utf-8")
 js = (RAIZ / "src" / "app.js").read_text(encoding="utf-8")
-inst = json.loads((RAIZ / "instrumento" / "terimpact_v1.json").read_text(encoding="utf-8"))
+inst = json.loads((RAIZ / "instrumento" / "terimpact_v2.json").read_text(encoding="utf-8"))
 inst_txt = json.dumps(inst, ensure_ascii=False).replace("</", "<\\/")
 
 head = (
@@ -24,6 +24,7 @@ head = (
     '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500'
     '&family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">\n'
     f"<style>\n{css}\n</style>\n"
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>\n'
 )
 body = (
     '<div id="app"></div>\n'
@@ -43,5 +44,5 @@ print("index.html gerado")
 if len(sys.argv) > 1:
     destino = Path(sys.argv[1])
     destino.mkdir(parents=True, exist_ok=True)
-    (destino / "terimpact.html").write_text(head + body, encoding="utf-8")
-    print(f"{destino / 'terimpact.html'} gerado")
+    (destino / "terimpact-v2.html").write_text(head + body, encoding="utf-8")
+    print(f"{destino / 'terimpact-v2.html'} gerado")
