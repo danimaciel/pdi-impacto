@@ -3,6 +3,7 @@
 
   var INST = JSON.parse(document.getElementById("instrumento").textContent);
   var DIMS = INST.dimensoes;
+  var PIL = {}; INST.pilares.forEach(function (p) { PIL[p.id] = p; });
   var LISTAS = JSON.parse(document.getElementById("listas").textContent);
   var ESC = INST.escala.rotulos;
   var REF = INST.referencia.percentual;
@@ -140,15 +141,18 @@
 
   function viewInicio() {
     var tem = !S.exemplo && contagem(S.respostas) > 0;
-    var pil = INST.pilares.map(function (p) { return "<li><strong>" + esc(p.nome) + ".</strong> " + esc(p.descricao) + "</li>"; }).join("");
-    var dims = DIMS.map(function (d, i) { return "<li><b>" + (i + 1) + "</b><span>" + esc(d.nome) + ' <span class="muted">(' + d.afirmacoes.length + " afirmações)</span></span></li>"; }).join("");
+    var estrutura = INST.pilares.map(function (p) {
+      var ds = DIMS.filter(function (d) { return d.pilar === p.id; });
+      return '<div class="pilar"><h3>' + esc(p.nome) + '</h3><p class="small">' + esc(p.descricao) + '</p><ul class="pilar-dims">' + ds.map(function (d) {
+        return "<li><strong>" + esc(d.nome) + '</strong> <span class="muted">(' + d.afirmacoes.length + " afirmações)</span><br><span class=\"small muted\">Princípios de RRI e RRA: " + esc(d.principios.join(", ")) + "</span></li>";
+      }).join("") + "</ul></div>";
+    }).join("");
     var perfil = INST.perfil_respondente.map(function (p) { return "<tr><td><strong>" + esc(p[0]) + "</strong></td><td>" + esc(p[1]) + "</td></tr>"; }).join("");
     return '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Diagnóstico organizacional</p><h1>AgroRadarEval</h1>' +
       '<p class="lead">Diagnóstico do processo de avaliação em organizações de PD&amp;I agropecuária, com foco no uso dos resultados das avaliações para a pesquisa orientada ao impacto.</p></div>' +
       "<p>O AgroRadarEval apoia dirigentes e gestores de PD&amp;I na reflexão sobre as capacidades, a cultura, as colaborações, os processos e a comunicação que sustentam o uso dos resultados das avaliações. O instrumento foi construído a partir de revisão de literatura e está alinhado aos princípios de pesquisa e inovação responsável e de avaliação responsável da pesquisa (Pinto et al., 2024).</p>" +
-      '<div class="stack"><h3>Pilares</h3><ul class="stack" style="margin:0;padding-left:1.1em">' + pil + "</ul></div>" +
-      '<div class="stack"><h3>Dimensões</h3><ul class="scale">' + dims + "</ul></div>" +
+      '<div class="stack"><h3>Estrutura: pilares e dimensões</h3><p class="small muted">Os três pilares se desdobram em oito dimensões, operacionalizadas por 94 afirmações. Cada dimensão se associa a princípios de pesquisa e inovação responsável e de avaliação responsável da pesquisa (' + esc(INST.estrutura_fonte) + ').</p><div class="pilares">' + estrutura + "</div></div>" +
       "<p>Cada afirmação é respondida em uma escala de concordância de 1 (" + esc(ESC[0].toLowerCase()) + ") a 5 (" + esc(ESC[4].toLowerCase()) + "). A opção \"" + esc(INST.escala.nao_sei) + "\" exclui a afirmação do cálculo. O resultado de cada dimensão é expresso em percentual da pontuação máxima e comparado ao valor de referência de " + REF + "%, adotado na versão original.</p>" +
       '<div class="stack"><h3>Conceitos de base</h3>' +
       "<p>A pesquisa orientada ao impacto busca que os resultados da pesquisa contribuam para mudanças econômicas, sociais, ambientais e institucionais, e não apenas para a produção de conhecimento. A avaliação de impacto é parte desse processo, mas seu valor depende do uso que se faz de seus resultados. Na pesquisa agrícola, esse uso ainda se concentra na prestação de contas, com pouco aproveitamento para aprendizagem, alocação de recursos e formulação de políticas (Pinto, 2026).</p>" +
@@ -195,7 +199,7 @@
   }
 
   function viewDim(d, n) {
-    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">Dimensão ' + (n - 1) + " de " + DIMS.length + "</p><h2>" + esc(d.nome) + "</h2><p>" + esc(d.descricao) + "</p></div>" +
+    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">' + esc(PIL[d.pilar].nome) + " · dimensão " + (n - 1) + " de " + DIMS.length + "</p><h2>" + esc(d.nome) + "</h2><p>" + esc(d.descricao) + '</p><p class="small muted">Princípios de RRI e RRA associados: ' + esc(d.principios.join(", ")) + ".</p></div>" +
       '<div class="stack">' + d.afirmacoes.map(afirmHtml).join("") + "</div>" +
       '<div class="field"><label for="obs-' + d.id + '">Observações sobre esta dimensão</label><textarea id="obs-' + d.id + '" data-obs="' + d.id + '" placeholder="Registre exemplos, práticas existentes ou dificuldades que ajudem a interpretar as respostas.">' + esc(S.comentarios[d.id] || "") + "</textarea></div>" +
       "</div>" + nav();
@@ -258,8 +262,11 @@
     var acima = validas.filter(function (l) { return l.pct >= REF; }).length;
     var cons = VISTA === "consolidada" && CONS;
 
+    var pilarAtual = "";
     var tabela = linhas.map(function (l) {
-      return "<tr><td>" + esc(l.dim.nome) + '</td><td class="num">' + (l.pct === null ? "–" : fmt(l.pct, 0) + "%") + "</td><td>" +
+      var cab = "";
+      if (l.dim.pilar !== pilarAtual) { pilarAtual = l.dim.pilar; cab = '<tr class="grupo"><th colspan="4">' + esc(PIL[pilarAtual].nome) + "</th></tr>"; }
+      return cab + "<tr><td>" + esc(l.dim.nome) + '</td><td class="num">' + (l.pct === null ? "–" : fmt(l.pct, 0) + "%") + "</td><td>" +
         (l.pct === null ? "–" : '<span class="pill ' + (l.pct >= REF ? "acima" : "abaixo") + '">' + (l.pct >= REF ? "acima da referência" : "abaixo da referência") + "</span>") +
         '</td><td class="num">' + l.n + " de " + l.total + (l.ns ? " · " + l.ns + " sem avaliação" : "") + "</td></tr>";
     }).join("");

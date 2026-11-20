@@ -272,3 +272,10 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
 .dots { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); }
 @media (max-width: 520px) { .scores.six { grid-template-columns: repeat(5, 1fr); } .scores.six .ns { grid-column: 1 / -1; } }
+
+.pilares { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) { .pilares { grid-template-columns: 1fr; } }
+.pilar { background: var(--surface); border: 1px solid var(--line); border-top: 3px solid var(--accent); border-radius: var(--radius); padding: 14px; display: grid; gap: 8px; align-content: start; }
+.pilar h3 { font-size: 1rem; }
+.pilar-dims { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; font-size: 0.95rem; }
+tr.grupo th { color: var(--accent); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; padding-top: 14px; }
