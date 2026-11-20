@@ -270,3 +270,12 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 .dd-panel { border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 12px; display: grid; gap: 10px; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08); }
 .dd-list { max-height: 300px; overflow-y: auto; padding-right: 4px; }
 .dd-list label { padding: 4px 2px; border-bottom: 1px solid var(--line); }
+
+/* Leitura da proposta */
+.import { border-color: var(--accent); }
+.import-rev { border-top: 1px solid var(--line); padding-top: 12px; }
+.imp-op span { min-width: 0; overflow-wrap: anywhere; }
+.prefill { font-size: 0.82rem; color: var(--warn); font-weight: 600; }
+.ref-prop { background: var(--accent-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; }
+.ref-prop summary { color: var(--accent); }
+.ref-txt { white-space: pre-line; font-size: 0.92rem; max-height: 320px; overflow-y: auto; text-align: justify; hyphens: auto; }

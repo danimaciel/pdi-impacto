@@ -283,14 +283,331 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 .dd-list { max-height: 300px; overflow-y: auto; padding-right: 4px; }
 .dd-list label { padding: 4px 2px; border-bottom: 1px solid var(--line); }
 
+/* Leitura da proposta */
+.import { border-color: var(--accent); }
+.import-rev { border-top: 1px solid var(--line); padding-top: 12px; }
+.imp-op span { min-width: 0; overflow-wrap: anywhere; }
+.prefill { font-size: 0.82rem; color: var(--warn); font-weight: 600; }
+.ref-prop { background: var(--accent-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 14px; }
+.ref-prop summary { color: var(--accent); }
+.ref-txt { white-space: pre-line; font-size: 0.92rem; max-height: 320px; overflow-y: auto; text-align: justify; hyphens: auto; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 <div id="app"></div>
-<script type="application/json" id="instrumento">{"instrumento": "TerImpact - Avaliação Ex Ante", "versao": "2.2.0", "situacao": "Em desenvolvimento. Perguntas redigidas a partir da primeira rodada da matriz de referenciais, em revisão.", "contexto": {"tipos_projeto": ["Pesquisa científica", "Desenvolvimento metodológico", "Plataforma de dados", "Sistema de monitoramento", "Suporte a políticas públicas", "Outro"], "escala_territorial": ["Local", "Regional", "Nacional", "Internacional"], "nivel_transformacao": ["1 - Geração de conhecimento", "2 - Melhoria incremental", "3 - Método/ferramenta", "4 - Mudança de prática/processo", "5 - Transformação sistêmica"]}, "blocos": [{"id": "problema", "nome": "Problema e demanda", "tipo": "itens", "descricao": "Para que a pesquisa gere impacto, o problema que ela enfrenta precisa ser relevante para quem vai usar os resultados. Este bloco examina a origem do problema e a participação dos usuários.", "pergunta_guia": "O problema foi definido com quem vive o problema, ou apenas a partir da agenda da equipe de pesquisa?", "itens": [{"codigo": "PD1", "tipo": "texto", "pergunta": "Descreva em poucas linhas o problema que a proposta pretende enfrentar e para quem ele é relevante.", "fundamento": "Belcher et al. (2016), relevância"}, {"codigo": "PD2", "tipo": "multipla", "pergunta": "Como o problema foi identificado?", "opcoes": ["Demanda formal de usuários, parceiros ou gestores", "Diagnóstico, estudo ou avaliação anterior", "Programação ou agenda estratégica da instituição", "Chamada ou edital de financiamento", "Iniciativa da equipe de pesquisa"], "fundamento": "Owen, Macnaghten e Stilgoe (2012); Spaapen e van Drooge (2011)", "permite_outro": true}, {"codigo": "PD3", "tipo": "escala", "pergunta": "Em que medida os futuros usuários participaram da definição do problema?", "ancoras": ["Não participaram nem foram consultados", "Foram consultados de maneira informal", "Foram consultados de maneira estruturada (entrevistas, oficinas, questionários)", "Participaram da definição do problema e dos objetivos", "Definiram o problema e a proposta em conjunto com a equipe"], "fundamento": "Stilgoe, Owen e Macnaghten (2013), inclusão; Belcher et al. (2016), legitimidade", "pergunta_concepcao": "Como os futuros usuários participaram, ou vão participar, da definição do problema?"}, {"codigo": "PD4", "tipo": "multipla", "pergunta": "Que interações com usuários e parceiros estão previstas durante o projeto?", "opcoes": ["Interações diretas: reuniões, oficinas, visitas, unidades de referência", "Interações indiretas: publicações técnicas, plataformas, bases de dados, mídias", "Interações financeiras ou em espécie: contrapartidas, cofinanciamento, cessão de áreas ou equipamentos", "Nenhuma interação prevista"], "fundamento": "Spaapen e van Drooge (2011), interações produtivas"}]}, {"id": "mapa", "nome": "Mapa de impactos", "tipo": "mapa", "descricao": "Marque, em cada dimensão, apenas as mudanças que a proposta pretende de fato gerar. Para cada mudança marcada, indique o nível, o alcance e o horizonte, e registre em que se baseia essa expectativa. Dimensões sem mudanças marcadas são consideradas fora do escopo da proposta, o que é esperado: nenhuma proposta precisa gerar impacto em todas as dimensões.", "pergunta_guia": "Para cada mudança marcada: quem muda, o que muda e como a equipe saberá que a mudança ocorreu?", "fundamento": "Avila, Rodrigues e Vedovoto (2008); Reed et al. (2021); Mayne (2015)", "campos": {"nivel": {"pergunta": "Nível da mudança", "fundamento": "Mayne (2015)", "opcoes": [{"valor": 1, "rotulo": "Conhecimento ou capacidade", "descricao": "Os usuários passam a saber ou a ser capazes de algo novo"}, {"valor": 2, "rotulo": "Prática ou decisão", "descricao": "Os usuários passam a fazer ou a decidir de forma diferente"}, {"valor": 3, "rotulo": "Condição", "descricao": "Mudam condições econômicas, sociais, ambientais ou institucionais"}]}, "alcance": {"pergunta": "Alcance", "fundamento": "Reed et al. (2021)", "opcoes": ["Grupo restrito de usuários", "Local", "Regional", "Nacional", "Internacional"]}, "horizonte": {"pergunta": "Horizonte", "opcoes": ["Durante o projeto", "Até 3 anos após o término", "Mais de 3 anos após o término"]}}, "dimensoes": [{"id": "economica", "nome": "Econômica", "correspondencia": "Impactos econômicos (metodologia de referência da Embrapa)", "mudancas": [{"codigo": "EC1", "rotulo": "Aumento de produtividade ou de eficiência produtiva"}, {"codigo": "EC2", "rotulo": "Redução de custos, riscos ou perdas"}, {"codigo": "EC3", "rotulo": "Aumento de renda ou acesso a novos mercados"}, {"codigo": "EC4", "rotulo": "Agregação de valor ou melhoria da qualidade de produtos"}]}, {"id": "social", "nome": "Social", "correspondencia": "Impactos sociais (Ambitec-Social)", "mudancas": [{"codigo": "SO1", "rotulo": "Geração de emprego ou ocupação"}, {"codigo": "SO2", "rotulo": "Inclusão de grupos vulneráveis ou redução de desigualdades"}, {"codigo": "SO3", "rotulo": "Saúde, segurança alimentar ou nutricional"}, {"codigo": "SO4", "rotulo": "Capacidade de gestão e organização de produtores ou comunidades"}, {"codigo": "SO5", "rotulo": "Acesso a informação, serviços ou recursos"}]}, {"id": "ambiental", "nome": "Ambiental", "correspondencia": "Impactos ambientais (Ambitec-Agro)", "mudancas": [{"codigo": "AM1", "rotulo": "Conservação da biodiversidade ou de habitats"}, {"codigo": "AM2", "rotulo": "Uso eficiente de água, solo ou energia"}, {"codigo": "AM3", "rotulo": "Redução de poluição ou do uso de insumos"}, {"codigo": "AM4", "rotulo": "Mitigação de emissões de gases de efeito estufa"}, {"codigo": "AM5", "rotulo": "Adaptação às mudanças climáticas"}, {"codigo": "AM6", "rotulo": "Ordenamento e uso sustentável do território"}]}, {"id": "politica", "nome": "Política", "correspondencia": "Impactos político-institucionais", "mudancas": [{"codigo": "PO1", "rotulo": "Informar a formulação de políticas, programas ou planos"}, {"codigo": "PO2", "rotulo": "Apoiar decisões de gestores públicos"}, {"codigo": "PO3", "rotulo": "Subsidiar normas, regulamentos ou instrumentos de gestão"}, {"codigo": "PO4", "rotulo": "Apoiar o monitoramento ou a avaliação de políticas"}]}, {"id": "institucional", "nome": "Institucional", "correspondencia": "Impactos sobre a capacitação e político-institucionais", "mudancas": [{"codigo": "IN1", "rotulo": "Fortalecimento de capacidades da equipe ou da instituição"}, {"codigo": "IN2", "rotulo": "Fortalecimento de capacidades de parceiros"}, {"codigo": "IN3", "rotulo": "Bases de dados, métodos ou ferramentas mantidos após o projeto"}, {"codigo": "IN4", "rotulo": "Criação ou fortalecimento de redes e parcerias"}, {"codigo": "IN5", "rotulo": "Posicionamento e reconhecimento institucional"}]}, {"id": "cientifica", "nome": "Científica", "correspondencia": "Impactos sobre o conhecimento", "mudancas": [{"codigo": "CI1", "rotulo": "Novo conhecimento ou avanço teórico"}, {"codigo": "CI2", "rotulo": "Novos métodos, modelos ou protocolos"}, {"codigo": "CI3", "rotulo": "Dados e resultados abertos e reutilizáveis"}, {"codigo": "CI4", "rotulo": "Formação de pesquisadores e estudantes"}]}]}, {"id": "caminho", "nome": "Caminho para o impacto", "tipo": "itens", "descricao": "Estas perguntas não pedem uma teoria da mudança completa. O objetivo é verificar se o caminho entre os resultados da pesquisa e as mudanças marcadas no mapa de impactos foi pensado: quem usará os resultados, como eles chegarão a essas pessoas, o que precisa acontecer para que a mudança ocorra e em que evidência essa expectativa se apoia.", "pergunta_guia": "Se o projeto entregar tudo o que promete, o que ainda pode impedir que os usuários mudem o que fazem?", "itens": [{"codigo": "CA1", "tipo": "multipla", "pergunta": "Quais serão os principais produtos da proposta?", "fundamento": "Mayne (2015), produtos", "fonte": "produtos", "permite_outro": true}, {"codigo": "CA2", "tipo": "multipla", "pergunta": "Entre os públicos da proposta, quem deverá usar diretamente os resultados?", "fundamento": "Mayne (2015), alcance", "fonte": "publicos_selecionados", "permite_outro": true}, {"codigo": "CA3", "tipo": "escala", "pergunta": "Os usuários dos resultados estão identificados de forma específica?", "ancoras": ["Não estão identificados", "Estão identificados de forma genérica (por exemplo, \"produtores\")", "Estão identificados por categoria e região", "Estão identificados por categoria, região e necessidades", "Estão identificados por organização ou nominalmente, com contato estabelecido"], "fundamento": "Mayne (2015), alcance", "pergunta_concepcao": "Quem são, de forma específica, os usuários dos resultados? Indique organizações, categorias ou regiões."}, {"codigo": "CA4", "tipo": "texto", "pergunta": "O que os usuários passarão a saber, fazer ou decidir de forma diferente a partir dos resultados?", "fundamento": "Mayne (2015), mudanças de capacidade e de comportamento"}, {"codigo": "CA5", "tipo": "escala", "pergunta": "Existe uma estratégia para que os resultados cheguem aos usuários e sejam usados?", "ancoras": ["Não há estratégia", "Há intenção, sem definição de meios", "Há meios definidos (canais, produtos de comunicação), sem responsáveis", "Há meios, responsáveis e parceiros definidos", "Há estratégia definida com os usuários, com meios, responsáveis e momentos de acompanhamento"], "fundamento": "Douthwaite et al. (2003); Plano de TT orientado ao impacto", "pergunta_concepcao": "Como os resultados chegarão aos usuários e serão usados? Por quais meios e com quais responsáveis?"}, {"codigo": "CA6", "tipo": "texto", "pergunta": "O que precisa acontecer, fora do controle da equipe, para que essas mudanças ocorram?", "ajuda": "Exemplos: os usuários terem acesso a crédito, a assistência técnica estar disponível, o órgão gestor manter o programa.", "fundamento": "Mayne (2015), pressupostos"}, {"codigo": "CA7", "tipo": "escala", "pergunta": "Esses pressupostos estão sustentados por evidências?", "ancoras": ["Não foram identificados", "Foram identificados, sem evidência que os sustente", "Há indícios informais, baseados na experiência da equipe", "Há evidência de estudos ou projetos semelhantes", "Foram verificados em avaliações anteriores documentadas"], "fundamento": "Mayne (2015); Blundo-Canto et al. (2024), plausibilidade", "pergunta_concepcao": "Que evidências sustentam esses pressupostos?"}, {"codigo": "CA8", "tipo": "escala", "pergunta": "A proposta se apoia em resultados de projetos ou de avaliações de impacto anteriores?", "ancoras": ["Não", "Há referência genérica a trabalhos anteriores", "Usa resultados de projetos anteriores da equipe", "Usa resultados de avaliações de projetos ou tecnologias semelhantes", "Usa resultados de avaliações de impacto documentadas para orientar a proposta"], "fundamento": "Pinto (2026), uso de resultados de avaliação", "pergunta_concepcao": "Que resultados de projetos ou de avaliações anteriores orientam esta proposta?"}, {"codigo": "CA9", "tipo": "escala", "pergunta": "As parcerias necessárias para levar os resultados aos usuários estão estabelecidas?", "ancoras": ["Não há parcerias", "Há parceiros potenciais, sem contato", "Há contatos iniciais", "Há parcerias acordadas, com papéis definidos", "Há parcerias formalizadas, com papéis e contrapartidas definidos"], "fundamento": "Spaapen e van Drooge (2011); Alvarez et al. (2010)", "pergunta_concepcao": "Que parcerias são necessárias para levar os resultados aos usuários, e em que estágio estão?"}, {"codigo": "CA10", "tipo": "escala", "pergunta": "A equipe e a instituição têm capacidade para implementar e difundir os resultados?", "ancoras": ["Não há capacidade prevista", "A capacidade depende de recursos ainda não assegurados", "Há capacidade parcial", "Há capacidade assegurada para as principais ações", "Há capacidade assegurada e experiência anterior comprovada"], "fundamento": "Thornton et al. (2017)", "pergunta_concepcao": "Que capacidade a equipe e a instituição têm para implementar e difundir os resultados? O que falta?"}]}, {"id": "responsabilidade", "nome": "Responsabilidade", "tipo": "itens", "descricao": "Este bloco se baseia nas quatro dimensões da pesquisa e inovação responsável: antecipação, reflexividade, inclusão e responsividade. Ele examina se a proposta considera consequências indesejadas, conflitos, a distribuição dos benefícios e a possibilidade de rever o próprio rumo.", "pergunta_guia": "Quem pode perder com os resultados desta pesquisa, e o que a equipe fará a respeito?", "itens": [{"codigo": "RE1", "tipo": "escala", "pergunta": "Foram considerados possíveis efeitos indesejados da proposta?", "ancoras": ["Não foram considerados", "Foram mencionados de forma genérica", "Foram identificados para algumas dimensões", "Foram identificados e há medidas para evitá-los ou reduzi-los", "Foram identificados com os usuários e há medidas e acompanhamento previstos"], "placeholder": "Quais efeitos e quais medidas?", "fundamento": "Stilgoe, Owen e Macnaghten (2013), antecipação; Reed et al. (2021)", "pergunta_concepcao": "Que efeitos indesejados a proposta pode gerar, e como evitá-los ou reduzi-los?"}, {"codigo": "RE2", "tipo": "escala", "pergunta": "A proposta reconhece possíveis conflitos entre as dimensões de impacto, como ganho econômico com custo ambiental?", "ancoras": ["Não reconhece", "Reconhece de forma genérica", "Identifica conflitos específicos", "Identifica conflitos e indica como serão tratados", "Identifica conflitos e prevê seu acompanhamento com os atores envolvidos"], "permite_na": true, "fundamento": "Stilgoe, Owen e Macnaghten (2013), antecipação", "pergunta_concepcao": "Pode haver conflito entre as mudanças pretendidas, como ganho econômico com custo ambiental? Como será tratado?"}, {"codigo": "RE3", "tipo": "escala", "pergunta": "Está claro quem se beneficia dos resultados e quem pode ser excluído ou prejudicado?", "ancoras": ["Não foi considerado", "Os beneficiários estão indicados, sem considerar exclusões", "Beneficiários e possíveis excluídos estão indicados", "Há medidas para ampliar o acesso de grupos com menos condições de se beneficiar", "Há medidas definidas em conjunto com os grupos envolvidos"], "fundamento": "Owen, Macnaghten e Stilgoe (2012); Stilgoe, Owen e Macnaghten (2013), inclusão", "pergunta_concepcao": "Quem se beneficia dos resultados, e quem pode ficar de fora ou ser prejudicado?"}, {"codigo": "RE4", "tipo": "escala", "pergunta": "A equipe explicitou os pressupostos, as incertezas e os limites da proposta?", "ancoras": ["Não", "De forma genérica", "Explicitou os principais pressupostos", "Explicitou pressupostos, incertezas e o que a proposta não resolve", "Explicitou esses elementos e prevê revisá-los ao longo do projeto"], "fundamento": "Stilgoe, Owen e Macnaghten (2013), reflexividade", "pergunta_concepcao": "Quais são os principais pressupostos, incertezas e limites da proposta? O que ela não resolve?"}, {"codigo": "RE5", "tipo": "escala", "pergunta": "Há momentos previstos para rever o rumo do projeto com base no retorno dos usuários ou em novos resultados?", "ancoras": ["Não", "Apenas os relatórios obrigatórios", "Há reuniões internas de acompanhamento", "Há momentos de revisão com participação de usuários ou parceiros", "Há momentos de revisão com usuários e critérios definidos para ajustar o projeto"], "fundamento": "Stilgoe, Owen e Macnaghten (2013), responsividade", "pergunta_concepcao": "Em que momentos o rumo do projeto será revisto com base no retorno dos usuários ou em novos resultados?"}, {"codigo": "RE6", "tipo": "escala", "pergunta": "Aspectos éticos, de consentimento e de proteção de dados pessoais foram considerados?", "ancoras": ["Não foram considerados", "Foram mencionados de forma genérica", "Os aspectos aplicáveis foram identificados", "Há procedimentos definidos, como consentimento, anonimização e aprovação ética quando cabível", "Há procedimentos definidos e responsáveis pelo seu cumprimento"], "permite_na": true, "fundamento": "Pinto et al. (2024), ética e integridade em RRI e RRA", "pergunta_concepcao": "Que aspectos éticos, de consentimento e de proteção de dados a proposta envolve, e como serão tratados?"}]}, {"id": "qualidade", "nome": "Qualidade e viabilidade", "tipo": "itens", "descricao": "A qualidade da pesquisa é condição para o impacto. Este bloco examina a originalidade, o rigor, a integração de conhecimentos e a proporcionalidade entre as mudanças pretendidas e os meios disponíveis.", "pergunta_guia": "As mudanças pretendidas cabem nos recursos, na equipe e no prazo da proposta?", "itens": [{"codigo": "QV1", "tipo": "escala", "pergunta": "A proposta contribui com conhecimento original para o campo?", "ancoras": ["Reproduz conhecimento existente sem adaptação", "Aplica conhecimento existente a um novo contexto", "Combina conhecimentos existentes de forma nova", "Produz conhecimento novo para o campo", "Produz conhecimento novo com potencial de reorientar o campo"], "fundamento": "Belcher et al. (2016), credibilidade", "pergunta_concepcao": "Em que a proposta é original em relação ao que já existe?"}, {"codigo": "QV2", "tipo": "escala", "pergunta": "A abordagem teórico-metodológica é adequada ao problema e aos objetivos?", "ancoras": ["Não está descrita", "Está descrita, sem justificativa", "Está descrita e parcialmente justificada", "Está descrita, justificada e coerente com os objetivos", "Está descrita, justificada, coerente e prevê validação dos resultados"], "fundamento": "Belcher et al. (2016), credibilidade", "pergunta_concepcao": "Qual é a abordagem teórico-metodológica, e por que ela é adequada ao problema?"}, {"codigo": "QV3", "tipo": "escala", "pergunta": "A proposta integra diferentes áreas de conhecimento e os saberes dos usuários, quando o problema exige?", "ancoras": ["Não integra, embora o problema exija", "Integra de forma pontual", "Integra áreas de conhecimento afins", "Integra diferentes áreas de conhecimento", "Integra diferentes áreas e os saberes dos usuários"], "permite_na": true, "fundamento": "Belcher et al. (2016), integração", "pergunta_concepcao": "Que áreas de conhecimento e que saberes dos usuários a proposta precisa integrar?"}, {"codigo": "QV4", "tipo": "escala", "pergunta": "As mudanças pretendidas são compatíveis com os recursos, a equipe e o prazo da proposta?", "ancoras": ["Não são compatíveis", "São pouco compatíveis", "São parcialmente compatíveis", "São compatíveis", "São compatíveis e há margem para imprevistos"], "fundamento": "Proporcionalidade (decisão de desenho)", "pergunta_concepcao": "As mudanças pretendidas são compatíveis com os recursos, a equipe e o prazo? O que precisaria ser ajustado?"}]}], "modos": {"conceber": "Perguntas abertas, sem notas, para apoiar a concepção da proposta. Ao final, gera um esboço do projeto orientado ao impacto.", "revisar": "Perguntas com escala de 1 a 5 e justificativa, para examinar uma proposta já escrita. Ao final, gera a devolutiva e o esboço."}}</script>
+<script type="application/json" id="instrumento">{"instrumento": "TerImpact - Avaliação Ex Ante", "versao": "2.3.0", "situacao": "Em desenvolvimento. Perguntas redigidas a partir da primeira rodada da matriz de referenciais, em revisão.", "contexto": {"tipos_projeto": ["Pesquisa científica", "Desenvolvimento metodológico", "Plataforma de dados", "Sistema de monitoramento", "Suporte a políticas públicas", "Outro"], "escala_territorial": ["Local", "Regional", "Nacional", "Internacional"], "nivel_transformacao": ["1 - Geração de conhecimento", "2 - Melhoria incremental", "3 - Método/ferramenta", "4 - Mudança de prática/processo", "5 - Transformação sistêmica"]}, "blocos": [{"id": "problema", "nome": "Problema e demanda", "tipo": "itens", "descricao": "Para que a pesquisa gere impacto, o problema que ela enfrenta precisa ser relevante para quem vai usar os resultados. Este bloco examina a origem do problema e a participação dos usuários.", "pergunta_guia": "O problema foi definido com quem vive o problema, ou apenas a partir da agenda da equipe de pesquisa?", "itens": [{"codigo": "PD1", "tipo": "texto", "pergunta": "Descreva em poucas linhas o problema que a proposta pretende enfrentar e para quem ele é relevante.", "fundamento": "Belcher et al. (2016), relevância"}, {"codigo": "PD2", "tipo": "multipla", "pergunta": "Como o problema foi identificado?", "opcoes": ["Demanda formal de usuários, parceiros ou gestores", "Diagnóstico, estudo ou avaliação anterior", "Programação ou agenda estratégica da instituição", "Chamada ou edital de financiamento", "Iniciativa da equipe de pesquisa"], "fundamento": "Owen, Macnaghten e Stilgoe (2012); Spaapen e van Drooge (2011)", "permite_outro": true}, {"codigo": "PD3", "tipo": "escala", "pergunta": "Em que medida os futuros usuários participaram da definição do problema?", "ancoras": ["Não participaram nem foram consultados", "Foram consultados de maneira informal", "Foram consultados de maneira estruturada (entrevistas, oficinas, questionários)", "Participaram da definição do problema e dos objetivos", "Definiram o problema e a proposta em conjunto com a equipe"], "fundamento": "Stilgoe, Owen e Macnaghten (2013), inclusão; Belcher et al. (2016), legitimidade", "pergunta_concepcao": "Como os futuros usuários participaram, ou vão participar, da definição do problema?"}, {"codigo": "PD4", "tipo": "multipla", "pergunta": "Que interações com usuários e parceiros estão previstas durante o projeto?", "opcoes": ["Interações diretas: reuniões, oficinas, visitas, unidades de referência", "Interações indiretas: publicações técnicas, plataformas, bases de dados, mídias", "Interações financeiras ou em espécie: contrapartidas, cofinanciamento, cessão de áreas ou equipamentos", "Nenhuma interação prevista"], "fundamento": "Spaapen e van Drooge (2011), interações produtivas"}]}, {"id": "mapa", "nome": "Mapa de impactos", "tipo": "mapa", "descricao": "Marque, em cada dimensão, apenas as mudanças que a proposta pretende de fato gerar. Para cada mudança marcada, indique o nível, o alcance e o horizonte, e registre em que se baseia essa expectativa. Dimensões sem mudanças marcadas são consideradas fora do escopo da proposta, o que é esperado: nenhuma proposta precisa gerar impacto em todas as dimensões.", "pergunta_guia": "Para cada mudança marcada: quem muda, o que muda e como a equipe saberá que a mudança ocorreu?", "fundamento": "Avila, Rodrigues e Vedovoto (2008); Reed et al. (2021); Mayne (2015)", "campos": {"nivel": {"pergunta": "Nível da mudança", "fundamento": "Mayne (2015)", "opcoes": [{"valor": 1, "rotulo": "Conhecimento ou capacidade", "descricao": "Os usuários passam a saber ou a ser capazes de algo novo"}, {"valor": 2, "rotulo": "Prática ou decisão", "descricao": "Os usuários passam a fazer ou a decidir de forma diferente"}, {"valor": 3, "rotulo": "Condição", "descricao": "Mudam condições econômicas, sociais, ambientais ou institucionais"}]}, "alcance": {"pergunta": "Alcance", "fundamento": "Reed et al. (2021)", "opcoes": ["Grupo restrito de usuários", "Local", "Regional", "Nacional", "Internacional"]}, "horizonte": {"pergunta": "Horizonte", "opcoes": ["Durante o projeto", "Até 3 anos após o término", "Mais de 3 anos após o término"]}}, "dimensoes": [{"id": "economica", "nome": "Econômica", "correspondencia": "Impactos econômicos (metodologia de referência da Embrapa)", "mudancas": [{"codigo": "EC1", "rotulo": "Aumento de produtividade ou de eficiência produtiva"}, {"codigo": "EC2", "rotulo": "Redução de custos, riscos ou perdas"}, {"codigo": "EC3", "rotulo": "Aumento de renda ou acesso a novos mercados"}, {"codigo": "EC4", "rotulo": "Agregação de valor ou melhoria da qualidade de produtos"}]}, {"id": "social", "nome": "Social", "correspondencia": "Impactos sociais (Ambitec-Social)", "mudancas": [{"codigo": "SO1", "rotulo": "Geração de emprego ou ocupação"}, {"codigo": "SO2", "rotulo": "Inclusão de grupos vulneráveis ou redução de desigualdades"}, {"codigo": "SO3", "rotulo": "Saúde, segurança alimentar ou nutricional"}, {"codigo": "SO4", "rotulo": "Capacidade de gestão e organização de produtores ou comunidades"}, {"codigo": "SO5", "rotulo": "Acesso a informação, serviços ou recursos"}]}, {"id": "ambiental", "nome": "Ambiental", "correspondencia": "Impactos ambientais (Ambitec-Agro)", "mudancas": [{"codigo": "AM1", "rotulo": "Conservação da biodiversidade ou de habitats"}, {"codigo": "AM2", "rotulo": "Uso eficiente de água, solo ou energia"}, {"codigo": "AM3", "rotulo": "Redução de poluição ou do uso de insumos"}, {"codigo": "AM4", "rotulo": "Mitigação de emissões de gases de efeito estufa"}, {"codigo": "AM5", "rotulo": "Adaptação às mudanças climáticas"}, {"codigo": "AM6", "rotulo": "Ordenamento e uso sustentável do território"}]}, {"id": "politica", "nome": "Política", "correspondencia": "Impactos político-institucionais", "mudancas": [{"codigo": "PO1", "rotulo": "Informar a formulação de políticas, programas ou planos"}, {"codigo": "PO2", "rotulo": "Apoiar decisões de gestores públicos"}, {"codigo": "PO3", "rotulo": "Subsidiar normas, regulamentos ou instrumentos de gestão"}, {"codigo": "PO4", "rotulo": "Apoiar o monitoramento ou a avaliação de políticas"}]}, {"id": "institucional", "nome": "Institucional", "correspondencia": "Impactos sobre a capacitação e político-institucionais", "mudancas": [{"codigo": "IN1", "rotulo": "Fortalecimento de capacidades da equipe ou da instituição"}, {"codigo": "IN2", "rotulo": "Fortalecimento de capacidades de parceiros"}, {"codigo": "IN3", "rotulo": "Bases de dados, métodos ou ferramentas mantidos após o projeto"}, {"codigo": "IN4", "rotulo": "Criação ou fortalecimento de redes e parcerias"}, {"codigo": "IN5", "rotulo": "Posicionamento e reconhecimento institucional"}]}, {"id": "cientifica", "nome": "Científica", "correspondencia": "Impactos sobre o conhecimento", "mudancas": [{"codigo": "CI1", "rotulo": "Novo conhecimento ou avanço teórico"}, {"codigo": "CI2", "rotulo": "Novos métodos, modelos ou protocolos"}, {"codigo": "CI3", "rotulo": "Dados e resultados abertos e reutilizáveis"}, {"codigo": "CI4", "rotulo": "Formação de pesquisadores e estudantes"}]}]}, {"id": "caminho", "nome": "Caminho para o impacto", "tipo": "itens", "descricao": "Estas perguntas não pedem uma teoria da mudança completa. O objetivo é verificar se o caminho entre os resultados da pesquisa e as mudanças marcadas no mapa de impactos foi pensado: quem usará os resultados, como eles chegarão a essas pessoas, o que precisa acontecer para que a mudança ocorra e em que evidência essa expectativa se apoia.", "pergunta_guia": "Se o projeto entregar tudo o que promete, o que ainda pode impedir que os usuários mudem o que fazem?", "itens": [{"codigo": "CA1", "tipo": "multipla", "pergunta": "Quais serão os principais produtos da proposta?", "fundamento": "Mayne (2015), produtos", "fonte": "produtos", "permite_outro": true}, {"codigo": "CA2", "tipo": "multipla", "pergunta": "Entre os públicos da proposta, quem deverá usar diretamente os resultados?", "fundamento": "Mayne (2015), alcance", "fonte": "publicos_selecionados", "permite_outro": true}, {"codigo": "CA3", "tipo": "escala", "pergunta": "Os usuários dos resultados estão identificados de forma específica?", "ancoras": ["Não estão identificados", "Estão identificados de forma genérica (por exemplo, \"produtores\")", "Estão identificados por categoria e região", "Estão identificados por categoria, região e necessidades", "Estão identificados por organização ou nominalmente, com contato estabelecido"], "fundamento": "Mayne (2015), alcance", "pergunta_concepcao": "Quem são, de forma específica, os usuários dos resultados? Indique organizações, categorias ou regiões."}, {"codigo": "CA4", "tipo": "texto", "pergunta": "O que os usuários passarão a saber, fazer ou decidir de forma diferente a partir dos resultados?", "fundamento": "Mayne (2015), mudanças de capacidade e de comportamento"}, {"codigo": "CA5", "tipo": "escala", "pergunta": "Existe uma estratégia para que os resultados cheguem aos usuários e sejam usados?", "ancoras": ["Não há estratégia", "Há intenção, sem definição de meios", "Há meios definidos (canais, produtos de comunicação), sem responsáveis", "Há meios, responsáveis e parceiros definidos", "Há estratégia definida com os usuários, com meios, responsáveis e momentos de acompanhamento"], "fundamento": "Douthwaite et al. (2003); Plano de TT orientado ao impacto", "pergunta_concepcao": "Como os resultados chegarão aos usuários e serão usados? Por quais meios e com quais responsáveis?"}, {"codigo": "CA6", "tipo": "texto", "pergunta": "O que precisa acontecer, fora do controle da equipe, para que essas mudanças ocorram?", "ajuda": "Exemplos: os usuários terem acesso a crédito, a assistência técnica estar disponível, o órgão gestor manter o programa.", "fundamento": "Mayne (2015), pressupostos"}, {"codigo": "CA7", "tipo": "escala", "pergunta": "Esses pressupostos estão sustentados por evidências?", "ancoras": ["Não foram identificados", "Foram identificados, sem evidência que os sustente", "Há indícios informais, baseados na experiência da equipe", "Há evidência de estudos ou projetos semelhantes", "Foram verificados em avaliações anteriores documentadas"], "fundamento": "Mayne (2015); Blundo-Canto et al. (2024), plausibilidade", "pergunta_concepcao": "Que evidências sustentam esses pressupostos?"}, {"codigo": "CA8", "tipo": "escala", "pergunta": "A proposta se apoia em resultados de projetos ou de avaliações de impacto anteriores?", "ancoras": ["Não", "Há referência genérica a trabalhos anteriores", "Usa resultados de projetos anteriores da equipe", "Usa resultados de avaliações de projetos ou tecnologias semelhantes", "Usa resultados de avaliações de impacto documentadas para orientar a proposta"], "fundamento": "Pinto (2026), uso de resultados de avaliação", "pergunta_concepcao": "Que resultados de projetos ou de avaliações anteriores orientam esta proposta?"}, {"codigo": "CA9", "tipo": "escala", "pergunta": "As parcerias necessárias para levar os resultados aos usuários estão estabelecidas?", "ancoras": ["Não há parcerias", "Há parceiros potenciais, sem contato", "Há contatos iniciais", "Há parcerias acordadas, com papéis definidos", "Há parcerias formalizadas, com papéis e contrapartidas definidos"], "fundamento": "Spaapen e van Drooge (2011); Alvarez et al. (2010)", "pergunta_concepcao": "Que parcerias são necessárias para levar os resultados aos usuários, e em que estágio estão?"}, {"codigo": "CA10", "tipo": "escala", "pergunta": "A equipe e a instituição têm capacidade para implementar e difundir os resultados?", "ancoras": ["Não há capacidade prevista", "A capacidade depende de recursos ainda não assegurados", "Há capacidade parcial", "Há capacidade assegurada para as principais ações", "Há capacidade assegurada e experiência anterior comprovada"], "fundamento": "Thornton et al. (2017)", "pergunta_concepcao": "Que capacidade a equipe e a instituição têm para implementar e difundir os resultados? O que falta?"}]}, {"id": "responsabilidade", "nome": "Responsabilidade", "tipo": "itens", "descricao": "Este bloco se baseia nas quatro dimensões da pesquisa e inovação responsável: antecipação, reflexividade, inclusão e responsividade. Ele examina se a proposta considera consequências indesejadas, conflitos, a distribuição dos benefícios e a possibilidade de rever o próprio rumo.", "pergunta_guia": "Quem pode perder com os resultados desta pesquisa, e o que a equipe fará a respeito?", "itens": [{"codigo": "RE1", "tipo": "escala", "pergunta": "Foram considerados possíveis efeitos indesejados da proposta?", "ancoras": ["Não foram considerados", "Foram mencionados de forma genérica", "Foram identificados para algumas dimensões", "Foram identificados e há medidas para evitá-los ou reduzi-los", "Foram identificados com os usuários e há medidas e acompanhamento previstos"], "placeholder": "Quais efeitos e quais medidas?", "fundamento": "Stilgoe, Owen e Macnaghten (2013), antecipação; Reed et al. (2021)", "pergunta_concepcao": "Que efeitos indesejados a proposta pode gerar, e como evitá-los ou reduzi-los?"}, {"codigo": "RE2", "tipo": "escala", "pergunta": "A proposta reconhece possíveis conflitos entre as dimensões de impacto, como ganho econômico com custo ambiental?", "ancoras": ["Não reconhece", "Reconhece de forma genérica", "Identifica conflitos específicos", "Identifica conflitos e indica como serão tratados", "Identifica conflitos e prevê seu acompanhamento com os atores envolvidos"], "permite_na": true, "fundamento": "Stilgoe, Owen e Macnaghten (2013), antecipação", "pergunta_concepcao": "Pode haver conflito entre as mudanças pretendidas, como ganho econômico com custo ambiental? Como será tratado?"}, {"codigo": "RE3", "tipo": "escala", "pergunta": "Está claro quem se beneficia dos resultados e quem pode ser excluído ou prejudicado?", "ancoras": ["Não foi considerado", "Os beneficiários estão indicados, sem considerar exclusões", "Beneficiários e possíveis excluídos estão indicados", "Há medidas para ampliar o acesso de grupos com menos condições de se beneficiar", "Há medidas definidas em conjunto com os grupos envolvidos"], "fundamento": "Owen, Macnaghten e Stilgoe (2012); Stilgoe, Owen e Macnaghten (2013), inclusão", "pergunta_concepcao": "Quem se beneficia dos resultados, e quem pode ficar de fora ou ser prejudicado?"}, {"codigo": "RE4", "tipo": "escala", "pergunta": "A equipe explicitou os pressupostos, as incertezas e os limites da proposta?", "ancoras": ["Não", "De forma genérica", "Explicitou os principais pressupostos", "Explicitou pressupostos, incertezas e o que a proposta não resolve", "Explicitou esses elementos e prevê revisá-los ao longo do projeto"], "fundamento": "Stilgoe, Owen e Macnaghten (2013), reflexividade", "pergunta_concepcao": "Quais são os principais pressupostos, incertezas e limites da proposta? O que ela não resolve?"}, {"codigo": "RE5", "tipo": "escala", "pergunta": "Há momentos previstos para rever o rumo do projeto com base no retorno dos usuários ou em novos resultados?", "ancoras": ["Não", "Apenas os relatórios obrigatórios", "Há reuniões internas de acompanhamento", "Há momentos de revisão com participação de usuários ou parceiros", "Há momentos de revisão com usuários e critérios definidos para ajustar o projeto"], "fundamento": "Stilgoe, Owen e Macnaghten (2013), responsividade", "pergunta_concepcao": "Em que momentos o rumo do projeto será revisto com base no retorno dos usuários ou em novos resultados?"}, {"codigo": "RE6", "tipo": "escala", "pergunta": "Aspectos éticos, de consentimento e de proteção de dados pessoais foram considerados?", "ancoras": ["Não foram considerados", "Foram mencionados de forma genérica", "Os aspectos aplicáveis foram identificados", "Há procedimentos definidos, como consentimento, anonimização e aprovação ética quando cabível", "Há procedimentos definidos e responsáveis pelo seu cumprimento"], "permite_na": true, "fundamento": "Pinto et al. (2024), ética e integridade em RRI e RRA", "pergunta_concepcao": "Que aspectos éticos, de consentimento e de proteção de dados a proposta envolve, e como serão tratados?"}]}, {"id": "qualidade", "nome": "Qualidade e viabilidade", "tipo": "itens", "descricao": "A qualidade da pesquisa é condição para o impacto. Este bloco examina a originalidade, o rigor, a integração de conhecimentos e a proporcionalidade entre as mudanças pretendidas e os meios disponíveis.", "pergunta_guia": "As mudanças pretendidas cabem nos recursos, na equipe e no prazo da proposta?", "itens": [{"codigo": "QV1", "tipo": "escala", "pergunta": "A proposta contribui com conhecimento original para o campo?", "ancoras": ["Reproduz conhecimento existente sem adaptação", "Aplica conhecimento existente a um novo contexto", "Combina conhecimentos existentes de forma nova", "Produz conhecimento novo para o campo", "Produz conhecimento novo com potencial de reorientar o campo"], "fundamento": "Belcher et al. (2016), credibilidade", "pergunta_concepcao": "Em que a proposta é original em relação ao que já existe?"}, {"codigo": "QV2", "tipo": "escala", "pergunta": "A abordagem teórico-metodológica é adequada ao problema e aos objetivos?", "ancoras": ["Não está descrita", "Está descrita, sem justificativa", "Está descrita e parcialmente justificada", "Está descrita, justificada e coerente com os objetivos", "Está descrita, justificada, coerente e prevê validação dos resultados"], "fundamento": "Belcher et al. (2016), credibilidade", "pergunta_concepcao": "Qual é a abordagem teórico-metodológica, e por que ela é adequada ao problema?"}, {"codigo": "QV3", "tipo": "escala", "pergunta": "A proposta integra diferentes áreas de conhecimento e os saberes dos usuários, quando o problema exige?", "ancoras": ["Não integra, embora o problema exija", "Integra de forma pontual", "Integra áreas de conhecimento afins", "Integra diferentes áreas de conhecimento", "Integra diferentes áreas e os saberes dos usuários"], "permite_na": true, "fundamento": "Belcher et al. (2016), integração", "pergunta_concepcao": "Que áreas de conhecimento e que saberes dos usuários a proposta precisa integrar?"}, {"codigo": "QV4", "tipo": "escala", "pergunta": "As mudanças pretendidas são compatíveis com os recursos, a equipe e o prazo da proposta?", "ancoras": ["Não são compatíveis", "São pouco compatíveis", "São parcialmente compatíveis", "São compatíveis", "São compatíveis e há margem para imprevistos"], "fundamento": "Proporcionalidade (decisão de desenho)", "pergunta_concepcao": "As mudanças pretendidas são compatíveis com os recursos, a equipe e o prazo? O que precisaria ser ajustado?"}]}], "modos": {"conceber": "Perguntas abertas, sem notas, para apoiar a concepção da proposta. Ao final, gera um esboço do projeto orientado ao impacto.", "revisar": "Para uma proposta já escrita. É possível carregar o arquivo da proposta (.docx, .pdf ou .txt) para pré-preencher título, duração, problema, públicos, parceiros e trechos das justificativas, que você revisa antes de avaliar. As perguntas usam escala de 1 a 5 com justificativa. Ao final, gera a devolutiva e o esboço."}}</script>
 <script type="application/json" id="listas">{"versao": "2026-11-20", "observacao": "Elaboração inicial. Itens com situacao 'revisar' aguardam conferência.", "organizacoes": [{"nome": "Embrapa (Sede)", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Acre", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agricultura Digital", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agrobiologia", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agroenergia", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agroindústria de Alimentos", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agroindústria Tropical", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agropecuária Oeste", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Agrossilvipastoril", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Algodão", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Alimentos e Territórios", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Amapá", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Amazônia Ocidental", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Amazônia Oriental", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Arroz e Feijão", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Café", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Caprinos e Ovinos", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Cerrados", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Clima Temperado", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Cocais", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Florestas", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Gado de Corte", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Gado de Leite", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Hortaliças", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Instrumentação", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Mandioca e Fruticultura", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Meio Ambiente", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Meio-Norte", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Milho e Sorgo", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Pantanal", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Pecuária Sudeste", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Pecuária Sul", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Pesca e Aquicultura", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Recursos Genéticos e Biotecnologia", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Rondônia", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Roraima", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Semiárido", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Soja", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Solos", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Suínos e Aves", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Tabuleiros Costeiros", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Territorial", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Trigo", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Embrapa Uva e Vinho", "pais": "Brasil", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Instituto Agronômico (IAC)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto Biológico (IB)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto de Economia Agrícola (IEA)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto de Zootecnia (IZ)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto de Tecnologia de Alimentos (Ital)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto de Desenvolvimento Rural do Paraná (IDR-Paraná)", "pais": "Brasil", "tipo": "Pesquisa e extensão estadual", "situacao": "revisar"}, {"nome": "Empresa de Pesquisa Agropecuária e Extensão Rural de Santa Catarina (Epagri)", "pais": "Brasil", "tipo": "Pesquisa e extensão estadual", "situacao": "revisar"}, {"nome": "Empresa de Pesquisa Agropecuária de Minas Gerais (Epamig)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Empresa de Pesquisa Agropecuária do Estado do Rio de Janeiro (Pesagro-Rio)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto Capixaba de Pesquisa, Assistência Técnica e Extensão Rural (Incaper)", "pais": "Brasil", "tipo": "Pesquisa e extensão estadual", "situacao": "revisar"}, {"nome": "Departamento de Diagnóstico e Pesquisa Agropecuária (DDPA/Seapi-RS)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Instituto Agronômico de Pernambuco (IPA)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Empresa de Pesquisa Agropecuária do Rio Grande do Norte (Emparn)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Empresa Mato-Grossense de Pesquisa, Assistência e Extensão Rural (Empaer)", "pais": "Brasil", "tipo": "Pesquisa e extensão estadual", "situacao": "revisar"}, {"nome": "Agência Goiana de Assistência Técnica, Extensão Rural e Pesquisa Agropecuária (Emater-GO)", "pais": "Brasil", "tipo": "Pesquisa e extensão estadual", "situacao": "revisar"}, {"nome": "Empresa Estadual de Pesquisa Agropecuária da Paraíba (Empaer-PB)", "pais": "Brasil", "tipo": "Pesquisa agropecuária estadual", "situacao": "revisar"}, {"nome": "Empresa de Desenvolvimento Agropecuário de Sergipe (Emdagro)", "pais": "Brasil", "tipo": "Pesquisa e extensão estadual", "situacao": "revisar"}, {"nome": "Agência Nacional de Assistência Técnica e Extensão Rural (Anater)", "pais": "Brasil", "tipo": "Extensão rural", "situacao": "revisar"}, {"nome": "Ministério da Agricultura e Pecuária (Mapa)", "pais": "Brasil", "tipo": "Governo", "situacao": "revisar"}, {"nome": "Ministério do Desenvolvimento Agrário e Agricultura Familiar (MDA)", "pais": "Brasil", "tipo": "Governo", "situacao": "revisar"}, {"nome": "Companhia Nacional de Abastecimento (Conab)", "pais": "Brasil", "tipo": "Governo", "situacao": "revisar"}, {"nome": "Instituto Nacional de Colonização e Reforma Agrária (Incra)", "pais": "Brasil", "tipo": "Governo", "situacao": "revisar"}, {"nome": "Instituto Nacional de Pesquisas Espaciais (Inpe)", "pais": "Brasil", "tipo": "Pesquisa", "situacao": "revisar"}, {"nome": "Instituto Brasileiro de Geografia e Estatística (IBGE)", "pais": "Brasil", "tipo": "Governo", "situacao": "revisar"}, {"nome": "Escola Superior de Agricultura Luiz de Queiroz (Esalq/USP)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Estadual de Campinas (Unicamp)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Federal de Viçosa (UFV)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Federal de Lavras (Ufla)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Federal Rural de Pernambuco (UFRPE)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Federal Rural do Rio de Janeiro (UFRRJ)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Federal Rural da Amazônia (Ufra)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Federal do Rio Grande do Sul (UFRGS)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade de Brasília (UnB)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Universidade Estadual Paulista (Unesp)", "pais": "Brasil", "tipo": "Universidade", "situacao": "revisar"}, {"nome": "Instituto Nacional de Tecnología Agropecuaria (INTA)", "pais": "Argentina", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Instituto Nacional de Investigación Agropecuaria (INIA)", "pais": "Uruguai", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Instituto de Investigaciones Agropecuarias (INIA)", "pais": "Chile", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Instituto Nacional de Innovación Agraria (INIA)", "pais": "Peru", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Corporación Colombiana de Investigación Agropecuaria (Agrosavia)", "pais": "Colômbia", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Instituto Nacional de Investigaciones Agropecuarias (Iniap)", "pais": "Equador", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Instituto Paraguayo de Tecnología Agraria (IPTA)", "pais": "Paraguai", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Cirad", "pais": "França", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "INRAE", "pais": "França", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Teagasc", "pais": "Irlanda", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "AgResearch", "pais": "Nova Zelândia", "tipo": "Pesquisa agropecuária pública", "situacao": "revisar"}, {"nome": "Wageningen University & Research", "pais": "Países Baixos", "tipo": "Universidade e pesquisa", "situacao": "revisar"}, {"nome": "CSIRO", "pais": "Austrália", "tipo": "Pesquisa", "situacao": "revisar"}, {"nome": "Alliance of Bioversity International and CIAT", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "CIMMYT", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "Centro Internacional de la Papa (CIP)", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "ICARDA", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "ICRISAT", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "IFPRI", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "IITA", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "ILRI", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "IRRI", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "IWMI", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "CIFOR-ICRAF", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "WorldFish", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "AfricaRice", "pais": "Internacional", "tipo": "CGIAR", "situacao": "revisar"}, {"nome": "FAO", "pais": "Internacional", "tipo": "Organismo internacional", "situacao": "revisar"}, {"nome": "Instituto Interamericano de Cooperação para a Agricultura (IICA)", "pais": "Internacional", "tipo": "Organismo internacional", "situacao": "revisar"}, {"nome": "Procisur", "pais": "Internacional", "tipo": "Cooperação regional", "situacao": "revisar"}, {"nome": "Fontagro", "pais": "Internacional", "tipo": "Cooperação regional", "situacao": "revisar"}], "publicos": ["Agricultores familiares", "Médios e grandes produtores rurais", "Povos indígenas e comunidades tradicionais", "Assentados da reforma agrária", "Cooperativas e associações de produtores", "Técnicos de assistência técnica e extensão rural", "Gestores públicos municipais", "Gestores públicos estaduais", "Gestores públicos federais", "Formuladores de políticas e legisladores", "Órgãos de regulação e fiscalização", "Agentes financeiros e de crédito rural", "Empresas de insumos, máquinas e serviços", "Agroindústrias e empresas de processamento", "Startups e empresas de tecnologia", "Organizações da sociedade civil", "Pesquisadores e instituições de pesquisa", "Universidades, professores e estudantes", "Consumidores", "Mídia e público em geral", "Organismos internacionais e de cooperação"], "produtos": ["Tecnologia, produto ou processo", "Cultivar ou material genético", "Software, aplicativo ou plataforma", "Base de dados ou mapa", "Sistema de monitoramento", "Método ou metodologia", "Prática ou sistema de produção", "Publicação técnica ou científica", "Recomendação para políticas ou gestão", "Capacitação ou formação"]}</script>
 <script>
+/* Leitura de propostas para o modo Revisar do TerImpact.
+   O arquivo é lido no navegador; nada é enviado a servidores.
+   Formatos: .docx (via JSZip), .pdf (via pdf.js, carregado sob demanda) e .txt. */
+(function (raiz) {
+  "use strict";
+
+  function norm(s) {
+    return String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  /* Campos de destino e títulos equivalentes (do mais específico para o mais geral). */
+  var CAMPOS = [
+    { id: "ignorar", nome: "Ignorar", sin: ["resumo de orcamento", "resumo em ingles", "abstract", "referencias", "bibliografia", "orcamento", "cronograma", "item de dispendio", "atividades propostas", "recurso seg", "dados do proponente"] },
+    { id: "duracao", nome: "Duração", sin: ["prazo/duracao", "duracao do projeto", "duracao(meses)", "duracao (meses)", "prazo de execucao", "duracao"] },
+    { id: "titulo", nome: "Título", sin: ["titulo do projeto", "titulo da proposta", "titulo"] },
+    { id: "problema", nome: "Problema e justificativa", sin: ["caracterizacao e justificativa", "motivacao", "problematica", "questao central", "pergunta de pesquisa", "contextualizacao", "justificativa", "problema", "antecedentes", "introducao"] },
+    { id: "resumo", nome: "Resumo", sin: ["resumo"] },
+    { id: "objetivos", nome: "Objetivos", sin: ["objetivo geral", "objetivos especificos", "objetivo especifico", "objetivos", "objetivo"] },
+    { id: "resultados", nome: "Produtos e resultados esperados", sin: ["produtos e resultados esperados", "resultados esperados", "principal resultado", "tipos de resultados", "resultados", "produtos esperados", "entregas"] },
+    { id: "impactos", nome: "Impactos e benefícios esperados", sin: ["potenciais impactos", "impactos esperados", "impacto esperado", "desenvolvimento tecnologico e potencial de inovacao", "potencial de inovacao", "beneficios", "diferencial", "impactos"] },
+    { id: "metodologia", nome: "Metodologia", sin: ["metodologia", "material e metodos", "materiais e metodos", "metodos", "abordagem metodologica"] },
+    { id: "originalidade", nome: "Originalidade e estado da arte", sin: ["originalidade", "estado da arte", "relevancia do projeto", "carater inovador", "revisao de literatura"] },
+    { id: "parcerias", nome: "Parcerias", sin: ["colaboracoes e parcerias", "outras instituicoes parceiras", "instituicoes parceiras", "parceiro demandante", "fontes de financiamento e/ou parcerias", "parcerias", "parceiros"] },
+    { id: "equipe", nome: "Equipe e infraestrutura", sin: ["capacitacao da equipe", "equipe e percentual", "infraestrutura", "equipe executora", "equipe"] },
+    { id: "divulgacao", nome: "Divulgação e transferência", sin: ["plano de divulgacao", "plano de popularizacao", "articulacao e comunicacao", "transferencia de tecnologia", "divulgacao", "comunicacao"] },
+    { id: "riscos", nome: "Riscos", sin: ["riscos e mitigacao", "analise de riscos", "riscos"] },
+    { id: "publico", nome: "Público-alvo", sin: ["publico-alvo", "publico alvo", "publicos-alvo", "beneficiarios", "usuarios"] },
+  ];
+
+  function casar(rotulo) {
+    var n = norm(rotulo).replace(/^[\d.\s)-]+/, "");
+    if (!n || n.length > 230) return null;
+    for (var i = 0; i < CAMPOS.length; i++) {
+      for (var j = 0; j < CAMPOS[i].sin.length; j++) {
+        if (n.indexOf(CAMPOS[i].sin[j]) === 0) return { campo: CAMPOS[i].id, extra: n.length - CAMPOS[i].sin[j].length };
+      }
+    }
+    return null;
+  }
+  function campoDe(rotulo) { var c = casar(rotulo); return c ? c.campo : null; }
+  /* Uma linha de texto corrido só é tomada como título quando tem forma de título. */
+  function tituloReconhecido(t) {
+    var c = casar(t);
+    if (!c) return null;
+    if (!/^[A-ZÀ-Ý0-9]/.test(t)) return null;
+    if (pareceTitulo(t)) return c.campo;
+    if (t.length < 70 && c.extra <= 25 && !/[.;,]$/.test(t)) return c.campo;
+    return null;
+  }
+
+  function pareceTitulo(linha) {
+    var t = linha.trim().split("(")[0].trim();
+    if (t.length < 4 || t.length > 160) return false;
+    if (/^[\d.\s]+$/.test(t)) return false;
+    var letras = t.replace(/[^A-Za-zÀ-ÿ]/g, "");
+    if (letras.length < 4) return false;
+    return letras === letras.toUpperCase();
+  }
+
+  /* blocos: [{tipo: "p", texto, destaque}] ou [{tipo: "linha", rotulo, texto}] */
+  function segmentar(blocos) {
+    var secoes = [], atual = null;
+    function nova(rotulo, campo, texto) {
+      atual = { rotulo: rotulo.trim(), campo: campo, texto: (texto || "").trim(), parens: 0 };
+      atual.parens = (atual.rotulo.match(/\(/g) || []).length - (atual.rotulo.match(/\)/g) || []).length;
+      secoes.push(atual);
+    }
+    blocos.forEach(function (b) {
+      if (b.tipo === "linha") { nova(b.rotulo, campoDe(b.rotulo), b.texto); atual = null; return; }
+      var t = (b.texto || "").trim();
+      if (!t) return;
+      var m = t.match(/^([A-ZÀ-Ý][^:]{2,45}):\s*(.*)$/);
+      if (m && m[1].split(/\s+/).length <= 6) { nova(m[1], campoDe(m[1]), m[2]); return; }
+      var c = tituloReconhecido(t);
+      if (c) { nova(t, c, ""); return; }
+      if (atual && atual.campo === "titulo") { atual.texto += (atual.texto ? " " : "") + t; return; }
+      if (atual && !atual.texto && (atual.parens > 0 || /^\(/.test(t) || (pareceTitulo(t) && atual.rotulo.length < 300))) {
+        atual.rotulo += " " + t;
+        atual.parens += (t.match(/\(/g) || []).length - (t.match(/\)/g) || []).length;
+        return;
+      }
+      if ((b.destaque && t.length < 120) || pareceTitulo(t)) { nova(t, null, ""); return; }
+      if (atual) atual.texto += (atual.texto ? "\n" : "") + t;
+    });
+    return secoes.filter(function (s) { return s.texto.length > 0; }).map(function (s) {
+      return { rotulo: s.rotulo.replace(/\s*\([^)]*caracteres\)?\s*$/i, "").replace(/\s*-\s*at[eé] \d+ caracteres$/i, "").trim(), campo: s.campo, texto: s.texto };
+    });
+  }
+
+  /* Agrupa o texto por campo reconhecido. */
+  function porCampo(secoes) {
+    var out = {};
+    secoes.forEach(function (s) {
+      if (!s.campo || s.campo === "ignorar" || !s.texto) return;
+      out[s.campo] = (out[s.campo] ? out[s.campo] + "\n\n" : "") + s.texto;
+    });
+    return out;
+  }
+
+  var MAPA_PUBLICOS = [
+    [/agricultura familiar|agricultores? familiar/i, ["Agricultores familiares"]],
+    [/\bprodutor(es)? rura|cafeicultor|pecuarist|\bprodutores\b/i, ["Agricultores familiares", "Médios e grandes produtores rurais"]],
+    [/ind[ií]gena|quilombol|comunidades tradicionais|povos tradicionais/i, ["Povos indígenas e comunidades tradicionais"]],
+    [/assentad|reforma agr[aá]ria/i, ["Assentados da reforma agrária"]],
+    [/cooperativ|associa[cç][aã]o(es)? de produtores|associa[cç][oõ]es de produtores|associa[cç][aã]o nacional dos produtores/i, ["Cooperativas e associações de produtores"]],
+    [/assist[eê]ncia t[eé]cnica|extens[aã]o rural|\bater\b/i, ["Técnicos de assistência técnica e extensão rural"]],
+    [/munic[ií]p(io|ios|al|ais)\b|prefeitura|gestores? municipa/i, ["Gestores públicos municipais"]],
+    [/secretaria(s)? estadua|governo(s)? estadua|[oó]rg[aã]os? estadua/i, ["Gestores públicos estaduais"]],
+    [/minist[eé]rio|governo federal|c[aâ]mara setorial|\bMAPA\b/, ["Gestores públicos federais"]],
+    [/pol[ií]ticas? p[uú]blicas?|formula[cç][aã]o de pol[ií]tica|legisla/i, ["Formuladores de políticas e legisladores"]],
+    [/fiscaliza|regula[cç][aã]o|[oó]rg[aã]os? reguladores?/i, ["Órgãos de regulação e fiscalização"]],
+    [/cr[eé]dito rural|agentes? financeir|institui[cç][oõ]es financeiras|bancos?\b/i, ["Agentes financeiros e de crédito rural"]],
+    [/agroind[uú]stri|beneficiamento|processamento/i, ["Agroindústrias e empresas de processamento"]],
+    [/insumos|m[aá]quinas agr[ií]colas|setor privado|empresas? priva/i, ["Empresas de insumos, máquinas e serviços"]],
+    [/startup|agtech/i, ["Startups e empresas de tecnologia"]],
+    [/sociedade civil|\bongs?\b|organiza[cç][oõ]es sociais/i, ["Organizações da sociedade civil"]],
+    [/pesquisadores|comunidade cient[ií]fica|institui[cç][oõ]es de pesquisa/i, ["Pesquisadores e instituições de pesquisa"]],
+    [/universidade|estudantes|p[oó]s-gradua/i, ["Universidades, professores e estudantes"]],
+    [/consumidor/i, ["Consumidores"]],
+    [/p[uú]blico (em )?geral|sociedade em geral|p[uú]blico n[aã]o especializado|imprensa|m[ií]dia/i, ["Mídia e público em geral"]],
+    [/fao\b|cooper[aç][aã]o internacional|organismos? internaciona/i, ["Organismos internacionais e de cooperação"]]
+  ];
+
+  var MAPA_PRODUTOS = [
+    [/mapa|mapeamento|base de dados|banco de dados|geoespacia|cartogr/i, "Base de dados ou mapa"],
+    [/software|aplicativo|plataforma|sistema web|painel|dashboard/i, "Software, aplicativo ou plataforma"],
+    [/monitoramento/i, "Sistema de monitoramento"],
+    [/metodologi|m[eé]todo|protocolo/i, "Método ou metodologia"],
+    [/cultivar|material gen[eé]tico|melhoramento gen/i, "Cultivar ou material genético"],
+    [/publica[cç]|artigo|boletim|livro|cap[ií]tulo|comunicado t[eé]cnico/i, "Publicação técnica ou científica"],
+    [/capacita|treinamento|\bcursos?\b|forma[cç][aã]o de/i, "Capacitação ou formação"],
+    [/recomenda[cç]|subs[ií]dio(s)? (a|para) pol[ií]tic|nota t[eé]cnica/i, "Recomendação para políticas ou gestão"],
+    [/pr[aá]tica agr|sistema de produ[cç]|manejo/i, "Prática ou sistema de produção"],
+    [/tecnologia|produto|processo/i, "Tecnologia, produto ou processo"]
+  ];
+
+  function sugestoes(secoes, textoCompleto, listas) {
+    var pc = porCampo(secoes);
+    var tit = secoes.filter(function (s) { return s.campo === "titulo"; })[0];
+    var titulo = tit ? (tit.texto || "").split("\n")[0].trim() : "";
+    var dur = null;
+    function numeros(txt) {
+      var out = [], re = /(m[aá]ximo de\s*)?(\d{1,3})\s*meses/gi, mm;
+      while ((mm = re.exec(txt))) if (!mm[1]) out.push(parseInt(mm[2], 10));
+      return out;
+    }
+    if (pc.duracao) { var nd = numeros(pc.duracao); if (!nd.length) nd = (pc.duracao.match(/\d{1,3}/g) || []).map(Number); if (nd.length) dur = nd[0]; }
+    if (dur === null) { var mm2 = textoCompleto.match(/dura[cç][aã]o\s*\(?\s*meses\s*\)?\s*:?\s*(\d{1,3})/i); if (mm2) dur = parseInt(mm2[1], 10); }
+    if (dur === null) { var nn = numeros(textoCompleto); if (nn.length) dur = nn[0]; }
+    if (dur !== null && (dur < 1 || dur > 120)) dur = null;
+
+    var baseP = pc.publico ? pc.publico + "\n" + textoCompleto : textoCompleto;
+    var relevante = [pc.publico, pc.impactos, pc.resultados, pc.problema].join("\n");
+    var cont = {};
+    MAPA_PUBLICOS.forEach(function (par) {
+      var re = new RegExp(par[0].source, par[0].flags.indexOf("i") >= 0 ? "gi" : "g");
+      var n = (baseP.match(re) || []).length;
+      if (!n) return;
+      if (n < 2 && !par[0].test(relevante)) return;
+      par[1].forEach(function (p) { if (listas.publicos.indexOf(p) >= 0) cont[p] = Math.max(cont[p] || 0, n); });
+    });
+    var publicos = Object.keys(cont).sort(function (a, b) { return cont[b] - cont[a]; });
+
+    var parceiros = [];
+    function escRe(x) { return x.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&"); }
+    function palavra(x, txt, flags) { return new RegExp("(^|[^A-Za-zÀ-ÿ])" + escRe(x) + "([^A-Za-zÀ-ÿ]|$)", flags || "").test(txt); }
+    // O nome não conta quando é apenas o início de um nome mais longo ("Instituto Agronômico de Pernambuco").
+    function nomeIsolado(x, txt) { return new RegExp("(^|[^A-Za-zÀ-ÿ])" + escRe(x) + "(?!\\s+(de|do|da|dos|das)\\s+[A-ZÀ-Ý])([^A-Za-zÀ-ÿ]|$)", "i").test(txt); }
+    var SIGLA_PALAVRA = { "Mapa": 1 };
+    var contaSig = {};
+    listas.organizacoes.forEach(function (o) { var sg = (o.nome.match(/\(([^)]+)\)\s*$/) || [])[1]; if (sg) contaSig[sg] = (contaSig[sg] || 0) + 1; });
+    listas.organizacoes.forEach(function (o) {
+      var sig = (o.nome.match(/\(([^)]+)\)\s*$/) || [])[1];
+      var alvo = o.nome.replace(/\s*\([^)]*\)\s*$/, "");
+      var achou;
+      if (o.nome === "Embrapa (Sede)") achou = /embrapa[\s-]+sede|sede da embrapa/i.test(textoCompleto);
+      else achou = nomeIsolado(alvo, textoCompleto);
+      if (!achou && sig && sig.length >= 3 && contaSig[sig] === 1 && !/\//.test(sig)) achou = SIGLA_PALAVRA[sig] ? palavra(sig.toUpperCase(), textoCompleto) : (palavra(sig, textoCompleto) || palavra(sig.toUpperCase(), textoCompleto));
+      if (achou && parceiros.indexOf(o.nome) < 0) parceiros.push(o.nome);
+    });
+    var linhasParc = pc.parcerias ? pc.parcerias.split(/\n/).filter(function (l) { return l.trim(); }) : [];
+    var mediaParc = linhasParc.length ? linhasParc.reduce(function (a, l) { return a + l.length; }, 0) / linhasParc.length : 0;
+    // Só aproveita linhas soltas quando a seção tem forma de lista; texto corrido gera fragmentos de frase.
+    if (pc.parcerias && mediaParc <= 70) {
+      pc.parcerias.split(/\n|;|\s\/\s/).forEach(function (l) {
+        l = l.replace(/^[-•\s]+/, "").trim();
+        l = l.replace(/\s+Institui[cç][aã]o\s+(Nacional|Internacional|Estrangeira)\b.*$/i, "").trim();
+        if (l.length < 3 || l.length > 140 || !/^[A-ZÀ-Ý0-9]/.test(l) || /[,.]$/.test(l) || l.split(/\s+/).length > 14) return;
+        if (/^\(|especificar|^nome\b|^tipo\b|^categoria\b|https?:|\bof \d+\b|\d{2}\/\d{2}\/\d{4}|funda[cç][aã]o\s*\(|^embrapa$/i.test(l)) return;
+        var jaTem = parceiros.some(function (x) {
+          if (x.toLowerCase() === l.toLowerCase()) return true;
+          var sg = (x.match(/\(([^)]+)\)\s*$/) || [])[1];
+          return sg && sg.length >= 3 && palavra(sg, l);
+        });
+        if (!jaTem) parceiros.push(l);
+      });
+    }
+
+    var baseR = (pc.resultados || "") + "\n" + (pc.objetivos || "");
+    if (baseR.trim().length < 40) baseR = textoCompleto;
+    var produtos = [];
+    MAPA_PRODUTOS.forEach(function (par) { if (par[0].test(baseR) && produtos.indexOf(par[1]) < 0) produtos.push(par[1]); });
+
+    return { titulo: titulo, duracao: dur, problema: pc.problema || pc.resumo || "", porCampo: pc, publicos: publicos, parceiros: parceiros.slice(0, 25), produtos: produtos };
+  }
+
+  /* ---------- Leitores ---------- */
+
+  function decodificar(s) { return s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&"); }
+  function textoParagrafo(px) {
+    var t = "", re = /<w:t[^>]*>([\s\S]*?)<\/w:t>|<w:tab\/>|<w:br\/>/g, m;
+    while ((m = re.exec(px))) t += m[1] !== undefined ? decodificar(m[1]) : (m[0] === "<w:tab/>" ? " " : "\n");
+    return t;
+  }
+  function blocosDocx(xml) {
+    var blocos = [];
+    var corpo = (xml.match(/<w:body>([\s\S]*)<\/w:body>/) || [])[1] || xml;
+    var re = /<w:tbl>[\s\S]*?<\/w:tbl>|<w:p[ >][\s\S]*?<\/w:p>/g, m;
+    while ((m = re.exec(corpo))) {
+      var x = m[0];
+      if (x.indexOf("<w:tbl>") === 0) {
+        (x.match(/<w:tr[ >][\s\S]*?<\/w:tr>/g) || []).forEach(function (tr) {
+          var cel = (tr.match(/<w:tc>[\s\S]*?<\/w:tc>/g) || []).map(function (tc) {
+            return (tc.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || []).map(textoParagrafo).join("\n").trim();
+          });
+          var uniq = []; cel.forEach(function (c) { if (c && uniq.indexOf(c) < 0) uniq.push(c); });
+          if (uniq.length >= 2) blocos.push({ tipo: "linha", rotulo: uniq[0], texto: uniq.slice(1).join("\n") });
+          else if (uniq.length === 1) blocos.push({ tipo: "p", texto: uniq[0] });
+        });
+      } else {
+        var t = textoParagrafo(x).trim();
+        if (!t) continue;
+        var estilo = (x.match(/<w:pStyle w:val="([^"]+)"/) || [])[1] || "";
+        var runs = x.match(/<w:r[ >][\s\S]*?<\/w:r>/g) || [];
+        var negrito = runs.length > 0 && runs.every(function (r) { return !/<w:t/.test(r) || /<w:b\/>|<w:b w:val="(1|true)"\/>/.test(r); });
+        blocos.push({ tipo: "p", texto: t, destaque: /heading|t[ií]tulo|title/i.test(estilo) || negrito });
+      }
+    }
+    return blocos;
+  }
+
+  function carregarScript(src) {
+    return new Promise(function (res, rej) { var s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = function () { rej(new Error("Falha ao carregar " + src)); }; document.head.appendChild(s); });
+  }
+  var PDFJS = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
+  function obterPdfjs() {
+    if (raiz.pdfjsLib) return Promise.resolve(raiz.pdfjsLib);
+    return carregarScript(PDFJS + "pdf.min.js").then(function () { return carregarScript(PDFJS + "pdf.worker.min.js"); }).then(function () {
+      try { raiz.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + "pdf.worker.min.js"; } catch (e) {}
+      return raiz.pdfjsLib;
+    });
+  }
+  function linhasPdf(lib, buf) {
+    return lib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise.then(function (doc) {
+      var ps = [];
+      for (var i = 1; i <= doc.numPages; i++) ps.push(doc.getPage(i).then(function (pg) { return pg.getTextContent(); }));
+      return Promise.all(ps);
+    }).then(function (conteudos) {
+      var linhas = [];
+      conteudos.forEach(function (tc) {
+        var atual = "", y = null;
+        tc.items.forEach(function (it) {
+          var yy = it.transform ? Math.round(it.transform[5]) : y;
+          if (y !== null && yy !== null && Math.abs(yy - y) > 2 && atual.trim()) { linhas.push(atual); atual = ""; }
+          atual += it.str; y = yy;
+          if (it.hasEOL) { if (atual.trim()) linhas.push(atual); atual = ""; }
+        });
+        if (atual.trim()) linhas.push(atual);
+      });
+      return linhas;
+    });
+  }
+
+  function lerArquivo(file) {
+    var nome = (file.name || "").toLowerCase();
+    return file.arrayBuffer().then(function (buf) {
+      if (/\.docx$/.test(nome)) {
+        if (typeof JSZip === "undefined") throw new Error("Leitor de arquivos Word indisponível neste ambiente.");
+        return JSZip.loadAsync(buf).then(function (z) { var f = z.file("word/document.xml"); if (!f) throw new Error("O arquivo não parece ser um documento Word válido."); return f.async("string"); })
+          .then(function (xml) { var b = blocosDocx(xml); return { blocos: b, texto: b.map(function (x) { return (x.rotulo ? x.rotulo + "\n" : "") + x.texto; }).join("\n") }; });
+      }
+      if (/\.pdf$/.test(nome)) {
+        return obterPdfjs().then(function (lib) { return linhasPdf(lib, buf); }).then(function (ls) { return { blocos: ls.map(function (l) { return { tipo: "p", texto: l }; }), texto: ls.join("\n") }; });
+      }
+      if (/\.(txt|md)$/.test(nome)) {
+        var t = new TextDecoder("utf-8").decode(buf);
+        var ls = t.split(/\r?\n/);
+        return { blocos: ls.map(function (l) { return { tipo: "p", texto: l }; }), texto: t };
+      }
+      throw new Error("Formato não reconhecido. Use arquivos .docx, .pdf ou .txt.");
+    });
+  }
+
+  function naoReconhecidas(secoes) {
+    var vistos = {}, out = [];
+    secoes.forEach(function (s) {
+      if (s.campo || s.texto.length < 80) return;
+      var k = norm(s.rotulo);
+      if (vistos[k]) return;
+      vistos[k] = 1; out.push(s);
+    });
+    return out.slice(0, 15);
+  }
+
+  var API = { naoReconhecidas: naoReconhecidas, CAMPOS: CAMPOS, campoDe: campoDe, segmentar: segmentar, porCampo: porCampo, sugestoes: sugestoes, blocosDocx: blocosDocx, lerArquivo: lerArquivo, linhasPdf: linhasPdf, norm: norm };
+  if (typeof module !== "undefined" && module.exports) module.exports = API; else raiz.TerImportar = API;
+})(typeof window !== "undefined" ? window : globalThis);
+
 (function () {
   "use strict";
 
@@ -556,10 +873,85 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       }).join("") + "</div>" + incluirOutroHtml(alvo, cfg.incluir) +
       '<div class="actions"><button class="btn primary" data-dd="' + campo + '">Concluir seleção</button></div></div></div></div>';
   }
+  var IMPORT = null, IMPORT_MSG = "";
+  var JUST_DE = [["QV1", "originalidade", "Originalidade"], ["QV2", "metodologia", "Abordagem teórico-metodológica"], ["CA5", "divulgacao", "Estratégia de uso e divulgação"], ["CA9", "parcerias", "Parcerias"], ["CA10", "equipe", "Equipe e infraestrutura"], ["RE1", "riscos", "Riscos e efeitos indesejados"]];
+  var REF_BLOCO = { problema: ["problema", "resumo", "objetivos", "publico"], mapa: ["impactos", "resultados", "objetivos"], caminho: ["resultados", "impactos", "divulgacao", "parcerias", "publico"], responsabilidade: ["riscos", "impactos"], qualidade: ["originalidade", "metodologia", "equipe"] };
+  function nomeCampo(id) { var c = TerImportar.CAMPOS.filter(function (x) { return x.id === id; })[0]; return c ? c.nome : id; }
+  function recalcularImport() {
+    var r = TerImportar.sugestoes(IMPORT.secoes, IMPORT.texto, LISTAS);
+    IMPORT.sug = r;
+  }
+  function trecho(t, n) { t = String(t || "").trim(); return t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : t; }
+
+  function painelImport() {
+    var h = '<div class="panel import no-print"><h3>Carregar a proposta</h3>' +
+      '<p class="small">Envie o arquivo da proposta (.docx, .pdf ou .txt). A ferramenta identifica as seções e sugere o preenchimento dos campos. O arquivo é lido neste navegador e não é enviado a servidores.</p>' +
+      '<div class="add-row"><input type="file" id="imp-prop" accept=".docx,.pdf,.txt,.md"><button class="btn primary" data-act="ler-proposta">Ler proposta</button></div>' +
+      '<div class="msg" id="imp-msg" role="status">' + esc(IMPORT_MSG) + "</div>";
+    if (S.proposta && !IMPORT) h += '<p class="small muted">Proposta carregada: ' + esc(S.proposta.arquivo) + ". Os trechos aparecem ao lado das perguntas de cada bloco.</p>";
+    if (IMPORT) {
+      var g = IMPORT.sug, i;
+      h += '<div class="stack import-rev"><p><strong>Encontrado em ' + esc(IMPORT.arquivo) + ".</strong> Marque o que deseja usar. Nada é aplicado sem a sua confirmação.</p>";
+      function chk(id, rot, val, marcado) { return '<label class="imp-op"><input type="checkbox" id="' + id + '"' + (marcado ? " checked" : "") + "> <span><strong>" + esc(rot) + "</strong>" + (val ? ": " + esc(val) : "") + "</span></label>"; }
+      h += '<div class="opts">';
+      if (g.titulo) h += chk("imp-tit", "Título", trecho(g.titulo, 200), !S.contexto.titulo);
+      if (g.duracao) h += chk("imp-dur", "Duração", g.duracao + " meses", !S.contexto.duracao);
+      if (g.problema) h += chk("imp-prob", "Problema (PD1)", trecho(g.problema, 260), !texto("PD1"));
+      h += "</div>";
+      if (g.publicos.length) h += '<div class="stack"><p class="small"><strong>Públicos mencionados na proposta</strong> (sugestões; marque os que se aplicam)</p><div class="opts">' + g.publicos.map(function (x, k) { return chk("imp-pub-" + k, x, "", false); }).join("") + "</div></div>";
+      if (g.parceiros.length) h += '<div class="stack"><p class="small"><strong>Organizações mencionadas</strong></p><div class="opts">' + g.parceiros.map(function (x, k) { return chk("imp-par-" + k, x, "", true); }).join("") + "</div></div>";
+      if (g.produtos.length) h += '<div class="stack"><p class="small"><strong>Tipos de produto identificados (CA1)</strong></p><div class="opts">' + g.produtos.map(function (x, k) { return chk("imp-prod-" + k, x, "", false); }).join("") + "</div></div>";
+      var js = JUST_DE.filter(function (x) { return g.porCampo[x[1]]; });
+      if (js.length) h += '<div class="stack"><p class="small"><strong>Trechos para as justificativas</strong> (preenchem apenas campos vazios)</p><div class="opts">' + js.map(function (x) { return chk("imp-just-" + x[0], x[0] + " · " + x[2], trecho(g.porCampo[x[1]], 140), !(S.respostas[x[0]] && (S.respostas[x[0]].justificativa || "").trim())); }).join("") + "</div></div>";
+      var reconhecidas = IMPORT.secoes.filter(function (x) { return x.campo && x.campo !== "ignorar"; });
+      var outras = TerImportar.naoReconhecidas(IMPORT.secoes);
+      h += '<details><summary>Seções identificadas (' + reconhecidas.length + ") e outras seções (" + outras.length + ")</summary><div>" +
+        '<p class="small muted">Se alguma seção foi classificada de forma errada, ou não foi reconhecida, indique a que corresponde.</p><div class="table-wrap"><table><tbody>' +
+        reconhecidas.concat(outras).map(function (x) {
+          var idx = IMPORT.secoes.indexOf(x);
+          return "<tr><td>" + esc(trecho(x.rotulo, 70)) + '</td><td><select data-secidx="' + idx + '" aria-label="Correspondência da seção">' +
+            '<option value="">Não usar</option>' + TerImportar.CAMPOS.filter(function (c) { return c.id !== "ignorar"; }).map(function (c) { return "<option value=\"" + c.id + "\"" + (x.campo === c.id ? " selected" : "") + ">" + esc(c.nome) + "</option>"; }).join("") + "</select></td></tr>";
+        }).join("") + "</tbody></table></div></div></details>";
+      h += '<div class="actions"><button class="btn primary" data-act="aplicar-proposta">Aplicar à avaliação</button><button class="btn" data-act="descartar-proposta">Descartar</button></div></div>';
+    }
+    return h + "</div>";
+  }
+
+  function aplicarImport() {
+    var g = IMPORT.sug, c = S.contexto, n = 0;
+    function marcado(id) { var e = document.getElementById(id); return e && e.checked; }
+    if (g.titulo && marcado("imp-tit")) { c.titulo = g.titulo; n++; }
+    if (g.duracao && marcado("imp-dur")) { c.duracao = String(g.duracao); n++; }
+    S.prefill = S.prefill || {};
+    if (g.problema && marcado("imp-prob")) { R("PD1").texto = g.problema; S.prefill.PD1 = true; n++; }
+    g.publicos.forEach(function (x, k) { if (marcado("imp-pub-" + k) && c.publicos.indexOf(x) < 0) { c.publicos.push(x); n++; } });
+    g.parceiros.forEach(function (x, k) { if (marcado("imp-par-" + k) && c.parceiros.indexOf(x) < 0) { c.parceiros.push(x); n++; } });
+    g.produtos.forEach(function (x, k) { if (marcado("imp-prod-" + k)) { var r = R("CA1"); r.opcoes = r.opcoes || []; if (r.opcoes.indexOf(x) < 0) { r.opcoes.push(x); n++; } } });
+    JUST_DE.forEach(function (x) {
+      if (g.porCampo[x[1]] && marcado("imp-just-" + x[0])) {
+        var r = R(x[0]);
+        if (!(r.justificativa || "").trim()) { r.justificativa = g.porCampo[x[1]]; S.prefill[x[0]] = true; n++; }
+      }
+    });
+    S.proposta = { arquivo: IMPORT.arquivo, carregada: new Date().toISOString(), porCampo: g.porCampo };
+    IMPORT = null; IMPORT_MSG = n + " informações aplicadas. Revise os campos preenchidos; os trechos da proposta aparecem ao lado das perguntas de cada bloco.";
+    save();
+  }
+
+  function refProposta(blocoId) {
+    if (!S.proposta || !REF_BLOCO[blocoId]) return "";
+    var pc = S.proposta.porCampo, campos = REF_BLOCO[blocoId].filter(function (k) { return pc[k]; });
+    if (!campos.length) return "";
+    return '<details class="ref-prop"><summary>Trechos da proposta relacionados a este bloco</summary><div>' + campos.map(function (k) {
+      return '<div class="stack"><p class="small"><strong>' + esc(nomeCampo(k)) + '</strong></p><p class="ref-txt">' + esc(trecho(pc[k], 3000)) + "</p></div>";
+    }).join("") + "</div></details>";
+  }
+
   function viewProposta() {
     var c = S.contexto, L = INST.contexto;
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Caracterização</p><h2>A proposta</h2><p class="muted">Nenhum campo é obrigatório. As informações orientam a leitura da devolutiva.</p></div>' +
+      (S.modo === "revisar" ? painelImport() : "") +
       '<div class="field"><label for="f-titulo">Título da proposta</label><input type="text" id="f-titulo" data-ctx="titulo" value="' + esc(c.titulo) + '"></div>' +
       '<div class="grid2">' +
       '<div class="field"><label for="f-tipo">Tipo de projeto</label><select id="f-tipo" data-ctx="tipo">' + opts(L.tipos_projeto, c.tipo) + "</select></div>" +
@@ -588,6 +980,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
         '<textarea id="j-' + it.codigo + '" data-just="' + it.codigo + '" aria-label="' + esc(it.pergunta_concepcao || it.pergunta) + '" placeholder="Escreva livremente. Em branco, vira ponto a desenvolver.">' + esc(r.justificativa || "") + "</textarea>" +
         '<div class="anchor" id="anc-' + it.codigo + '" hidden></div>' +
         (it.permite_na ? '<button class="na-btn" data-na="' + it.codigo + '" aria-pressed="' + !!r.na + '">Não se aplica a esta proposta</button>' : "") +
+        (S.prefill && S.prefill[it.codigo] ? '<p class="prefill">Texto trazido da proposta. Revise e complemente.</p>' : "") +
         (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
     } else {
       corpo = '<div class="scores" role="group" aria-label="Resposta para ' + it.codigo + '">' + it.ancoras.map(function (a, i) {
@@ -600,13 +993,14 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
         '<textarea id="j-' + it.codigo + '" data-just="' + it.codigo + '" placeholder="' + esc(it.placeholder || "Em que se baseia esta resposta?") + '">' + esc(r.justificativa || "") + "</textarea></div>";
     }
     return '<div class="item" id="item-' + it.codigo + '"><div class="item-head"><span class="code">' + it.codigo + '</span><p class="q">' + esc(it.pergunta) + "</p></div>" +
-      corpo + (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
+      corpo + (S.prefill && S.prefill[it.codigo] ? '<p class="prefill">Texto trazido da proposta. Revise e complemente.</p>' : "") +
+      (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
   }
 
   function viewItens(b, n) {
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Bloco ' + n + "</p><h2>" + esc(b.nome) + "</h2><p>" + esc(b.descricao) + '</p><p class="guide">' + esc(b.pergunta_guia) + "</p></div>" +
-      '<div class="stack">' + b.itens.map(itemHtml).join("") + "</div></div>" + nav();
+      refProposta(b.id) + '<div class="stack">' + b.itens.map(itemHtml).join("") + "</div></div>" + nav();
   }
 
   function changeDetail(m) {
@@ -639,7 +1033,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
     }).join("");
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Bloco ' + n + "</p><h2>" + esc(MAPA.nome) + "</h2><p>" + esc(MAPA.descricao) + '</p><p class="guide">' + esc(MAPA.pergunta_guia) + '</p><p class="basis">Base: ' + esc(MAPA.fundamento) + "</p></div>" +
-      '<div class="stack">' + dims + "</div></div>" + nav();
+      refProposta("mapa") + '<div class="stack">' + dims + "</div></div>" + nav();
   }
 
   function radar(eixos) {
@@ -1022,6 +1416,26 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       return;
     }
     switch (t.dataset.act) {
+      case "ler-proposta": {
+        var fi = document.getElementById("imp-prop");
+        if (!fi.files || !fi.files[0]) { IMPORT_MSG = "Selecione o arquivo da proposta."; var mm = document.getElementById("imp-msg"); if (mm) { mm.textContent = IMPORT_MSG; mm.className = "msg err"; } break; }
+        var arq = fi.files[0], mi = document.getElementById("imp-msg");
+        if (mi) { mi.textContent = "Lendo a proposta…"; mi.className = "msg"; }
+        TerImportar.lerArquivo(arq).then(function (r) {
+          var sec = TerImportar.segmentar(r.blocos);
+          IMPORT = { arquivo: arq.name, secoes: sec, texto: r.texto };
+          recalcularImport();
+          var nrec = sec.filter(function (x) { return x.campo && x.campo !== "ignorar"; }).length;
+          IMPORT_MSG = nrec ? nrec + " seções reconhecidas." : "Nenhuma seção foi reconhecida automaticamente. Indique as correspondências abaixo ou preencha os campos manualmente.";
+          var y = window.scrollY; render(); window.scrollTo(0, y);
+        }, function (e) {
+          IMPORT_MSG = "Não foi possível ler o arquivo. " + (e && e.message ? e.message : "");
+          var m2 = document.getElementById("imp-msg"); if (m2) { m2.textContent = IMPORT_MSG; m2.className = "msg err"; }
+        });
+        break;
+      }
+      case "aplicar-proposta": aplicarImport(); var ya = window.scrollY; render(); window.scrollTo(0, ya); break;
+      case "descartar-proposta": IMPORT = null; IMPORT_MSG = ""; render(); break;
       case "modo-conceber":
       case "modo-revisar": {
         var modo = t.dataset.act === "modo-conceber" ? "conceber" : "revisar";
@@ -1081,6 +1495,10 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 
   app.addEventListener("change", function (ev) {
     var t = ev.target;
+    if (t.dataset.secidx !== undefined && IMPORT) {
+      IMPORT.secoes[parseInt(t.dataset.secidx, 10)].campo = t.value || null;
+      recalcularImport(); var ys = window.scrollY; render(); window.scrollTo(0, ys); return;
+    }
     if (t.dataset.sel) {
       var lc = S.contexto[t.dataset.sel], iv = lc.indexOf(t.dataset.val);
       if (t.checked && iv < 0) lc.push(t.dataset.val);

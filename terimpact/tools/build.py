@@ -12,7 +12,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 css = (RAIZ / "src" / "app.css").read_text(encoding="utf-8")
-js = (RAIZ / "src" / "app.js").read_text(encoding="utf-8")
+js = (RAIZ / "src" / "importar.js").read_text(encoding="utf-8") + "\n" + (RAIZ / "src" / "app.js").read_text(encoding="utf-8")
 inst = json.loads((RAIZ / "instrumento" / "terimpact_v2.json").read_text(encoding="utf-8"))
 inst_txt = json.dumps(inst, ensure_ascii=False).replace("</", "<\\/")
 listas = json.loads((RAIZ.parent / "listas" / "listas.json").read_text(encoding="utf-8"))

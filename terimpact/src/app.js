@@ -263,10 +263,85 @@
       }).join("") + "</div>" + incluirOutroHtml(alvo, cfg.incluir) +
       '<div class="actions"><button class="btn primary" data-dd="' + campo + '">Concluir seleção</button></div></div></div></div>';
   }
+  var IMPORT = null, IMPORT_MSG = "";
+  var JUST_DE = [["QV1", "originalidade", "Originalidade"], ["QV2", "metodologia", "Abordagem teórico-metodológica"], ["CA5", "divulgacao", "Estratégia de uso e divulgação"], ["CA9", "parcerias", "Parcerias"], ["CA10", "equipe", "Equipe e infraestrutura"], ["RE1", "riscos", "Riscos e efeitos indesejados"]];
+  var REF_BLOCO = { problema: ["problema", "resumo", "objetivos", "publico"], mapa: ["impactos", "resultados", "objetivos"], caminho: ["resultados", "impactos", "divulgacao", "parcerias", "publico"], responsabilidade: ["riscos", "impactos"], qualidade: ["originalidade", "metodologia", "equipe"] };
+  function nomeCampo(id) { var c = TerImportar.CAMPOS.filter(function (x) { return x.id === id; })[0]; return c ? c.nome : id; }
+  function recalcularImport() {
+    var r = TerImportar.sugestoes(IMPORT.secoes, IMPORT.texto, LISTAS);
+    IMPORT.sug = r;
+  }
+  function trecho(t, n) { t = String(t || "").trim(); return t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "…" : t; }
+
+  function painelImport() {
+    var h = '<div class="panel import no-print"><h3>Carregar a proposta</h3>' +
+      '<p class="small">Envie o arquivo da proposta (.docx, .pdf ou .txt). A ferramenta identifica as seções e sugere o preenchimento dos campos. O arquivo é lido neste navegador e não é enviado a servidores.</p>' +
+      '<div class="add-row"><input type="file" id="imp-prop" accept=".docx,.pdf,.txt,.md"><button class="btn primary" data-act="ler-proposta">Ler proposta</button></div>' +
+      '<div class="msg" id="imp-msg" role="status">' + esc(IMPORT_MSG) + "</div>";
+    if (S.proposta && !IMPORT) h += '<p class="small muted">Proposta carregada: ' + esc(S.proposta.arquivo) + ". Os trechos aparecem ao lado das perguntas de cada bloco.</p>";
+    if (IMPORT) {
+      var g = IMPORT.sug, i;
+      h += '<div class="stack import-rev"><p><strong>Encontrado em ' + esc(IMPORT.arquivo) + ".</strong> Marque o que deseja usar. Nada é aplicado sem a sua confirmação.</p>";
+      function chk(id, rot, val, marcado) { return '<label class="imp-op"><input type="checkbox" id="' + id + '"' + (marcado ? " checked" : "") + "> <span><strong>" + esc(rot) + "</strong>" + (val ? ": " + esc(val) : "") + "</span></label>"; }
+      h += '<div class="opts">';
+      if (g.titulo) h += chk("imp-tit", "Título", trecho(g.titulo, 200), !S.contexto.titulo);
+      if (g.duracao) h += chk("imp-dur", "Duração", g.duracao + " meses", !S.contexto.duracao);
+      if (g.problema) h += chk("imp-prob", "Problema (PD1)", trecho(g.problema, 260), !texto("PD1"));
+      h += "</div>";
+      if (g.publicos.length) h += '<div class="stack"><p class="small"><strong>Públicos mencionados na proposta</strong> (sugestões; marque os que se aplicam)</p><div class="opts">' + g.publicos.map(function (x, k) { return chk("imp-pub-" + k, x, "", false); }).join("") + "</div></div>";
+      if (g.parceiros.length) h += '<div class="stack"><p class="small"><strong>Organizações mencionadas</strong></p><div class="opts">' + g.parceiros.map(function (x, k) { return chk("imp-par-" + k, x, "", true); }).join("") + "</div></div>";
+      if (g.produtos.length) h += '<div class="stack"><p class="small"><strong>Tipos de produto identificados (CA1)</strong></p><div class="opts">' + g.produtos.map(function (x, k) { return chk("imp-prod-" + k, x, "", false); }).join("") + "</div></div>";
+      var js = JUST_DE.filter(function (x) { return g.porCampo[x[1]]; });
+      if (js.length) h += '<div class="stack"><p class="small"><strong>Trechos para as justificativas</strong> (preenchem apenas campos vazios)</p><div class="opts">' + js.map(function (x) { return chk("imp-just-" + x[0], x[0] + " · " + x[2], trecho(g.porCampo[x[1]], 140), !(S.respostas[x[0]] && (S.respostas[x[0]].justificativa || "").trim())); }).join("") + "</div></div>";
+      var reconhecidas = IMPORT.secoes.filter(function (x) { return x.campo && x.campo !== "ignorar"; });
+      var outras = TerImportar.naoReconhecidas(IMPORT.secoes);
+      h += '<details><summary>Seções identificadas (' + reconhecidas.length + ") e outras seções (" + outras.length + ")</summary><div>" +
+        '<p class="small muted">Se alguma seção foi classificada de forma errada, ou não foi reconhecida, indique a que corresponde.</p><div class="table-wrap"><table><tbody>' +
+        reconhecidas.concat(outras).map(function (x) {
+          var idx = IMPORT.secoes.indexOf(x);
+          return "<tr><td>" + esc(trecho(x.rotulo, 70)) + '</td><td><select data-secidx="' + idx + '" aria-label="Correspondência da seção">' +
+            '<option value="">Não usar</option>' + TerImportar.CAMPOS.filter(function (c) { return c.id !== "ignorar"; }).map(function (c) { return "<option value=\"" + c.id + "\"" + (x.campo === c.id ? " selected" : "") + ">" + esc(c.nome) + "</option>"; }).join("") + "</select></td></tr>";
+        }).join("") + "</tbody></table></div></div></details>";
+      h += '<div class="actions"><button class="btn primary" data-act="aplicar-proposta">Aplicar à avaliação</button><button class="btn" data-act="descartar-proposta">Descartar</button></div></div>';
+    }
+    return h + "</div>";
+  }
+
+  function aplicarImport() {
+    var g = IMPORT.sug, c = S.contexto, n = 0;
+    function marcado(id) { var e = document.getElementById(id); return e && e.checked; }
+    if (g.titulo && marcado("imp-tit")) { c.titulo = g.titulo; n++; }
+    if (g.duracao && marcado("imp-dur")) { c.duracao = String(g.duracao); n++; }
+    S.prefill = S.prefill || {};
+    if (g.problema && marcado("imp-prob")) { R("PD1").texto = g.problema; S.prefill.PD1 = true; n++; }
+    g.publicos.forEach(function (x, k) { if (marcado("imp-pub-" + k) && c.publicos.indexOf(x) < 0) { c.publicos.push(x); n++; } });
+    g.parceiros.forEach(function (x, k) { if (marcado("imp-par-" + k) && c.parceiros.indexOf(x) < 0) { c.parceiros.push(x); n++; } });
+    g.produtos.forEach(function (x, k) { if (marcado("imp-prod-" + k)) { var r = R("CA1"); r.opcoes = r.opcoes || []; if (r.opcoes.indexOf(x) < 0) { r.opcoes.push(x); n++; } } });
+    JUST_DE.forEach(function (x) {
+      if (g.porCampo[x[1]] && marcado("imp-just-" + x[0])) {
+        var r = R(x[0]);
+        if (!(r.justificativa || "").trim()) { r.justificativa = g.porCampo[x[1]]; S.prefill[x[0]] = true; n++; }
+      }
+    });
+    S.proposta = { arquivo: IMPORT.arquivo, carregada: new Date().toISOString(), porCampo: g.porCampo };
+    IMPORT = null; IMPORT_MSG = n + " informações aplicadas. Revise os campos preenchidos; os trechos da proposta aparecem ao lado das perguntas de cada bloco.";
+    save();
+  }
+
+  function refProposta(blocoId) {
+    if (!S.proposta || !REF_BLOCO[blocoId]) return "";
+    var pc = S.proposta.porCampo, campos = REF_BLOCO[blocoId].filter(function (k) { return pc[k]; });
+    if (!campos.length) return "";
+    return '<details class="ref-prop"><summary>Trechos da proposta relacionados a este bloco</summary><div>' + campos.map(function (k) {
+      return '<div class="stack"><p class="small"><strong>' + esc(nomeCampo(k)) + '</strong></p><p class="ref-txt">' + esc(trecho(pc[k], 3000)) + "</p></div>";
+    }).join("") + "</div></details>";
+  }
+
   function viewProposta() {
     var c = S.contexto, L = INST.contexto;
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Caracterização</p><h2>A proposta</h2><p class="muted">Nenhum campo é obrigatório. As informações orientam a leitura da devolutiva.</p></div>' +
+      (S.modo === "revisar" ? painelImport() : "") +
       '<div class="field"><label for="f-titulo">Título da proposta</label><input type="text" id="f-titulo" data-ctx="titulo" value="' + esc(c.titulo) + '"></div>' +
       '<div class="grid2">' +
       '<div class="field"><label for="f-tipo">Tipo de projeto</label><select id="f-tipo" data-ctx="tipo">' + opts(L.tipos_projeto, c.tipo) + "</select></div>" +
@@ -295,6 +370,7 @@
         '<textarea id="j-' + it.codigo + '" data-just="' + it.codigo + '" aria-label="' + esc(it.pergunta_concepcao || it.pergunta) + '" placeholder="Escreva livremente. Em branco, vira ponto a desenvolver.">' + esc(r.justificativa || "") + "</textarea>" +
         '<div class="anchor" id="anc-' + it.codigo + '" hidden></div>' +
         (it.permite_na ? '<button class="na-btn" data-na="' + it.codigo + '" aria-pressed="' + !!r.na + '">Não se aplica a esta proposta</button>' : "") +
+        (S.prefill && S.prefill[it.codigo] ? '<p class="prefill">Texto trazido da proposta. Revise e complemente.</p>' : "") +
         (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
     } else {
       corpo = '<div class="scores" role="group" aria-label="Resposta para ' + it.codigo + '">' + it.ancoras.map(function (a, i) {
@@ -307,13 +383,14 @@
         '<textarea id="j-' + it.codigo + '" data-just="' + it.codigo + '" placeholder="' + esc(it.placeholder || "Em que se baseia esta resposta?") + '">' + esc(r.justificativa || "") + "</textarea></div>";
     }
     return '<div class="item" id="item-' + it.codigo + '"><div class="item-head"><span class="code">' + it.codigo + '</span><p class="q">' + esc(it.pergunta) + "</p></div>" +
-      corpo + (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
+      corpo + (S.prefill && S.prefill[it.codigo] ? '<p class="prefill">Texto trazido da proposta. Revise e complemente.</p>' : "") +
+      (it.fundamento ? '<p class="basis">Base: ' + esc(it.fundamento) + "</p>" : "") + "</div>";
   }
 
   function viewItens(b, n) {
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Bloco ' + n + "</p><h2>" + esc(b.nome) + "</h2><p>" + esc(b.descricao) + '</p><p class="guide">' + esc(b.pergunta_guia) + "</p></div>" +
-      '<div class="stack">' + b.itens.map(itemHtml).join("") + "</div></div>" + nav();
+      refProposta(b.id) + '<div class="stack">' + b.itens.map(itemHtml).join("") + "</div></div>" + nav();
   }
 
   function changeDetail(m) {
@@ -346,7 +423,7 @@
     }).join("");
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Bloco ' + n + "</p><h2>" + esc(MAPA.nome) + "</h2><p>" + esc(MAPA.descricao) + '</p><p class="guide">' + esc(MAPA.pergunta_guia) + '</p><p class="basis">Base: ' + esc(MAPA.fundamento) + "</p></div>" +
-      '<div class="stack">' + dims + "</div></div>" + nav();
+      refProposta("mapa") + '<div class="stack">' + dims + "</div></div>" + nav();
   }
 
   function radar(eixos) {
@@ -729,6 +806,26 @@
       return;
     }
     switch (t.dataset.act) {
+      case "ler-proposta": {
+        var fi = document.getElementById("imp-prop");
+        if (!fi.files || !fi.files[0]) { IMPORT_MSG = "Selecione o arquivo da proposta."; var mm = document.getElementById("imp-msg"); if (mm) { mm.textContent = IMPORT_MSG; mm.className = "msg err"; } break; }
+        var arq = fi.files[0], mi = document.getElementById("imp-msg");
+        if (mi) { mi.textContent = "Lendo a proposta…"; mi.className = "msg"; }
+        TerImportar.lerArquivo(arq).then(function (r) {
+          var sec = TerImportar.segmentar(r.blocos);
+          IMPORT = { arquivo: arq.name, secoes: sec, texto: r.texto };
+          recalcularImport();
+          var nrec = sec.filter(function (x) { return x.campo && x.campo !== "ignorar"; }).length;
+          IMPORT_MSG = nrec ? nrec + " seções reconhecidas." : "Nenhuma seção foi reconhecida automaticamente. Indique as correspondências abaixo ou preencha os campos manualmente.";
+          var y = window.scrollY; render(); window.scrollTo(0, y);
+        }, function (e) {
+          IMPORT_MSG = "Não foi possível ler o arquivo. " + (e && e.message ? e.message : "");
+          var m2 = document.getElementById("imp-msg"); if (m2) { m2.textContent = IMPORT_MSG; m2.className = "msg err"; }
+        });
+        break;
+      }
+      case "aplicar-proposta": aplicarImport(); var ya = window.scrollY; render(); window.scrollTo(0, ya); break;
+      case "descartar-proposta": IMPORT = null; IMPORT_MSG = ""; render(); break;
       case "modo-conceber":
       case "modo-revisar": {
         var modo = t.dataset.act === "modo-conceber" ? "conceber" : "revisar";
@@ -788,6 +885,10 @@
 
   app.addEventListener("change", function (ev) {
     var t = ev.target;
+    if (t.dataset.secidx !== undefined && IMPORT) {
+      IMPORT.secoes[parseInt(t.dataset.secidx, 10)].campo = t.value || null;
+      recalcularImport(); var ys = window.scrollY; render(); window.scrollTo(0, ys); return;
+    }
     if (t.dataset.sel) {
       var lc = S.contexto[t.dataset.sel], iv = lc.indexOf(t.dataset.val);
       if (t.checked && iv < 0) lc.push(t.dataset.val);

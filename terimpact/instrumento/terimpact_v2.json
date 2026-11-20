@@ -1,6 +1,6 @@
 {
   "instrumento": "TerImpact - Avaliação Ex Ante",
-  "versao": "2.2.0",
+  "versao": "2.3.0",
   "situacao": "Em desenvolvimento. Perguntas redigidas a partir da primeira rodada da matriz de referenciais, em revisão.",
   "contexto": {
     "tipos_projeto": [
@@ -574,6 +574,6 @@
   ],
   "modos": {
     "conceber": "Perguntas abertas, sem notas, para apoiar a concepção da proposta. Ao final, gera um esboço do projeto orientado ao impacto.",
-    "revisar": "Perguntas com escala de 1 a 5 e justificativa, para examinar uma proposta já escrita. Ao final, gera a devolutiva e o esboço."
+    "revisar": "Para uma proposta já escrita. É possível carregar o arquivo da proposta (.docx, .pdf ou .txt) para pré-preencher título, duração, problema, públicos, parceiros e trechos das justificativas, que você revisa antes de avaliar. As perguntas usam escala de 1 a 5 com justificativa. Ao final, gera a devolutiva e o esboço."
   }
 }
