@@ -1,6 +1,6 @@
 {
   "instrumento": "TerImpact - Avaliação Ex Ante",
-  "versao": "1.0.0-planilha",
+  "versao": "1.0.0",
   "origem": "TerImpact - Avaliação Ex Ante (com dimensão Científica).xlsx",
   "escala": {
     "min": 1,
@@ -28,9 +28,7 @@
             "moderado",
             "alto",
             "muito alto/transformador"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "E2",
@@ -41,9 +39,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "E3",
@@ -54,11 +50,10 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         }
-      ]
+      ],
+      "pergunta_guia": "Quem obtém o ganho econômico, de que ordem e em que prazo? Como ele poderá ser medido?"
     },
     {
       "id": "social",
@@ -74,9 +69,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "S2",
@@ -87,9 +80,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "S3",
@@ -100,11 +91,10 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         }
-      ]
+      ],
+      "pergunta_guia": "Quais grupos se beneficiam, como serão envolvidos e como a proposta evita reproduzir desigualdades?"
     },
     {
       "id": "ambiental",
@@ -120,9 +110,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "A2",
@@ -133,9 +121,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "A3",
@@ -146,11 +132,10 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         }
-      ]
+      ],
+      "pergunta_guia": "Que recurso natural ou processo ambiental é afetado, em que escala territorial e com qual indicador?"
     },
     {
       "id": "politica",
@@ -166,9 +151,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "P2",
@@ -179,9 +162,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "P3",
@@ -192,11 +173,10 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         }
-      ]
+      ],
+      "pergunta_guia": "Que política, programa ou decisão pública a proposta pretende informar, e por qual canal os resultados chegarão aos gestores?"
     },
     {
       "id": "institucional",
@@ -212,9 +192,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "I2",
@@ -225,9 +203,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "I3",
@@ -238,11 +214,10 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         }
-      ]
+      ],
+      "pergunta_guia": "Que capacidade, base de dados, método ou rede permanecerá disponível após o término do projeto?"
     },
     {
       "id": "cientifica",
@@ -258,9 +233,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "C2",
@@ -271,9 +244,7 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         },
         {
           "codigo": "C3",
@@ -284,11 +255,10 @@
             "moderado",
             "alto",
             "muito alto"
-          ],
-          "orientacao": null,
-          "pede_justificativa": true
+          ]
         }
-      ]
+      ],
+      "pergunta_guia": "Qual a lacuna de conhecimento, qual o desenho metodológico e como os resultados poderão ser verificados e reutilizados?"
     },
     {
       "id": "trajetoria",
@@ -305,8 +275,7 @@
             "bem identificado",
             "muito claramente identificado"
           ],
-          "orientacao": null,
-          "pede_justificativa": true
+          "rotulo_curto": "Usuários identificados"
         },
         {
           "codigo": "T2",
@@ -318,8 +287,7 @@
             "fortes",
             "muito fortes"
           ],
-          "orientacao": null,
-          "pede_justificativa": true
+          "rotulo_curto": "Parcerias institucionais"
         },
         {
           "codigo": "T3",
@@ -331,8 +299,7 @@
             "bem definida",
             "muito robusta"
           ],
-          "orientacao": null,
-          "pede_justificativa": true
+          "rotulo_curto": "Estratégia de uso"
         },
         {
           "codigo": "T4",
@@ -344,8 +311,7 @@
             "forte",
             "muito forte"
           ],
-          "orientacao": null,
-          "pede_justificativa": true
+          "rotulo_curto": "Evidências prévias"
         },
         {
           "codigo": "T5",
@@ -357,10 +323,10 @@
             "forte",
             "muito forte"
           ],
-          "orientacao": null,
-          "pede_justificativa": true
+          "rotulo_curto": "Capacidade de implementação"
         }
-      ]
+      ],
+      "pergunta_guia": "Quem usará os resultados, com que apoio, e com base em que evidência prévia se espera esse uso?"
     }
   ],
   "listas": {

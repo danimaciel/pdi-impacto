@@ -4,6 +4,17 @@ Ferramenta online de apoio à avaliação ex ante do potencial de impacto de pro
 
 O instrumento tem origem na planilha de Avaliação Ex Ante de Projetos de Pesquisa da Embrapa Territorial.
 
-## Conteúdo
+## Estrutura
 
-- `instrumento/terimpact_v1.json`: itens, escalas e regras de cálculo do instrumento.
+- `instrumento/terimpact_v1.json`: itens, escalas, perguntas orientadoras e regras de cálculo.
+- `src/`: código da aplicação (estilos e script).
+- `tools/build.py`: gera o `index.html` a partir de `src/` e do instrumento.
+- `index.html`: página publicada. Não deve ser editada diretamente.
+
+## Atualização
+
+Após alterar o instrumento ou o código em `src/`, execute:
+
+```
+python tools/build.py
+```
