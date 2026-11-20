@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Diagnóstico do uso dos resultados da avaliação em organizações de PD&I agropecuária.">
+<title>AgroRadarEval</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=Manrope:wght@600;700;800&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: coluna única de leitura (até 760px), cabeçalho fixo com progresso, etapas em sequência. */
+:root {
+  --bg: #f4f7f5;
+  --surface: #ffffff;
+  --fg: #14211c;
+  --muted: #586a63;
+  --line: #d6e0db;
+  --accent: #1c6a58;
+  --accent-fg: #ffffff;
+  --accent-soft: #e1efe9;
+  --warn: #8a5300;
+  --warn-soft: #fbefd9;
+  --crit: #a02f29;
+  --crit-soft: #f8e2df;
+  --ok: #2c7a47;
+  --font-display: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1412; --surface: #161f1c; --fg: #e3ebe7; --muted: #98a9a2; --line: #2a3632;
+    --accent: #5dbfa3; --accent-fg: #08201a; --accent-soft: #1a2f28;
+    --warn: #e3a64c; --warn-soft: #33270f; --crit: #ee837b; --crit-soft: #3a1c1a; --ok: #6cc58a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1412; --surface: #161f1c; --fg: #e3ebe7; --muted: #98a9a2; --line: #2a3632;
+  --accent: #5dbfa3; --accent-fg: #08201a; --accent-soft: #1a2f28;
+  --warn: #e3a64c; --warn-soft: #33270f; --crit: #ee837b; --crit-soft: #3a1c1a; --ok: #6cc58a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  margin: 0;
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+  z-index: 10; background: var(--surface);
+}
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.2; text-wrap: balance; margin: 0; }
+h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; font-weight: 700; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.wrap {
+  max-width: 760px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+
+/* Cabeçalho */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.top .wrap { padding-block: 10px 8px; display: grid; gap: 8px; }
+.top-row { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.brand { font-family: var(--font-display); font-weight: 800; font-size: 1.05rem; letter-spacing: 0.01em; }
+.brand span { color: var(--accent); }
+.status { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+.bar { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .25s; }
+.chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 0 0 auto; border: 1px solid var(--line); background: transparent; border-radius: 999px;
+  padding: 3px 11px; font-size: 0.85rem; cursor: pointer; color: var(--muted); white-space: nowrap;
+}
+.chip[aria-current="step"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.chip.done { color: var(--fg); border-color: var(--accent); }
+
+main .wrap { padding-block: 28px 48px; display: grid; gap: 24px; }
+
+.eyebrow { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; }
+.lead { font-size: 1.15rem; color: var(--fg); }
+.muted { color: var(--muted); }
+.small { font-size: 0.9rem; }
+.stack { display: grid; gap: 12px; }
+.stack-lg { display: grid; gap: 20px; }
+
+.note {
+  border-left: 3px solid var(--accent); background: var(--accent-soft);
+  padding: 12px 14px; border-radius: 0 var(--radius) var(--radius) 0; font-size: 0.95rem;
+}
+.note.example { border-color: var(--warn); background: var(--warn-soft); }
+
+/* Botões */
+.actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 8px;
+  padding: 10px 16px; cursor: pointer; font-weight: 600; min-height: 44px;
+}
+.btn:hover { border-color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.btn.link { border: none; background: none; padding: 10px 4px; color: var(--accent); text-decoration: underline; }
+.btn.danger { color: var(--crit); }
+.nav { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line); padding-top: 20px; }
+
+/* Escala no início */
+.scale { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.scale li { display: flex; gap: 10px; align-items: baseline; }
+.scale b { font-family: var(--font-mono); font-size: 0.9rem; width: 1.2em; color: var(--accent); }
+
+/* Formulário da proposta */
+.field { display: grid; gap: 6px; }
+.field label, .field legend { font-weight: 600; font-size: 0.95rem; }
+.field .hint { font-size: 0.85rem; color: var(--muted); }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%; border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+  padding: 10px 12px; min-height: 44px;
+}
+textarea { min-height: 76px; resize: vertical; line-height: 1.45; }
+fieldset { border: none; margin: 0; padding: 0; }
+.checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px 16px; margin-top: 4px; }
+.checks label { display: flex; gap: 8px; align-items: center; font-weight: 400; min-height: 36px; }
+.checks input { width: 18px; height: 18px; accent-color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+
+/* Pertinência */
+.segment { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+.segment button { border: none; background: var(--surface); padding: 9px 14px; cursor: pointer; min-height: 44px; }
+.segment button + button { border-left: 1px solid var(--line); }
+.segment button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
+/* Itens */
+.item {
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 16px; display: grid; gap: 12px;
+}
+.item-head { display: flex; gap: 10px; align-items: baseline; }
+.code {
+  font-family: var(--font-mono); font-size: 0.8rem; font-weight: 500; color: var(--accent);
+  border: 1px solid var(--accent); border-radius: 4px; padding: 0 5px; flex: 0 0 auto;
+}
+.q { font-weight: 600; min-width: 0; }
+.scores { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.score {
+  border: 1px solid var(--line); background: var(--bg); border-radius: 8px; cursor: pointer;
+  padding: 8px 4px; display: grid; gap: 2px; justify-items: center; min-height: 48px; text-align: center;
+}
+.score b { font-family: var(--font-display); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.score small { display: none; font-size: 0.72rem; line-height: 1.2; color: var(--muted); }
+.score[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.score[aria-pressed="true"] small { color: var(--accent-fg); }
+.anchor { font-size: 0.9rem; color: var(--muted); min-height: 1.4em; }
+@media (min-width: 620px) {
+  .score small { display: block; }
+  .anchor { display: none; }
+}
+
+/* Resultado */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.card .v { font-family: var(--font-display); font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.card .v small { font-size: 0.95rem; font-weight: 600; color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 14px; min-width: 0; }
+.radar { width: 100%; max-width: 460px; height: auto; justify-self: center; display: block; }
+.radar text { fill: var(--fg); font-family: var(--font-body); font-size: 15px; }
+.radar .na { fill: var(--muted); }
+.radar .ring { fill: none; stroke: var(--line); }
+.radar .axis { stroke: var(--line); }
+.radar .shape { fill: var(--accent); fill-opacity: 0.18; stroke: var(--accent); stroke-width: 2; }
+.radar .pt { fill: var(--accent); }
+.radar .tick { fill: var(--muted); font-size: 10px; font-family: var(--font-mono); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 600; color: var(--muted); font-size: 0.85rem; }
+td.num { font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }
+.bars { display: grid; gap: 10px; }
+.brow { display: grid; grid-template-columns: minmax(0, 1fr) 2.2em; gap: 4px 10px; align-items: center; }
+.brow .lbl { font-size: 0.92rem; grid-column: 1 / -1; }
+.brow .track { height: 10px; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; overflow: hidden; }
+.brow .track i { display: block; height: 100%; background: var(--accent); }
+.brow .n { font-variant-numeric: tabular-nums; text-align: right; font-weight: 600; }
+
+.alerts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.alerts li { padding: 10px 12px 10px 14px; border-radius: 8px; border-left: 4px solid var(--warn); background: var(--warn-soft); font-size: 0.95rem; }
+.alerts li.crit { border-color: var(--crit); background: var(--crit-soft); }
+.alerts li.info { border-color: var(--accent); background: var(--accent-soft); }
+.alerts .tag { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; color: var(--muted); }
+
+.weak { display: grid; gap: 12px; }
+.weak-dim { display: grid; gap: 6px; }
+.weak-dim ul { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; }
+.guide { font-style: italic; color: var(--muted); font-size: 0.95rem; }
+
+details { border-top: 1px solid var(--line); padding-top: 12px; }
+summary { cursor: pointer; font-weight: 600; }
+details > div { margin-top: 10px; display: grid; gap: 8px; }
+
+.confirm { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px; border: 1px solid var(--crit); border-radius: 8px; }
+.msg { font-size: 0.92rem; }
+.msg.err { color: var(--crit); }
+.msg.ok { color: var(--ok); }
+.footer { font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+
+@media print {
+  .top, .nav, .no-print, body::before { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .panel, .card, .item { border-color: #bbb; break-inside: avoid; }
+}
+
+/* ---------- Versão 2 ---------- */
+.draft { font-size: 0.82rem; color: var(--warn); font-weight: 600; letter-spacing: 0.02em; }
+.basis { font-size: 0.78rem; color: var(--muted); }
+.na-btn { justify-self: start; border: 1px dashed var(--line); background: transparent; border-radius: 8px; padding: 6px 12px; cursor: pointer; font-size: 0.88rem; color: var(--muted); min-height: 36px; }
+.na-btn[aria-pressed="true"] { border-style: solid; border-color: var(--accent); color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+.opts { display: grid; gap: 6px; }
+.opts label { display: flex; gap: 10px; align-items: flex-start; font-weight: 400; min-height: 32px; }
+.opts input { width: 18px; height: 18px; margin-top: 3px; accent-color: var(--accent); flex: 0 0 auto; }
+.dim { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: grid; gap: 10px; }
+.dim-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.dim-head .count { font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dim-head .count.on { color: var(--accent); font-weight: 600; }
+.change { border-top: 1px solid var(--line); padding-top: 10px; display: grid; gap: 10px; }
+.change > label { display: flex; gap: 10px; align-items: flex-start; font-weight: 600; cursor: pointer; }
+.change > label input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--accent); flex: 0 0 auto; }
+.change-detail { display: grid; gap: 12px; padding-left: 30px; }
+.levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.level { border: 1px solid var(--line); background: var(--bg); border-radius: 8px; padding: 8px 6px; cursor: pointer; display: grid; gap: 2px; text-align: left; min-height: 48px; }
+.level b { font-size: 0.88rem; }
+.level small { font-size: 0.74rem; color: var(--muted); line-height: 1.25; }
+.level[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.level[aria-pressed="true"] small { color: var(--accent-fg); }
+@media (max-width: 520px) { .levels { grid-template-columns: 1fr; } .change-detail { padding-left: 0; } }
+.lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.lists ul { margin: 0; padding-left: 1.1em; display: grid; gap: 6px; font-size: 0.95rem; }
+.tag-ok { color: var(--ok); }
+.tag-warn { color: var(--warn); }
+.esboco { border: 1px solid var(--line); border-radius: 8px; padding: 18px; background: var(--bg); display: grid; gap: 8px; }
+.esboco h2 { font-size: 1.25rem; }
+.esboco h3 { margin-top: 10px; font-size: 1rem; color: var(--accent); }
+.esboco h4 { margin: 4px 0 0; font-size: 0.95rem; }
+.esboco ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+.esboco p { font-size: 0.97rem; }
+
+/* Texto corrido justificado */
+.stack > p, .guide, .esboco p, .esboco li, .footer { text-align: justify; hyphens: auto; }
+
+/* ---------- AgroRadarEval ---------- */
+.scores.six { grid-template-columns: repeat(5, 1fr) auto; }
+.score.ns { padding: 8px 10px; }
+.score.ns b { font-size: 0.8rem; font-weight: 600; }
+.radar .ref { fill: none; stroke: var(--warn); stroke-width: 1.6; stroke-dasharray: 5 4; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.88rem; color: var(--muted); }
+.legend i { display: inline-block; width: 18px; height: 0; border-top: 3px solid var(--accent); vertical-align: middle; margin-right: 6px; }
+.legend i.ref { border-top: 2px dashed var(--warn); }
+.legend i.max { border-top: 1px solid var(--line); }
+.pill { display: inline-block; font-size: 0.78rem; font-weight: 700; padding: 1px 8px; border-radius: 999px; border: 1px solid currentColor; }
+.pill.acima { color: var(--ok); }
+.pill.abaixo { color: var(--warn); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: none; background: var(--surface); padding: 8px 14px; cursor: pointer; min-height: 40px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.dots { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 520px) { .scores.six { grid-template-columns: repeat(5, 1fr); } .scores.six .ns { grid-column: 1 / -1; } }
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+<div id="app"></div>
+<script type="application/json" id="instrumento">{"instrumento": "AgroRadarEval", "versao": "2.0.0", "origem": "Pinto et al. (2024), Journal of Technology Management & Innovation, 19(4), 89-112. doi:10.4067/S0718-27242024000400089", "situacao": "Tradução para o português em revisão. A escala de concordância e a relação entre pilares e dimensões aguardam confirmação da autora.", "escala": {"rotulos": ["Discordo totalmente", "Discordo", "Não concordo nem discordo", "Concordo", "Concordo totalmente"], "nao_sei": "Não sei avaliar"}, "referencia": {"percentual": 50, "descricao": "Valor de referência da versão original: metade da pontuação máxima de cada dimensão."}, "regras": {"destaque_min": 4, "melhorar_max": 2}, "pilares": [{"nome": "Desenvolvimento de capacidades avaliativas", "nome_en": "Evaluation Capacity Building (ECB)", "descricao": "Estruturas, ferramentas, conhecimentos, habilidades e apoio organizacional para integrar a avaliação aos processos cotidianos (Preskill; Boyle, 2008; Labin et al., 2012)."}, {"nome": "Cultura de avaliação orientada ao impacto", "nome_en": "Impact-Oriented Evaluation Culture", "descricao": "Práticas de pesquisa orientadas a resultados e impactos, com base em trajetórias de impacto, teoria da mudança e cultura de impacto (Douthwaite et al., 2003; Alvarez et al., 2010; Reed et al., 2021)."}, {"nome": "Aprendizagem reflexiva", "nome_en": "Reflective Learning", "descricao": "Reflexão crítica, aprendizagem adaptativa e reflexividade organizacional, com retroalimentação e processos participativos (Weiss, 1998; Patton, 2020; Schuijff; Dijkstra, 2020)."}], "perfil_respondente": [["Conhecimento dos processos organizacionais", "Compreensão dos processos internos da organização, em especial nas áreas de pesquisa, desenvolvimento e inovação."], ["Familiaridade com as práticas internas de avaliação", "Compreensão de como as avaliações são realizadas na organização, incluindo métricas e indicadores utilizados."], ["Visão estratégica de PD&I", "Compreensão dos objetivos de PD&I da organização e das estratégias para alcançá-los, incluindo a construção de novos programas e projetos."], ["Conhecimento das tendências do setor agropecuário", "Compreensão das tendências e dos desafios do setor que podem influenciar as práticas de PD&I."], ["Capacidade de avaliação crítica", "Capacidade de avaliar criticamente as práticas internas e a posição da organização quanto ao uso das evidências de avaliação."], ["Familiaridade com os conceitos de impacto e inovação na pesquisa", "Compreensão de como a pesquisa e suas evidências podem gerar impacto e inovação no contexto da organização."]], "dimensoes": [{"id": "participacao", "sigla": "PC", "nome": "Participação e colaboração", "nome_en": "Participation and Collaboration", "descricao": "Envolvimento ativo e contínuo das partes interessadas no processo de avaliação: equipe de avaliação, gestores, equipes técnicas, beneficiários e outros atores. A participação favorece a apropriação dos resultados e aumenta a probabilidade de seu uso, além de permitir identificar as demandas de uso de cada ator. Associa-se aos conceitos de avaliação para o empoderamento e de avaliação participativa e colaborativa (Labin et al., 2012).", "afirmacoes": [{"codigo": "PC1", "texto": "A instituição identifica e mapeia todas as partes interessadas relevantes para a avaliação.", "texto_en": "The institution identifies and maps all relevant stakeholders for the assessment"}, {"codigo": "PC2", "texto": "Todas as partes interessadas identificadas participam ativamente ao longo do processo de avaliação.", "texto_en": "All identified stakeholders are actively involved throughout the assessment process"}, {"codigo": "PC3", "texto": "A instituição identifica e documenta de forma efetiva as necessidades e os interesses de cada parte interessada.", "texto_en": "The institution effectively identifies and documents the needs and interests of each stakeholder"}, {"codigo": "PC4", "texto": "A instituição dispõe de mecanismos efetivos para assegurar a participação ativa de todas as partes interessadas na avaliação.", "texto_en": "The institution has effective mechanisms to ensure the active participation of all interested parties in the evaluation"}, {"codigo": "PC5", "texto": "As formas de interação com as partes interessadas são definidas e ajustadas pela instituição conforme a necessidade.", "texto_en": "Approaches to interacting with stakeholders are determined and adapted as needed by the institution"}, {"codigo": "PC6", "texto": "A instituição tem estratégias definidas para preparar e divulgar materiais didáticos sobre avaliação às partes interessadas.", "texto_en": "The institution has well-defined strategies to prepare and disseminate teaching materials on assessment to interested parties"}, {"codigo": "PC7", "texto": "A instituição mantém frequência adequada de reuniões, presenciais ou virtuais, para discutir a avaliação com as partes interessadas.", "texto_en": "The institution maintains an adequate frequency of meetings (in-person or virtual) to discuss the evaluation with interested parties"}, {"codigo": "PC8", "texto": "As interações e as contribuições das partes interessadas são documentadas pela instituição durante o processo de avaliação.", "texto_en": "Stakeholder interactions and contributions are effectively documented during the assessment process by the institution"}, {"codigo": "PC9", "texto": "Há um canal formal e regular pelo qual a instituição recebe retorno das partes interessadas após as interações.", "texto_en": "There is a formal and regular channel where the institution receives feedback from interested parties after interactions"}, {"codigo": "PC10", "texto": "A instituição comunica de forma clara e aberta as metodologias e os critérios usados nas avaliações.", "texto_en": "The institution clearly and openly communicates the methodologies and criteria used in evaluations"}, {"codigo": "PC11", "texto": "A instituição assegura que os dados e as informações usados nas avaliações sejam acessíveis e compreensíveis para as partes interessadas.", "texto_en": "The institution ensures that all data and information used in assessments are accessible and understandable to interested parties"}, {"codigo": "PC12", "texto": "A instituição documenta e utiliza a teoria da mudança para orientar suas atividades de avaliação.", "texto_en": "The institution documents and uses the theory of change to guide its assessment activities"}, {"codigo": "PC13", "texto": "A instituição identifica e trata possíveis pontos de resistência que possam afetar a trajetória de impacto.", "texto_en": "The institution identifies and addresses potential points of resistance that may affect the path to impact"}, {"codigo": "PC14", "texto": "A instituição avalia e aprimora a qualidade das interações com as partes interessadas para assegurar contribuições à trajetória de impacto.", "texto_en": "The institution evaluates and improves the quality of interactions with stakeholders to ensure contributions to the impact path"}]}, {"id": "competencias", "sigla": "DC", "nome": "Desenvolvimento de competências", "nome_en": "Skill Development", "descricao": "Estratégias para desenvolver as competências necessárias para realizar e usar avaliações, como treinamento, assistência técnica, coaching e mentoria (Preskill; Boyle, 2008). Inclui a identificação das demandas de capacitação e a organização para atendê-las (Labin et al., 2012). Associa-se ao conceito de avaliação centrada na aprendizagem.", "afirmacoes": [{"codigo": "DC1", "texto": "A instituição identifica e mapeia de forma efetiva as principais demandas e necessidades de capacitação em avaliação.", "texto_en": "The institution effectively identifies and maps the main demands and needs for evaluation training"}, {"codigo": "DC2", "texto": "A instituição tem um processo para selecionar ou definir o espaço adequado para a realização das capacitações.", "texto_en": "The institution has a process for selecting or defining the appropriate space to carry out training"}, {"codigo": "DC3", "texto": "Os perfis dos participantes ou beneficiários das capacitações estão claramente definidos.", "texto_en": "The profiles of training participants or beneficiaries are clearly defined"}, {"codigo": "DC4", "texto": "O número de pessoas disponíveis para as avaliações é adequado.", "texto_en": "The number of human resources needed for assessments is adequate"}, {"codigo": "DC5", "texto": "A instituição realiza análises para definir o número adequado de pessoas necessárias às capacitações.", "texto_en": "The institution carries out assessments to determine the appropriate number of human resources needed for training"}, {"codigo": "DC6", "texto": "A instituição avalia as competências adquiridas pelos participantes após as capacitações.", "texto_en": "The institution assesses the competence acquired by participants after the training"}, {"codigo": "DC7", "texto": "A instituição adota estratégias específicas de capacitação, como treinamento, assistência técnica, coaching e mentoria.", "texto_en": "The institution adopts specific training strategies, such as training, technical assistance, coaching and mentoring"}, {"codigo": "DC8", "texto": "As capacitações são realizadas com frequência e regularidade adequadas.", "texto_en": "Trainings are carried out with adequate frequency and regularity"}, {"codigo": "DC9", "texto": "A instituição oferece um mecanismo de retorno após as capacitações, que permite aos participantes opinar sobre sua efetividade e relevância.", "texto_en": "The institution offers a feedback mechanism after training, allowing participants to provide opinions on the effectiveness and relevance of the training"}, {"codigo": "DC10", "texto": "A instituição avalia e aprimora a capacidade dos envolvidos de compreender e aplicar a teoria da mudança.", "texto_en": "The institution evaluates and improves the capacity of those involved to understand and apply the theory of change"}, {"codigo": "DC11", "texto": "A instituição utiliza ou desenvolveu métodos reconhecidos para avaliar o efeito das capacidades sobre a trajetória de impacto.", "texto_en": "The institution uses or has developed recognized methods to evaluate the impact of capabilities on the path to impact"}, {"codigo": "DC12", "texto": "A instituição emprega abordagens transparentes e reconhecidas para ajustar suas atividades e assegurar o alinhamento com a trajetória de impacto desejada.", "texto_en": "The institution employs transparent and recognized approaches to adjust its activities and ensure alignment with the desired impact path"}]}, {"id": "cultura", "sigla": "CA", "nome": "Promoção de uma cultura de avaliação", "nome_en": "Promotion of an Evaluation Culture", "descricao": "Estratégias para institucionalizar a avaliação e consolidar uma cultura organizacional que valorize a avaliação e a tomada de decisão baseada em evidências. Inclui espaços de diálogo sobre os resultados das avaliações e comunidades de prática para o compartilhamento de conhecimento e experiências. Associa-se aos conceitos de avaliação focada na utilização e de avaliação sensível ao contexto.", "afirmacoes": [{"codigo": "CA1", "texto": "A instituição alinha de forma efetiva sua estratégia à promoção de uma cultura de avaliação.", "texto_en": "The institution effectively aligns its strategy with the promotion of a culture of evaluation"}, {"codigo": "CA2", "texto": "A instituição utiliza mecanismos e plataformas adequados para criar espaços de discussão sobre as avaliações e seus resultados.", "texto_en": "The institution uses appropriate mechanisms and platforms to create spaces for discussion about evaluations and their results"}, {"codigo": "CA3", "texto": "A instituição documenta sistematicamente o processo e os resultados das avaliações, com foco nas necessidades dos usuários.", "texto_en": "The institution systematically documents the process and results of assessments, ensuring that they are centered on users' needs"}, {"codigo": "CA4", "texto": "A instituição compartilha de forma efetiva os resultados das avaliações com seus potenciais usuários.", "texto_en": "The institution effectively shares the results of the evaluations with its potential users"}, {"codigo": "CA5", "texto": "A instituição tem um processo institucional consolidado que conecta a avaliação à gestão de PD&I e à estratégia geral da instituição.", "texto_en": "The institution has a well-established institutional process that connects assessment to R&D management and the institution's overall strategy"}, {"codigo": "CA6", "texto": "A instituição sistematiza e padroniza adequadamente seu processo de avaliação.", "texto_en": "The institution adequately systematizes and standardizes its evaluation process"}, {"codigo": "CA7", "texto": "A instituição incentiva ativamente a formação de comunidades de prática voltadas à avaliação.", "texto_en": "The institution actively encourages the formation of communities of practice focused on evaluation"}, {"codigo": "CA8", "texto": "A instituição estabelece mecanismos efetivos de reconhecimento de boas práticas de avaliação.", "texto_en": "The institution establishes effective recognition mechanisms for successful evaluation practices"}, {"codigo": "CA9", "texto": "A instituição oferece capacitações regulares sobre a importância e as práticas de avaliação.", "texto_en": "The institution offers regular training to train members on the importance and practices of assessment"}, {"codigo": "CA10", "texto": "A instituição promove a transparência como valor central de suas práticas de avaliação.", "texto_en": "The institution promotes transparency as a core value in its assessment practices"}, {"codigo": "CA11", "texto": "A instituição oferece acesso aberto e irrestrito aos relatórios e resultados das avaliações.", "texto_en": "The institution provides open and unrestricted access to evaluation reports and results, ensuring their transparency"}, {"codigo": "CA12", "texto": "A instituição avalia e promove a conscientização interna sobre a importância da trajetória de impacto.", "texto_en": "The institution evaluates and promotes internal awareness about the importance of the path to impact"}, {"codigo": "CA13", "texto": "As lições aprendidas são incorporadas às práticas organizacionais cotidianas para reforçar a trajetória de impacto.", "texto_en": "Lessons learned are integrated into daily organizational practices to reinforce the impact path"}]}, {"id": "retroalimentacao", "sigla": "RA", "nome": "Retroalimentação e adaptação contínua", "nome_en": "Feedback and Continuous Adaptation", "descricao": "Mecanismos para obter retorno sobre os resultados das avaliações e adaptar o processo avaliativo a partir desse retorno, de modo que a avaliação responda às necessidades e prioridades das partes interessadas e promova aprendizagem contínua. Associa-se ao conceito de avaliação para o desenvolvimento.", "afirmacoes": [{"codigo": "RA1", "texto": "A instituição dispõe de mecanismos efetivos para coletar retorno sobre os resultados das avaliações.", "texto_en": "The institution has effective mechanisms to collect feedback on assessment results"}, {"codigo": "RA2", "texto": "A instituição identifica com eficiência os atores-chave para fornecer retorno.", "texto_en": "The institution efficiently identifies key actors to provide feedback"}, {"codigo": "RA3", "texto": "A instituição utiliza de forma proativa o retorno recebido para definir suas agendas e prioridades de avaliação.", "texto_en": "The institution proactively uses the feedback received to define its evaluation agendas and priorities"}, {"codigo": "RA4", "texto": "A instituição tem critérios claros para analisar e selecionar o retorno relevante.", "texto_en": "The institution has clear criteria for analyzing and selecting relevant feedback"}, {"codigo": "RA5", "texto": "A instituição solicita retorno sobre o processo de avaliação com frequência adequada.", "texto_en": "The institution requests feedback on the assessment process with appropriate frequency"}, {"codigo": "RA6", "texto": "A instituição tem processos estabelecidos que asseguram a incorporação efetiva do retorno às práticas de avaliação.", "texto_en": "The institution has established processes that ensure feedback is effectively incorporated into assessment practices"}, {"codigo": "RA7", "texto": "A instituição comunica às partes interessadas, de forma transparente e efetiva, as mudanças ou adaptações feitas com base no retorno recebido.", "texto_en": "The institution communicates in a transparent and effective way to interested parties the changes or adaptations made based on the feedback received"}, {"codigo": "RA8", "texto": "A instituição comunica de forma transparente as justificativas das mudanças ou adaptações feitas com base no retorno recebido.", "texto_en": "The institution transparently communicates the justifications for any changes or adaptations made based on the feedback received"}, {"codigo": "RA9", "texto": "A instituição acompanha o efeito do retorno recebido sobre suas atividades de avaliação.", "texto_en": "The institution tracks the impact of feedback received on its assessment activities"}, {"codigo": "RA10", "texto": "A instituição demonstra capacidade de adaptação quando surgem novas informações relevantes para a trajetória de impacto.", "texto_en": "The institution demonstrates the ability to adapt when new information relevant to the impact path emerges"}]}, {"id": "planejamento", "sigla": "PE", "nome": "Integração ao planejamento estratégico", "nome_en": "Integration with Strategic Planning", "descricao": "Integração da avaliação e de seus resultados ao planejamento estratégico da instituição, de modo que os resultados orientem a estratégia, a priorização de investimentos e o realinhamento de projetos, em especial na gestão de PD&I. Associa-se ao conceito de avaliação prática de políticas.", "afirmacoes": [{"codigo": "PE1", "texto": "A instituição tem uma estratégia clara para incorporar a avaliação ao planejamento estratégico, especialmente em relação à PD&I.", "texto_en": "The institution has a clear strategy to incorporate evaluation into strategic planning, especially in relation to R&D"}, {"codigo": "PE2", "texto": "Os avaliadores mantêm interação e diálogo efetivos com os gestores estratégicos da instituição.", "texto_en": "Evaluators maintain effective interaction and dialogue with the institution's strategic managers"}, {"codigo": "PE3", "texto": "Os avaliadores têm papel ativo e influente na seleção de projetos estratégicos.", "texto_en": "Evaluators play an active and influential role in the selection of strategic projects"}, {"codigo": "PE4", "texto": "A instituição documenta os resultados das avaliações e os direciona de forma efetiva aos usuários.", "texto_en": "The institution documents and directs assessment results effectively to users"}, {"codigo": "PE5", "texto": "A instituição assegura que os resultados das avaliações sejam compartilhados em tempo oportuno com os potenciais usuários.", "texto_en": "The institution ensures that assessment results are promptly shared with potential users"}, {"codigo": "PE6", "texto": "A instituição tem indicadores-chave de desempenho específicos e efetivos para o processo de avaliação, usados e atualizados regularmente.", "texto_en": "The institution has specific and effective KPIs related to the assessment process, and they are used and updated regularly"}, {"codigo": "PE7", "texto": "Os resultados das avaliações têm efeito significativo no reajuste das estratégias e dos planos da instituição.", "texto_en": "The results of the assessments have a significant impact on the readjustment of the institution's strategies and plans"}, {"codigo": "PE8", "texto": "A trajetória de impacto é considerada nas discussões estratégicas da instituição.", "texto_en": "The path to impact is considered in the institution's strategic discussions"}, {"codigo": "PE9", "texto": "As decisões estratégicas são informadas ou modificadas com base na trajetória de impacto.", "texto_en": "Strategic decisions are informed or modified by the path to impact"}]}, {"id": "monitoramento", "sigla": "MR", "nome": "Monitoramento da implementação das recomendações", "nome_en": "Monitoring of Recommendation Implementation", "descricao": "Acompanhamento da implementação das recomendações resultantes da avaliação, para assegurar que as ações e decisões propostas sejam postas em prática e que desafios e obstáculos sejam identificados e tratados. Envolve indicadores claros, retorno das partes interessadas e alinhamento com os objetivos estratégicos e de impacto. Associa-se ao conceito de avaliação interativa.", "afirmacoes": [{"codigo": "MR1", "texto": "A instituição tem um sistema ou processo estabelecido e eficiente para monitorar as recomendações após a avaliação.", "texto_en": "The institution has an established and efficient system or process for monitoring recommendations after assessment"}, {"codigo": "MR2", "texto": "As recomendações das avaliações são revisadas regularmente e seu andamento é acompanhado de forma consistente.", "texto_en": "Assessment recommendations are regularly reviewed, and your progress is consistently tracked"}, {"codigo": "MR3", "texto": "A instituição utiliza métricas ou indicadores claros e efetivos para avaliar a implementação das recomendações.", "texto_en": "The institution uses clear and effective metrics or indicators to evaluate the implementation of recommendations"}, {"codigo": "MR4", "texto": "A instituição recebe retorno constante das principais partes interessadas sobre o andamento e a efetividade das recomendações implementadas.", "texto_en": "The institution receives constant feedback from key stakeholders on the progress and effectiveness of implemented recommendations"}, {"codigo": "MR5", "texto": "A instituição tem estratégias efetivas para lidar com desafios ou obstáculos encontrados na implementação das recomendações.", "texto_en": "The institution has effective strategies to deal with challenges or obstacles encountered during the implementation of recommendations"}, {"codigo": "MR6", "texto": "O processo de monitoramento é documentado, revisado e atualizado periodicamente.", "texto_en": "The monitoring process is documented, reviewed and updated periodically"}, {"codigo": "MR7", "texto": "A instituição tem mecanismos consistentes para adaptar ou revisar as recomendações com base no retorno recebido ou em mudanças de contexto.", "texto_en": "The institution has robust mechanisms to adapt or revise recommendations based on feedback or changes in context"}, {"codigo": "MR8", "texto": "A equipe de avaliação incorpora de forma efetiva o retorno obtido no monitoramento às suas ações ou avaliações futuras.", "texto_en": "The assessment team effectively incorporates feedback collected from monitoring into its future actions or assessments"}, {"codigo": "MR9", "texto": "Durante o monitoramento, há colaboração contínua e produtiva entre a equipe de avaliação e a gestão de PD&I.", "texto_en": "During the monitoring process, there is continuous and productive collaboration between the evaluation team and RD&I management"}, {"codigo": "MR10", "texto": "A instituição avalia o efeito das recomendações implementadas sobre a trajetória de impacto.", "texto_en": "The institution evaluates the effect of implemented recommendations on the path to impact"}, {"codigo": "MR11", "texto": "A instituição utiliza indicadores para monitorar o avanço ao longo da trajetória de impacto, e esses indicadores são revisados periodicamente.", "texto_en": "The institution uses indicators to monitor progress along the path to impact and these are reviewed periodically"}]}, {"id": "ambiente", "sigla": "AE", "nome": "Ambiente externo", "nome_en": "External Environment", "descricao": "Fatores externos que influenciam as decisões e as operações das instituições de PD&I agropecuária, como políticas públicas, tendências tecnológicas, demandas de mercado, agendas afirmativas, questões críticas de produtividade, como as mudanças climáticas, questões socioeconômicas e pressões das partes interessadas. Esses fatores afetam a orientação da pesquisa e a aceitação e aplicação dos resultados das avaliações. Associa-se aos conceitos de avaliação responsiva e de análise situacional.", "afirmacoes": [{"codigo": "AE1", "texto": "A instituição identifica suas principais partes interessadas e se relaciona com elas de forma efetiva.", "texto_en": "The institution identifies and effectively engages with its main stakeholders"}, {"codigo": "AE2", "texto": "A instituição tem um processo sistemático e efetivo para acompanhar e responder ao contexto externo, especialmente em relação ao setor produtivo.", "texto_en": "The institution has a systematic and effective process to monitor and respond to the external context, especially in relation to the productive sector"}, {"codigo": "AE3", "texto": "A instituição conhece e considera adequadamente as principais políticas públicas que afetam suas atividades de PD&I.", "texto_en": "The institution is aware of and adequately addresses the main public policies that impact its R&D activities"}, {"codigo": "AE4", "texto": "A instituição mantém-se atualizada e proativa em relação às tendências tecnológicas e às inovações do setor agropecuário.", "texto_en": "The institution remains up to date and proactive in relation to technological trends and innovations in the agricultural sector"}, {"codigo": "AE5", "texto": "A instituição tem um processo consistente para avaliar as demandas de mercado e alinhá-las aos objetivos e às atividades de PD&I.", "texto_en": "There is a robust process at the institution to evaluate and align market demands with R&D objectives and activities"}, {"codigo": "AE6", "texto": "A instituição adota medidas significativas para assegurar sensibilidade às agendas afirmativas e tratar questões críticas.", "texto_en": "The institution takes significant measures to ensure sensitivity to affirmative agendas and address critical issues"}, {"codigo": "AE7", "texto": "A instituição tem um mecanismo efetivo para acompanhar e responder a questões socioeconômicas que possam afetar suas atividades de PD&I.", "texto_en": "The institution has an effective mechanism to monitor and respond to socioeconomic issues that may impact its R&D activities"}, {"codigo": "AE8", "texto": "A instituição coleta e incorpora de forma efetiva o retorno das partes interessadas às suas atividades e decisões de PD&I.", "texto_en": "The institution effectively collects and integrates stakeholder feedback into its R&D activities and decisions"}, {"codigo": "AE9", "texto": "A instituição mantém parcerias estratégicas ou colaborações efetivas com outros atores do setor agropecuário para enfrentar desafios comuns e compartilhar conhecimento.", "texto_en": "The institution maintains effective strategic partnerships or collaborations with other players in the agricultural sector to address common challenges and share insights"}, {"codigo": "AE10", "texto": "A instituição analisa e responde a fatores externos que podem modificar a trajetória de impacto.", "texto_en": "The institution analyzes and responds to external factors that can modify the path to impact"}, {"codigo": "AE11", "texto": "A instituição tem processos para avaliar e responder a mudanças externas relevantes para suas atividades de avaliação de impacto.", "texto_en": "The institution has processes in place to assess and respond to external changes relevant to its impact assessment activities"}]}, {"id": "comunicacao", "sigla": "CO", "nome": "Comunicação", "nome_en": "Communication", "descricao": "Dimensão transversal, presente em todo o processo e condição para que o uso ocorra. Trata das estratégias, dos canais e das práticas de divulgação e compartilhamento dos resultados das avaliações, para que sejam acessíveis, compreensíveis e aplicáveis pelas diferentes partes interessadas. Associa-se aos conceitos de avaliação transparente e de tradução do conhecimento.", "afirmacoes": [{"codigo": "CO1", "texto": "A instituição adota estratégias efetivas para comunicar os resultados das avaliações.", "texto_en": "The institution adopts effective strategies to communicate assessment results"}, {"codigo": "CO2", "texto": "A instituição identifica e utiliza os canais de comunicação mais efetivos para os diferentes grupos de partes interessadas.", "texto_en": "The institution identifies and uses the most effective communication channels for different groups of stakeholders"}, {"codigo": "CO3", "texto": "A comunicação dos resultados das avaliações pela instituição é efetiva e clara.", "texto_en": "The institution's communication of assessment results is effective and clear"}, {"codigo": "CO4", "texto": "A instituição adota estratégia de comunicação diferenciada, considerando o perfil do público-alvo.", "texto_en": "The institution adopts a differentiated communication strategy, taking into account the profile of the target audience"}, {"codigo": "CO5", "texto": "A instituição assegura acesso e compreensão adequados dos resultados pelas partes diretamente interessadas.", "texto_en": "The institution guarantees adequate access and understanding of results by directly interested parties"}, {"codigo": "CO6", "texto": "Os resultados das avaliações são disponibilizados pela instituição em meios e plataformas adequados e acessíveis.", "texto_en": "The results of the assessments are made available by the institution in appropriate and accessible means/platforms"}, {"codigo": "CO7", "texto": "A instituição revisa e aprimora suas práticas de comunicação com base no retorno das partes interessadas.", "texto_en": "The institution reviews and improves its communication practices based on feedback from stakeholders"}, {"codigo": "CO8", "texto": "Há mecanismos efetivos na instituição para medir a efetividade da comunicação e o nível de engajamento das partes interessadas com os resultados divulgados.", "texto_en": "There are effective mechanisms in place in the institution to measure the effectiveness of communication and the level of engagement of interested parties with the published results"}, {"codigo": "CO9", "texto": "A comunicação dos resultados das avaliações pela instituição ocorre com frequência adequada.", "texto_en": "Communication of assessment results by the institution occurs with an adequate and effective frequency"}, {"codigo": "CO10", "texto": "A instituição trata de forma proativa e efetiva o retorno e as dúvidas que surgem após a divulgação dos resultados.", "texto_en": "The institution deals proactively and effectively with feedback and questions that arise after the results are released"}, {"codigo": "CO11", "texto": "A instituição assegura que a linguagem e o formato dos resultados das avaliações sejam transparentes e de fácil compreensão para todas as partes interessadas.", "texto_en": "The institution ensures that the language and format of assessment results are transparent and easily understood by all interested parties"}, {"codigo": "CO12", "texto": "A instituição se compromete a comunicar tanto os sucessos quanto os desafios ou falhas identificados nas avaliações.", "texto_en": "The institution is committed to communicating both successes and challenges or failures identified in the evaluations, ensuring total transparency"}, {"codigo": "CO13", "texto": "A instituição adota estratégias para comunicar a trajetória de impacto às partes interessadas.", "texto_en": "The institution adopts strategies to communicate the impact path to stakeholders"}, {"codigo": "CO14", "texto": "A instituição coleta e utiliza retorno para melhorar a clareza e a utilidade de sua comunicação sobre a trajetória de impacto.", "texto_en": "The institution collects and uses feedback to improve the clarity and usefulness of its communications about the path to impact"}]}]}</script>
+<script>
+(function () {
+  "use strict";
+
+  var INST = JSON.parse(document.getElementById("instrumento").textContent);
+  var DIMS = INST.dimensoes;
+  var ESC = INST.escala.rotulos;
+  var REF = INST.referencia.percentual;
+  var KEY = "agroradareval.v2.respostas";
+  var app = document.getElementById("app");
+  var TOTAL = DIMS.reduce(function (a, d) { return a + d.afirmacoes.length; }, 0);
+  var AFIRM = {};
+  DIMS.forEach(function (d) { d.afirmacoes.forEach(function (a) { a.dim = d.id; AFIRM[a.codigo] = a; }); });
+
+  var framed = true;
+  try { framed = window.self !== window.top; } catch (e) { framed = true; }
+
+  var STEPS = [{ id: "inicio", nome: "Início" }, { id: "identificacao", nome: "Identificação" }]
+    .concat(DIMS.map(function (d) { return { id: d.id, nome: d.nome, dim: d }; }))
+    .concat([{ id: "resultado", nome: "Resultado" }]);
+
+  /* ---------- Estado ---------- */
+
+  function blank() {
+    return { instrumento: INST.instrumento, versao: INST.versao, criado: new Date().toISOString(), atualizado: null, exemplo: false,
+      organizacao: { nome: "", unidade: "", pais: "", funcao: "" }, respostas: {}, comentarios: {} };
+  }
+  function valid(s) { return s && typeof s === "object" && s.instrumento === INST.instrumento && s.respostas && typeof s.respostas === "object"; }
+  function normalize(s) {
+    var b = blank();
+    Object.keys(b).forEach(function (k) { if (s[k] === undefined) s[k] = b[k]; });
+    Object.keys(b.organizacao).forEach(function (k) { if (s.organizacao[k] === undefined) s.organizacao[k] = ""; });
+    return s;
+  }
+  function load() { try { var r = localStorage.getItem(KEY); if (!r) return null; var s = JSON.parse(r); return valid(s) ? normalize(s) : null; } catch (e) { return null; } }
+  var saveOk = true;
+  function save() {
+    S.atualizado = new Date().toISOString();
+    if (S.exemplo) return;
+    try { localStorage.setItem(KEY, JSON.stringify(S)); saveOk = true; } catch (e) { saveOk = false; }
+  }
+  var S = load() || blank();
+  var CONS = null;      // respostas consolidadas de vários respondentes
+  var VISTA = "minha";  // "minha" ou "consolidada"
+  var step = 0;
+
+  /* ---------- Cálculo ---------- */
+
+  function avg(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
+  function fmt(n, d) { return n === null || n === undefined || isNaN(n) ? "–" : n.toFixed(d === undefined ? 1 : d).replace(".", ","); }
+
+  // respostas: código -> valor (1 a 5; 0 = não sei). Para dados consolidados, valor é a média.
+  function porDimensao(resp) {
+    return DIMS.map(function (d) {
+      var vals = [], ns = 0;
+      d.afirmacoes.forEach(function (a) { var v = resp[a.codigo]; if (v === 0) ns++; else if (v) vals.push(v); });
+      var m = vals.length ? avg(vals) : null;
+      return { dim: d, media: m, pct: m === null ? null : m / 5 * 100, n: vals.length, ns: ns, total: d.afirmacoes.length };
+    });
+  }
+  function contagem(resp) {
+    var n = 0; Object.keys(resp).forEach(function (k) { if (resp[k] !== undefined && resp[k] !== null) n++; }); return n;
+  }
+  function respostasAtivas() { return VISTA === "consolidada" && CONS ? CONS.medias : S.respostas; }
+
+  /* ---------- Consolidação de respondentes ---------- */
+
+  function mediana(a) { var b = a.slice().sort(function (x, y) { return x - y; }); var m = Math.floor(b.length / 2); return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; }
+
+  function consolidar(lista) {
+    var medias = {}, disp = {};
+    Object.keys(AFIRM).forEach(function (c) {
+      var notas = lista.map(function (s) { return s.respostas[c]; }).filter(function (v) { return v >= 1 && v <= 5; });
+      var nsn = lista.filter(function (s) { return s.respostas[c] === 0; }).length;
+      if (notas.length) medias[c] = avg(notas); else if (nsn) medias[c] = 0;
+      if (notas.length >= 2) {
+        var md = mediana(notas), ad = avg(notas.map(function (v) { return Math.abs(v - md); }));
+        var amp = Math.max.apply(null, notas) - Math.min.apply(null, notas);
+        var baixos = notas.filter(function (v) { return v <= 2; }).length, altos = notas.filter(function (v) { return v >= 4; }).length;
+        var padrao = "consenso";
+        if (baixos >= notas.length / 3 && altos >= notas.length / 3 && amp >= 2) padrao = "polarizacao";
+        else {
+          var dest = notas.filter(function (v) { return Math.abs(v - md) >= 2; });
+          if (dest.length === 1 && notas.length >= 3) padrao = "destoante";
+          else if (amp >= 3 || ad > 0.83) padrao = "divergencia";
+          else if (amp === 2) padrao = "moderada";
+        }
+        disp[c] = { notas: notas, mediana: md, ad: ad, amplitude: amp, padrao: padrao };
+      }
+    });
+    return { n: lista.length, respondentes: lista.map(function (s) { return s.organizacao || {}; }), medias: medias, dispersao: disp };
+  }
+
+  var PADRAO = {
+    polarizacao: ["Polarização", "Respostas divididas entre concordância e discordância. Discussão necessária: indica entendimentos diferentes sobre a prática da organização."],
+    destoante: ["Avaliação destoante", "Uma resposta se afasta das demais. Convém ouvir a justificativa: pode indicar informação que o grupo não considerou."],
+    divergencia: ["Divergência", "Respostas dispersas na escala. Discussão recomendada."],
+    moderada: ["Divergência moderada", "Diferença de dois pontos entre respostas."]
+  };
+
+  /* ---------- Utilidades ---------- */
+
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function msg(t, ok) { var m = document.getElementById("msg"); if (m) { m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); } }
+  function hoje() { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(); }
+
+  /* ---------- Cabeçalho e navegação ---------- */
+
+  function statusTxt() { return contagem(S.respostas) + " de " + TOTAL + " afirmações" + (saveOk ? "" : " · não foi possível salvar"); }
+  function header() {
+    var pct = Math.round(100 * contagem(S.respostas) / TOTAL);
+    var chips = STEPS.slice(1).map(function (s, i) {
+      var idx = i + 1;
+      return '<button class="chip" data-go="' + idx + '"' + (idx === step ? ' aria-current="step"' : "") + ">" + esc(s.nome) + "</button>";
+    }).join("");
+    return '<header class="top"><div class="wrap"><div class="top-row"><div class="brand">Agro<span>RadarEval</span></div>' +
+      '<div class="status" id="status">' + statusTxt() + '</div></div><div class="bar" aria-hidden="true"><i id="barfill" style="width:' + pct + '%"></i></div>' +
+      (step > 0 ? '<nav class="chips" aria-label="Etapas">' + chips + "</nav>" : "") + "</div></header>";
+  }
+  function refreshStatus() {
+    var st = document.getElementById("status"); if (st) st.textContent = statusTxt();
+    var bf = document.getElementById("barfill"); if (bf) bf.style.width = Math.round(100 * contagem(S.respostas) / TOTAL) + "%";
+  }
+  function exampleBanner() {
+    return S.exemplo ? '<div class="note example no-print">Você está vendo um exemplo fictício. As alterações não são salvas. <button class="btn link" data-act="novo-real">Iniciar meu diagnóstico</button></div>' : "";
+  }
+  function nav() {
+    var prev = step > 1 ? '<button class="btn" data-go="' + (step - 1) + '">Anterior</button>' : "<span></span>";
+    var next = step < STEPS.length - 1 ? '<button class="btn primary" data-go="' + (step + 1) + '">' + (step === STEPS.length - 2 ? "Ver resultado" : "Próxima: " + esc(STEPS[step + 1].nome)) + "</button>" : "";
+    return '<div class="nav no-print">' + prev + next + "</div>";
+  }
+
+  /* ---------- Telas ---------- */
+
+  function viewInicio() {
+    var tem = !S.exemplo && contagem(S.respostas) > 0;
+    var pil = INST.pilares.map(function (p) { return "<li><strong>" + esc(p.nome) + ".</strong> " + esc(p.descricao) + "</li>"; }).join("");
+    var dims = DIMS.map(function (d, i) { return "<li><b>" + (i + 1) + "</b><span>" + esc(d.nome) + ' <span class="muted">(' + d.afirmacoes.length + " afirmações)</span></span></li>"; }).join("");
+    var perfil = INST.perfil_respondente.map(function (p) { return "<tr><td><strong>" + esc(p[0]) + "</strong></td><td>" + esc(p[1]) + "</td></tr>"; }).join("");
+    return '<div class="stack-lg">' +
+      '<div class="stack"><p class="eyebrow">Diagnóstico organizacional</p><h1>AgroRadarEval</h1>' +
+      '<p class="lead">Diagnóstico do processo de avaliação em organizações de PD&amp;I agropecuária, com foco no uso dos resultados das avaliações para a pesquisa orientada ao impacto.</p></div>' +
+      "<p>O AgroRadarEval apoia dirigentes e gestores de PD&amp;I na reflexão sobre as capacidades, a cultura, as colaborações, os processos e a comunicação que sustentam o uso dos resultados das avaliações. O instrumento foi construído a partir de revisão de literatura e está alinhado aos princípios de pesquisa e inovação responsável e de avaliação responsável da pesquisa (Pinto et al., 2024).</p>" +
+      '<div class="stack"><h3>Pilares</h3><ul class="stack" style="margin:0;padding-left:1.1em">' + pil + "</ul></div>" +
+      '<div class="stack"><h3>Dimensões</h3><ul class="scale">' + dims + "</ul></div>" +
+      "<p>Cada afirmação é respondida em uma escala de concordância de 1 (" + esc(ESC[0].toLowerCase()) + ") a 5 (" + esc(ESC[4].toLowerCase()) + "). A opção \"" + esc(INST.escala.nao_sei) + "\" exclui a afirmação do cálculo. O resultado de cada dimensão é expresso em percentual da pontuação máxima e comparado ao valor de referência de " + REF + "%, adotado na versão original.</p>" +
+      '<details><summary>Perfil recomendado de quem responde</summary><div><p class="small">A escolha de quem responde cabe à organização. Recomenda-se envolver pessoas com as características abaixo. Quando várias pessoas da mesma organização respondem, os resultados podem ser consolidados na tela de resultado.</p><div class="table-wrap"><table><tbody>' + perfil + "</tbody></table></div></div></details>" +
+      '<div class="note">As respostas ficam armazenadas apenas neste navegador. Nenhuma informação é enviada a servidores.</div>' +
+      '<div class="actions">' + (tem ? '<button class="btn primary" data-go="1">Continuar diagnóstico</button><button class="btn" data-act="pedir-novo">Novo diagnóstico</button>'
+        : '<button class="btn primary" data-act="comecar">Iniciar diagnóstico</button>') +
+      '<button class="btn" data-act="exemplo">Ver exemplo preenchido</button></div><div id="confirm-slot"></div>' +
+      '<p class="footer">Instrumento versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " Fonte: " + esc(INST.origem) + ".</p></div>";
+  }
+
+  function viewIdentificacao() {
+    var o = S.organizacao;
+    function campo(id, rotulo, k, ajuda) {
+      return '<div class="field"><label for="f-' + id + '">' + rotulo + "</label>" + (ajuda ? '<span class="hint">' + ajuda + "</span>" : "") + '<input type="text" id="f-' + id + '" data-org="' + k + '" value="' + esc(o[k]) + '"></div>';
+    }
+    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">Identificação</p><h2>Organização e respondente</h2>' +
+      '<p class="muted">Nenhum campo é obrigatório. O nome da organização é usado para reunir respostas de várias pessoas na consolidação.</p></div>' +
+      campo("org", "Organização", "nome") +
+      '<div class="grid2">' + campo("uni", "Unidade ou área", "unidade") + campo("pais", "País", "pais") + "</div>" +
+      campo("funcao", "Função de quem responde", "funcao", "Por exemplo: gestão de PD&amp;I, equipe de avaliação, transferência de tecnologia.") +
+      "</div>" + nav();
+  }
+
+  function afirmHtml(a) {
+    var v = S.respostas[a.codigo];
+    var btns = ESC.map(function (r, i) {
+      var n = i + 1;
+      return '<button class="score" data-code="' + a.codigo + '" data-v="' + n + '" aria-pressed="' + (v === n) + '" aria-label="' + n + ", " + esc(r) + '"><b>' + n + "</b><small>" + esc(r) + "</small></button>";
+    }).join("") + '<button class="score ns" data-code="' + a.codigo + '" data-v="0" aria-pressed="' + (v === 0) + '"><b>' + esc(INST.escala.nao_sei) + "</b></button>";
+    return '<div class="item" id="item-' + a.codigo + '"><div class="item-head"><span class="code">' + a.codigo + '</span><p class="q">' + esc(a.texto) + "</p></div>" +
+      '<div class="scores six" role="group" aria-label="Resposta para ' + a.codigo + '">' + btns + "</div>" +
+      '<div class="anchor" id="anc-' + a.codigo + '">' + (v ? esc(ESC[v - 1]) : v === 0 ? esc(INST.escala.nao_sei) : "") + "</div>" +
+      '<details><summary class="small">Texto original em inglês</summary><div><p class="small muted">' + esc(a.texto_en) + "</p></div></details></div>";
+  }
+
+  function viewDim(d, n) {
+    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">Dimensão ' + (n - 1) + " de " + DIMS.length + "</p><h2>" + esc(d.nome) + "</h2><p>" + esc(d.descricao) + "</p></div>" +
+      '<div class="stack">' + d.afirmacoes.map(afirmHtml).join("") + "</div>" +
+      '<div class="field"><label for="obs-' + d.id + '">Observações sobre esta dimensão</label><textarea id="obs-' + d.id + '" data-obs="' + d.id + '" placeholder="Registre exemplos, práticas existentes ou dificuldades que ajudem a interpretar as respostas.">' + esc(S.comentarios[d.id] || "") + "</textarea></div>" +
+      "</div>" + nav();
+  }
+
+  function radar(linhas) {
+    var W = 520, H = 420, cx = 260, cy = 212, Rad = 130, n = linhas.length;
+    function ang(i) { return (-90 + i * 360 / n) * Math.PI / 180; }
+    function pt(i, pct) { var a = ang(i); return [cx + Rad * pct / 100 * Math.cos(a), cy + Rad * pct / 100 * Math.sin(a)]; }
+    var rings = "";
+    [20, 40, 60, 80, 100].forEach(function (k) {
+      rings += '<polygon class="ring" points="' + linhas.map(function (_, i) { return pt(i, k).map(function (x) { return x.toFixed(1); }).join(","); }).join(" ") + '"/>';
+      rings += '<text class="tick" x="' + (cx + 4) + '" y="' + (cy - Rad * k / 100 + 3).toFixed(1) + '">' + k + "</text>";
+    });
+    var axes = "", labels = "", dots = "";
+    var ref = linhas.map(function (_, i) { return pt(i, REF).map(function (x) { return x.toFixed(1); }).join(","); }).join(" ");
+    var org = linhas.map(function (l, i) { return pt(i, l.pct || 0).map(function (x) { return x.toFixed(1); }).join(","); }).join(" ");
+    linhas.forEach(function (l, i) {
+      var a = ang(i), e = pt(i, 100);
+      axes += '<line class="axis" x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '"/>';
+      if (l.pct !== null) { var p = pt(i, l.pct); dots += '<circle class="pt" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="3.5"/>'; }
+      var lx = cx + (Rad + 14) * Math.cos(a), ly = cy + (Rad + 14) * Math.sin(a);
+      var cos = Math.cos(a), anchor = Math.abs(cos) < 0.2 ? "middle" : cos > 0 ? "start" : "end";
+      var dy = Math.sin(a) < -0.6 ? -20 : Math.sin(a) > 0.6 ? 14 : 0;
+      labels += '<text x="' + lx.toFixed(1) + '" y="' + (ly + dy).toFixed(1) + '" text-anchor="' + anchor + '"><tspan font-weight="600">' + esc(l.dim.sigla) + '</tspan><tspan x="' + lx.toFixed(1) + '" dy="15" class="na">' + (l.pct === null ? "sem resposta" : fmt(l.pct, 0) + "%") + "</tspan></text>";
+    });
+    return '<svg class="radar" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Resultado por dimensão em percentual da pontuação máxima">' + rings + axes +
+      '<polygon class="ref" points="' + ref + '"/><polygon class="shape" points="' + org + '"/>' + dots + labels + "</svg>";
+  }
+
+  function listas(resp) {
+    var dest = [], melh = [], inter = 0;
+    DIMS.forEach(function (d) {
+      var dd = [], mm = [];
+      d.afirmacoes.forEach(function (a) {
+        var v = resp[a.codigo]; if (!v) return;
+        if (v >= INST.regras.destaque_min) dd.push(a); else if (v <= INST.regras.melhorar_max) mm.push(a); else inter++;
+      });
+      if (dd.length) dest.push({ dim: d, itens: dd });
+      if (mm.length) melh.push({ dim: d, itens: mm });
+    });
+    return { destaques: dest, melhorar: melh, intermediarios: inter };
+  }
+  function listaHtml(grupos, resp) {
+    if (!grupos.length) return '<p class="muted small">Nenhuma afirmação nesta faixa.</p>';
+    return grupos.map(function (g) {
+      return '<div class="weak-dim"><h3>' + esc(g.dim.nome) + "</h3><ul>" + g.itens.map(function (a) {
+        return '<li><span class="code">' + a.codigo + "</span> " + esc(a.texto) + ' <span class="muted">(' + fmt(resp[a.codigo]) + ")</span></li>";
+      }).join("") + "</ul></div>";
+    }).join("");
+  }
+
+  function viewResultado() {
+    var resp = respostasAtivas();
+    var linhas = porDimensao(resp);
+    var L = listas(resp);
+    var o = S.organizacao;
+    var validas = linhas.filter(function (l) { return l.pct !== null; });
+    var geral = validas.length ? avg(validas.map(function (l) { return l.pct; })) : null;
+    var acima = validas.filter(function (l) { return l.pct >= REF; }).length;
+    var cons = VISTA === "consolidada" && CONS;
+
+    var tabela = linhas.map(function (l) {
+      return "<tr><td>" + esc(l.dim.nome) + '</td><td class="num">' + (l.pct === null ? "–" : fmt(l.pct, 0) + "%") + "</td><td>" +
+        (l.pct === null ? "–" : '<span class="pill ' + (l.pct >= REF ? "acima" : "abaixo") + '">' + (l.pct >= REF ? "acima da referência" : "abaixo da referência") + "</span>") +
+        '</td><td class="num">' + l.n + " de " + l.total + (l.ns ? " · " + l.ns + " sem avaliação" : "") + "</td></tr>";
+    }).join("");
+
+    var seletor = CONS ? '<div class="seg" role="group" aria-label="Vista do resultado"><button data-vista="minha" aria-pressed="' + (VISTA === "minha") + '">Minhas respostas</button><button data-vista="consolidada" aria-pressed="' + (VISTA === "consolidada") + '">Consolidado (' + CONS.n + " respondentes)</button></div>" : "";
+
+    var divergHtml = "";
+    if (cons) {
+      var itens = Object.keys(CONS.dispersao).filter(function (c) { return CONS.dispersao[c].padrao !== "consenso"; });
+      var ordem = { polarizacao: 0, destoante: 1, divergencia: 2, moderada: 3 };
+      itens.sort(function (a, b) { return ordem[CONS.dispersao[a].padrao] - ordem[CONS.dispersao[b].padrao] || CONS.dispersao[b].ad - CONS.dispersao[a].ad; });
+      divergHtml = '<div class="panel"><h3>Afirmações para discussão</h3><p class="small muted">Sinalizadas pela dispersão das respostas entre os respondentes (desvio médio em relação à mediana e padrão da distribuição). O número varia conforme as respostas e pode ser zero.</p>' +
+        (itens.length ? '<ul class="alerts">' + itens.map(function (c) {
+          var d = CONS.dispersao[c], p = PADRAO[d.padrao];
+          return '<li class="' + (d.padrao === "polarizacao" ? "crit" : d.padrao === "moderada" ? "info" : "warn") + '"><span class="tag">' + esc(p[0]) + " · " + c + "</span>" + esc(AFIRM[c].texto) +
+            '<br><span class="dots">Respostas: ' + d.notas.slice().sort().join(", ") + " · mediana " + fmt(d.mediana) + " · desvio médio " + fmt(d.ad, 2) + "</span><br><span class=\"small muted\">" + esc(p[1]) + "</span></li>";
+        }).join("") + "</ul>" : '<p class="muted">Nenhuma afirmação com divergência relevante entre os respondentes.</p>') + "</div>";
+    }
+
+    var consPanel = '<div class="panel no-print"><h3>Consolidar respostas da organização</h3>' +
+      '<p class="small">Quando várias pessoas da mesma organização respondem, cada uma baixa ou copia suas respostas e as envia a quem coordena. A consolidação calcula a média de cada afirmação e indica as afirmações em que as respostas divergem, para discussão.</p>' +
+      '<label class="small" for="cons-files">Arquivos de respostas (.json), um por respondente</label><input type="file" id="cons-files" accept=".json,application/json" multiple>' +
+      '<label class="small" for="cons-txt">Ou cole as respostas copiadas, uma após a outra</label><textarea id="cons-txt"></textarea>' +
+      '<label class="opts"><span><input type="checkbox" id="cons-incluir" checked> Incluir as minhas respostas</span></label>' +
+      '<div class="actions"><button class="btn" data-act="consolidar">Consolidar</button>' + (CONS ? '<button class="btn" data-act="desfazer-cons">Desfazer consolidação</button>' : "") + "</div></div>";
+
+    var exportar = '<div class="panel no-print"><h3>Relatório e respostas</h3>' +
+      '<div class="actions">' + (podeBaixar() ? '<button class="btn primary" data-act="baixar-docx">Baixar relatório (Word)</button>' : "") +
+      '<button class="btn" data-act="copiar-relatorio">Copiar texto do relatório</button>' + (!framed ? '<button class="btn" data-act="imprimir">Imprimir ou salvar em PDF</button>' : "") + "</div>" +
+      '<div class="actions"><button class="btn" data-act="copiar">Copiar minhas respostas</button>' + (podeBaixar() ? '<button class="btn" data-act="baixar">Baixar minhas respostas (.json)</button>' : "") + "</div>" +
+      '<details><summary>Importar respostas</summary><div><label class="small" for="imp-file">Arquivo de respostas (.json)</label><input type="file" id="imp-file" accept=".json,application/json">' +
+      '<label class="small" for="imp-txt">Ou cole o conteúdo copiado</label><textarea id="imp-txt"></textarea><div class="actions"><button class="btn" data-act="importar">Carregar respostas</button></div></div></details>' +
+      '<div id="msg" class="msg" role="status"></div><textarea id="copia" hidden readonly></textarea>' +
+      '<div class="actions"><button class="btn danger" data-act="pedir-novo">Novo diagnóstico</button></div><div id="confirm-slot"></div></div>';
+
+    return exampleBanner() + '<div class="stack-lg">' +
+      '<div class="stack"><p class="eyebrow">' + (cons ? "Resultado consolidado" : "Resultado") + "</p><h2>" + esc(o.nome || "Organização não identificada") + "</h2>" +
+      '<p class="muted small">' + [o.unidade, o.pais, cons ? CONS.n + " respondentes" : o.funcao].filter(Boolean).map(esc).join(" · ") + "</p>" + seletor + "</div>" +
+      '<div class="cards">' +
+      '<div class="card"><span class="eyebrow">Resultado geral</span><span class="v">' + (geral === null ? "–" : fmt(geral, 0) + "%") + '</span><span class="small muted">Média das dimensões, em percentual da pontuação máxima</span></div>' +
+      '<div class="card"><span class="eyebrow">Acima da referência</span><span class="v">' + acima + ' <small>de ' + DIMS.length + '</small></span><span class="small muted">Dimensões com resultado igual ou superior a ' + REF + "%</span></div>" +
+      '<div class="card"><span class="eyebrow">Afirmações respondidas</span><span class="v">' + contagem(resp) + " <small>de " + TOTAL + '</small></span><span class="small muted">Incluídas as marcadas como sem avaliação</span></div></div>' +
+      '<div class="panel"><h3>Radar das dimensões</h3><p class="small muted">Percentual da pontuação máxima em cada dimensão. A linha tracejada indica o valor de referência de ' + REF + "%.</p>" + radar(linhas) +
+      '<div class="legend"><span><i></i>' + (cons ? "Organização (consolidado)" : "Organização") + '</span><span><i class="ref"></i>Referência (' + REF + '%)</span><span><i class="max"></i>Máximo (100%)</span></div>' +
+      '<div class="table-wrap"><table><thead><tr><th>Dimensão</th><th class="num">Resultado</th><th>Situação</th><th class="num">Respostas</th></tr></thead><tbody>' + tabela + "</tbody></table></div></div>" +
+      divergHtml +
+      '<div class="panel"><h3>Destaques e pontos a melhorar</h3><p class="small muted">Destaques: afirmações com resposta média igual ou superior a ' + INST.regras.destaque_min + ". Pontos a melhorar: resposta média igual ou inferior a " + INST.regras.melhorar_max + ". " + L.intermediarios + " afirmações ficaram na faixa intermediária.</p>" +
+      '<div class="lists"><div class="stack"><h3 class="tag-ok">Destaques</h3>' + listaHtml(L.destaques, resp) + '</div><div class="stack"><h3 class="tag-warn">Pontos a melhorar</h3>' + listaHtml(L.melhorar, resp) + "</div></div></div>" +
+      consPanel + exportar + "</div>" + nav();
+  }
+
+  /* ---------- Relatório ---------- */
+
+  function relatorio() {
+    var resp = respostasAtivas(), linhas = porDimensao(resp), L = listas(resp), o = S.organizacao, cons = VISTA === "consolidada" && CONS;
+    var secoes = [];
+    secoes.push({ h: "Identificação", blocos: [["Organização", o.nome], ["Unidade ou área", o.unidade], ["País", o.pais], [cons ? "Respondentes" : "Função de quem respondeu", cons ? String(CONS.n) : o.funcao]]
+      .filter(function (x) { return x[1]; }).map(function (x) { return { li: [{ t: x[0] + ": ", b: true }, { t: x[1] }] }; }) });
+    secoes.push({ h: "Resultado por dimensão", blocos: [{ p: [{ t: "Percentual da pontuação máxima em cada dimensão, comparado ao valor de referência de " + REF + "%." }] }].concat(linhas.map(function (l) {
+      return { li: [{ t: l.dim.nome + ": ", b: true }, { t: l.pct === null ? "sem respostas." : fmt(l.pct, 0) + "% (" + (l.pct >= REF ? "acima" : "abaixo") + " da referência; " + l.n + " de " + l.total + " afirmações avaliadas)." }] };
+    })) });
+    if (cons) {
+      var it = Object.keys(CONS.dispersao).filter(function (c) { return CONS.dispersao[c].padrao !== "consenso"; });
+      secoes.push({ h: "Afirmações para discussão", blocos: it.length ? it.map(function (c) { var d = CONS.dispersao[c]; return { li: [{ t: PADRAO[d.padrao][0] + " (" + c + "): ", b: true }, { t: AFIRM[c].texto + " Respostas: " + d.notas.slice().sort().join(", ") + "." }] }; }) : [{ p: [{ t: "Nenhuma afirmação com divergência relevante." }] }] });
+    }
+    function grupos(g) { var b = []; g.forEach(function (x) { b.push({ sub: x.dim.nome }); x.itens.forEach(function (a) { b.push({ li: [{ t: a.codigo + ". ", b: true }, { t: a.texto }] }); }); }); return b.length ? b : [{ p: [{ t: "Nenhuma afirmação nesta faixa." }] }]; }
+    secoes.push({ h: "Destaques", blocos: grupos(L.destaques) });
+    secoes.push({ h: "Pontos a melhorar", blocos: grupos(L.melhorar) });
+    var obs = DIMS.filter(function (d) { return (S.comentarios[d.id] || "").trim(); }).map(function (d) { return { li: [{ t: d.nome + ": ", b: true }, { t: S.comentarios[d.id].trim() }] }; });
+    if (obs.length && !cons) secoes.push({ h: "Observações", blocos: obs });
+    return { titulo: "AgroRadarEval: " + (o.nome || "diagnóstico"), subtitulo: "Diagnóstico do processo de avaliação. Gerado em " + hoje() + " com o instrumento versão " + INST.versao + (cons ? ", resultado consolidado de " + CONS.n + " respondentes." : "."), secoes: secoes };
+  }
+  function relTexto(E) {
+    var L = [E.titulo, E.subtitulo, ""];
+    E.secoes.forEach(function (s) { L.push(s.h.toUpperCase()); s.blocos.forEach(function (b) { if (b.sub) L.push(b.sub); else if (b.li) L.push("- " + b.li.map(function (r) { return r.t; }).join("")); else L.push(b.p.map(function (r) { return r.t; }).join("")); }); L.push(""); });
+    return L.join("\n");
+  }
+  function xml(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function wRuns(runs) { return runs.map(function (r) { return "<w:r>" + (r.b ? "<w:rPr><w:b/></w:rPr>" : "") + '<w:t xml:space="preserve">' + xml(r.t) + "</w:t></w:r>"; }).join(""); }
+  function wP(style, inner, ind) { var ppr = (style ? '<w:pStyle w:val="' + style + '"/>' : "") + (ind ? '<w:ind w:left="360" w:hanging="240"/>' : '<w:jc w:val="both"/>'); return "<w:p><w:pPr>" + ppr + "</w:pPr>" + inner + "</w:p>"; }
+  function docxBlob(E) {
+    var body = wP("Title", wRuns([{ t: E.titulo }])) + wP("Subtitle", wRuns([{ t: E.subtitulo }]));
+    E.secoes.forEach(function (s) { body += wP("Heading1", wRuns([{ t: s.h }])); s.blocos.forEach(function (b) { if (b.sub) body += wP("Heading2", wRuns([{ t: b.sub }])); else if (b.li) body += wP(null, wRuns([{ t: "• " }].concat(b.li)), true); else body += wP(null, wRuns(b.p)); }); });
+    var W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+    var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ' + W + "><w:body>" + body + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
+    function st(id, name, rpr, ppr) { return '<w:style w:type="paragraph" w:styleId="' + id + '"><w:name w:val="' + name + '"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/>' + (ppr ? "<w:pPr>" + ppr + "</w:pPr>" : "") + "<w:rPr>" + rpr + "</w:rPr></w:style>"; }
+    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles ' + W + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>' +
+      st("Title", "Title", '<w:b/><w:sz w:val="36"/><w:color w:val="1C6A58"/>', '<w:spacing w:after="120"/>') + st("Subtitle", "Subtitle", '<w:i/><w:sz w:val="20"/><w:color w:val="586A63"/>', '<w:spacing w:after="240"/>') +
+      st("Heading1", "heading 1", '<w:b/><w:sz w:val="28"/><w:color w:val="1C6A58"/>', '<w:keepNext/><w:spacing w:before="360" w:after="120"/><w:outlineLvl w:val="0"/>') + st("Heading2", "heading 2", '<w:b/><w:sz w:val="24"/>', '<w:keepNext/><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="1"/>') + "</w:styles>";
+    var z = new JSZip();
+    z.file("[Content_Types].xml", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>');
+    z.file("_rels/.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+    z.file("word/_rels/document.xml.rels", '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+    z.file("word/document.xml", doc); z.file("word/styles.xml", styles);
+    return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
+  }
+
+  /* ---------- Arquivos ---------- */
+
+  var DL = null;
+  try { if (window.claude && typeof window.claude.use === "function") window.claude.use("downloads").then(function (ns) { DL = ns; if (STEPS[step].id === "resultado") render(); }, function () {}); } catch (e) {}
+  function podeBaixar() { return !!DL || !framed; }
+  function nomeArquivo(ext) {
+    var base = (S.organizacao.nome || "organizacao").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
+    var f = (S.organizacao.funcao || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 20);
+    return "agroradareval-" + (base || "organizacao") + (f ? "-" + f : "") + "." + ext;
+  }
+  function salvar(nome, data) {
+    if (DL) return DL.save({ filename: nome, data: data }).then(function () { msg("Arquivo salvo.", true); }, function (e) { if (e && e.code === "declined") return; msg("Não foi possível salvar o arquivo neste ambiente. Use a opção de copiar."); });
+    var blob = data instanceof Blob ? data : new Blob([data], { type: "application/octet-stream" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click(); a.remove();
+    return Promise.resolve();
+  }
+  function lerJsons(texto) {
+    var out = [], t = texto.trim(); if (!t) return out;
+    try { var x = JSON.parse(t); return Array.isArray(x) ? x : [x]; } catch (e) {}
+    var prof = 0, ini = -1, str = false, escp = false;
+    for (var i = 0; i < t.length; i++) {
+      var ch = t[i];
+      if (str) { if (escp) escp = false; else if (ch === "\\") escp = true; else if (ch === '"') str = false; continue; }
+      if (ch === '"') str = true; else if (ch === "{") { if (prof === 0) ini = i; prof++; } else if (ch === "}") { prof--; if (prof === 0 && ini >= 0) { try { out.push(JSON.parse(t.slice(ini, i + 1))); } catch (e) {} ini = -1; } }
+    }
+    return out;
+  }
+  function lerArquivos(files) {
+    return Promise.all(Array.prototype.map.call(files || [], function (f) { return new Promise(function (res) { var r = new FileReader(); r.onload = function () { res(String(r.result)); }; r.onerror = function () { res(""); }; r.readAsText(f); }); }));
+  }
+
+  /* ---------- Renderização e eventos ---------- */
+
+  function render() {
+    var s = STEPS[step], body;
+    if (s.id === "inicio") body = viewInicio(); else if (s.id === "identificacao") body = viewIdentificacao(); else if (s.id === "resultado") body = viewResultado(); else body = viewDim(s.dim, step);
+    app.innerHTML = header() + '<main><div class="wrap">' + body + "</div></main>";
+    var cur = app.querySelector('.chip[aria-current="step"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "center" });
+  }
+  function go(i) { step = Math.max(0, Math.min(STEPS.length - 1, i)); render(); window.scrollTo(0, 0); }
+  function pedirNovo() { var s = document.getElementById("confirm-slot"); if (s) s.innerHTML = '<div class="confirm"><span>As respostas salvas neste navegador serão apagadas.</span><button class="btn danger" data-act="novo">Apagar e começar de novo</button><button class="btn" data-act="cancelar">Cancelar</button></div>'; }
+  function copiar(txt, ok) {
+    var fb = function () { var ta = document.getElementById("copia"); ta.hidden = false; ta.value = txt; ta.focus(); ta.select(); msg("Não foi possível copiar automaticamente. O conteúdo foi selecionado no campo ao final da página; copie-o manualmente."); };
+    try { navigator.clipboard.writeText(txt).then(function () { msg(ok, true); }, fb); } catch (e) { fb(); }
+  }
+
+  app.addEventListener("click", function (ev) {
+    var t = ev.target.closest("button"); if (!t) return;
+    if (t.dataset.go !== undefined) { go(parseInt(t.dataset.go, 10)); return; }
+    if (t.dataset.vista) { VISTA = t.dataset.vista; render(); return; }
+    if (t.dataset.code) {
+      var c = t.dataset.code, v = parseInt(t.dataset.v, 10);
+      if (S.respostas[c] === v) delete S.respostas[c]; else S.respostas[c] = v;
+      save();
+      var it = document.getElementById("item-" + c), cur = S.respostas[c];
+      it.querySelectorAll(".score").forEach(function (b) { b.setAttribute("aria-pressed", String(cur !== undefined && parseInt(b.dataset.v, 10) === cur)); });
+      document.getElementById("anc-" + c).textContent = cur ? ESC[cur - 1] : cur === 0 ? INST.escala.nao_sei : "";
+      refreshStatus(); return;
+    }
+    switch (t.dataset.act) {
+      case "comecar": S = blank(); save(); go(1); break;
+      case "exemplo": S = exemplo(); CONS = null; VISTA = "minha"; go(STEPS.length - 1); break;
+      case "novo-real": S = load() || blank(); if (S.exemplo) S = blank(); CONS = null; VISTA = "minha"; go(1); break;
+      case "pedir-novo": pedirNovo(); break;
+      case "cancelar": document.getElementById("confirm-slot").innerHTML = ""; break;
+      case "novo": try { localStorage.removeItem(KEY); } catch (e) {} S = blank(); CONS = null; VISTA = "minha"; save(); go(1); break;
+      case "copiar": copiar(JSON.stringify(S, null, 2), "Respostas copiadas."); break;
+      case "copiar-relatorio": copiar(relTexto(relatorio()), "Texto do relatório copiado."); break;
+      case "baixar": salvar(nomeArquivo("json"), JSON.stringify(S, null, 2)); break;
+      case "baixar-docx":
+        if (typeof JSZip === "undefined") { msg("Não foi possível gerar o arquivo Word neste ambiente. Use a opção de copiar o texto."); break; }
+        docxBlob(relatorio()).then(function (b) { return salvar(nomeArquivo("docx"), b); }, function () { msg("Não foi possível gerar o arquivo Word."); });
+        break;
+      case "imprimir": window.print(); break;
+      case "importar": {
+        var f = document.getElementById("imp-file"), tx = document.getElementById("imp-txt").value;
+        lerArquivos(f.files).then(function (arqs) {
+          var lista = lerJsons(arqs.join("\n") + "\n" + tx).filter(valid);
+          if (!lista.length) { msg("Nenhuma resposta válida do AgroRadarEval foi encontrada."); return; }
+          S = normalize(lista[0]); S.exemplo = false; save(); CONS = null; VISTA = "minha"; go(STEPS.length - 1); msg("Respostas carregadas.", true);
+        });
+        break;
+      }
+      case "consolidar": {
+        var fs = document.getElementById("cons-files"), ct = document.getElementById("cons-txt").value, inc = document.getElementById("cons-incluir").checked;
+        lerArquivos(fs.files).then(function (arqs) {
+          var lista = lerJsons(arqs.join("\n") + "\n" + ct).filter(valid);
+          if (inc && contagem(S.respostas)) lista.unshift(S);
+          if (lista.length < 2) { msg("São necessárias respostas de pelo menos duas pessoas para consolidar."); return; }
+          CONS = consolidar(lista); VISTA = "consolidada"; render(); window.scrollTo(0, 0);
+        });
+        break;
+      }
+      case "desfazer-cons": CONS = null; VISTA = "minha"; render(); break;
+    }
+  });
+  app.addEventListener("input", function (ev) {
+    var t = ev.target;
+    if (t.dataset.org) { S.organizacao[t.dataset.org] = t.value; save(); }
+    else if (t.dataset.obs) { S.comentarios[t.dataset.obs] = t.value; save(); }
+  });
+
+  /* ---------- Exemplo fictício ---------- */
+
+  function exemplo() {
+    var s = blank(); s.exemplo = true;
+    s.organizacao = { nome: "Exemplo: instituto de pesquisa agropecuária", unidade: "Coordenação de avaliação", pais: "Brasil", funcao: "Gestão de PD&I" };
+    var perfil = { participacao: [4, 3, 3, 3, 4, 2, 3, 3, 2, 4, 3, 2, 2, 3], competencias: [3, 2, 3, 2, 2, 2, 3, 2, 3, 2, 2, 3], cultura: [3, 4, 3, 4, 3, 3, 2, 2, 3, 4, 4, 3, 3],
+      retroalimentacao: [3, 3, 2, 2, 2, 2, 3, 3, 2, 3], planejamento: [3, 4, 2, 4, 3, 2, 3, 3, 2], monitoramento: [2, 2, 1, 2, 2, 2, 2, 3, 3, 1, 2],
+      ambiente: [4, 4, 5, 4, 3, 3, 3, 4, 5, 3, 3], comunicacao: [4, 3, 4, 3, 3, 4, 2, 2, 3, 3, 4, 3, 3, 2] };
+    DIMS.forEach(function (d) { d.afirmacoes.forEach(function (a, i) { s.respostas[a.codigo] = perfil[d.id][i]; }); });
+    s.respostas.MR3 = 0;
+    s.comentarios.monitoramento = "As recomendações das avaliações não têm responsável definido nem acompanhamento sistemático.";
+    return s;
+  }
+
+  render();
+})();
+
+</script>
+</body>
+</html>

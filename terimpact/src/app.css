@@ -252,4 +252,4 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 .esboco p { font-size: 0.97rem; }
 
 /* Texto corrido justificado */
-.stack > p, .note, .guide, .esboco p, .esboco li, .footer, .card .small { text-align: justify; hyphens: auto; }
+.stack > p, .guide, .esboco p, .esboco li, .footer { text-align: justify; hyphens: auto; }

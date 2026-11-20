@@ -1,0 +1,611 @@
+{
+  "instrumento": "AgroRadarEval",
+  "versao": "2.0.0",
+  "origem": "Pinto et al. (2024), Journal of Technology Management & Innovation, 19(4), 89-112. doi:10.4067/S0718-27242024000400089",
+  "situacao": "Tradução para o português em revisão. A escala de concordância e a relação entre pilares e dimensões aguardam confirmação da autora.",
+  "escala": {
+    "rotulos": [
+      "Discordo totalmente",
+      "Discordo",
+      "Não concordo nem discordo",
+      "Concordo",
+      "Concordo totalmente"
+    ],
+    "nao_sei": "Não sei avaliar"
+  },
+  "referencia": {
+    "percentual": 50,
+    "descricao": "Valor de referência da versão original: metade da pontuação máxima de cada dimensão."
+  },
+  "regras": {
+    "destaque_min": 4,
+    "melhorar_max": 2
+  },
+  "pilares": [
+    {
+      "nome": "Desenvolvimento de capacidades avaliativas",
+      "nome_en": "Evaluation Capacity Building (ECB)",
+      "descricao": "Estruturas, ferramentas, conhecimentos, habilidades e apoio organizacional para integrar a avaliação aos processos cotidianos (Preskill; Boyle, 2008; Labin et al., 2012)."
+    },
+    {
+      "nome": "Cultura de avaliação orientada ao impacto",
+      "nome_en": "Impact-Oriented Evaluation Culture",
+      "descricao": "Práticas de pesquisa orientadas a resultados e impactos, com base em trajetórias de impacto, teoria da mudança e cultura de impacto (Douthwaite et al., 2003; Alvarez et al., 2010; Reed et al., 2021)."
+    },
+    {
+      "nome": "Aprendizagem reflexiva",
+      "nome_en": "Reflective Learning",
+      "descricao": "Reflexão crítica, aprendizagem adaptativa e reflexividade organizacional, com retroalimentação e processos participativos (Weiss, 1998; Patton, 2020; Schuijff; Dijkstra, 2020)."
+    }
+  ],
+  "perfil_respondente": [
+    [
+      "Conhecimento dos processos organizacionais",
+      "Compreensão dos processos internos da organização, em especial nas áreas de pesquisa, desenvolvimento e inovação."
+    ],
+    [
+      "Familiaridade com as práticas internas de avaliação",
+      "Compreensão de como as avaliações são realizadas na organização, incluindo métricas e indicadores utilizados."
+    ],
+    [
+      "Visão estratégica de PD&I",
+      "Compreensão dos objetivos de PD&I da organização e das estratégias para alcançá-los, incluindo a construção de novos programas e projetos."
+    ],
+    [
+      "Conhecimento das tendências do setor agropecuário",
+      "Compreensão das tendências e dos desafios do setor que podem influenciar as práticas de PD&I."
+    ],
+    [
+      "Capacidade de avaliação crítica",
+      "Capacidade de avaliar criticamente as práticas internas e a posição da organização quanto ao uso das evidências de avaliação."
+    ],
+    [
+      "Familiaridade com os conceitos de impacto e inovação na pesquisa",
+      "Compreensão de como a pesquisa e suas evidências podem gerar impacto e inovação no contexto da organização."
+    ]
+  ],
+  "dimensoes": [
+    {
+      "id": "participacao",
+      "sigla": "PC",
+      "nome": "Participação e colaboração",
+      "nome_en": "Participation and Collaboration",
+      "descricao": "Envolvimento ativo e contínuo das partes interessadas no processo de avaliação: equipe de avaliação, gestores, equipes técnicas, beneficiários e outros atores. A participação favorece a apropriação dos resultados e aumenta a probabilidade de seu uso, além de permitir identificar as demandas de uso de cada ator. Associa-se aos conceitos de avaliação para o empoderamento e de avaliação participativa e colaborativa (Labin et al., 2012).",
+      "afirmacoes": [
+        {
+          "codigo": "PC1",
+          "texto": "A instituição identifica e mapeia todas as partes interessadas relevantes para a avaliação.",
+          "texto_en": "The institution identifies and maps all relevant stakeholders for the assessment"
+        },
+        {
+          "codigo": "PC2",
+          "texto": "Todas as partes interessadas identificadas participam ativamente ao longo do processo de avaliação.",
+          "texto_en": "All identified stakeholders are actively involved throughout the assessment process"
+        },
+        {
+          "codigo": "PC3",
+          "texto": "A instituição identifica e documenta de forma efetiva as necessidades e os interesses de cada parte interessada.",
+          "texto_en": "The institution effectively identifies and documents the needs and interests of each stakeholder"
+        },
+        {
+          "codigo": "PC4",
+          "texto": "A instituição dispõe de mecanismos efetivos para assegurar a participação ativa de todas as partes interessadas na avaliação.",
+          "texto_en": "The institution has effective mechanisms to ensure the active participation of all interested parties in the evaluation"
+        },
+        {
+          "codigo": "PC5",
+          "texto": "As formas de interação com as partes interessadas são definidas e ajustadas pela instituição conforme a necessidade.",
+          "texto_en": "Approaches to interacting with stakeholders are determined and adapted as needed by the institution"
+        },
+        {
+          "codigo": "PC6",
+          "texto": "A instituição tem estratégias definidas para preparar e divulgar materiais didáticos sobre avaliação às partes interessadas.",
+          "texto_en": "The institution has well-defined strategies to prepare and disseminate teaching materials on assessment to interested parties"
+        },
+        {
+          "codigo": "PC7",
+          "texto": "A instituição mantém frequência adequada de reuniões, presenciais ou virtuais, para discutir a avaliação com as partes interessadas.",
+          "texto_en": "The institution maintains an adequate frequency of meetings (in-person or virtual) to discuss the evaluation with interested parties"
+        },
+        {
+          "codigo": "PC8",
+          "texto": "As interações e as contribuições das partes interessadas são documentadas pela instituição durante o processo de avaliação.",
+          "texto_en": "Stakeholder interactions and contributions are effectively documented during the assessment process by the institution"
+        },
+        {
+          "codigo": "PC9",
+          "texto": "Há um canal formal e regular pelo qual a instituição recebe retorno das partes interessadas após as interações.",
+          "texto_en": "There is a formal and regular channel where the institution receives feedback from interested parties after interactions"
+        },
+        {
+          "codigo": "PC10",
+          "texto": "A instituição comunica de forma clara e aberta as metodologias e os critérios usados nas avaliações.",
+          "texto_en": "The institution clearly and openly communicates the methodologies and criteria used in evaluations"
+        },
+        {
+          "codigo": "PC11",
+          "texto": "A instituição assegura que os dados e as informações usados nas avaliações sejam acessíveis e compreensíveis para as partes interessadas.",
+          "texto_en": "The institution ensures that all data and information used in assessments are accessible and understandable to interested parties"
+        },
+        {
+          "codigo": "PC12",
+          "texto": "A instituição documenta e utiliza a teoria da mudança para orientar suas atividades de avaliação.",
+          "texto_en": "The institution documents and uses the theory of change to guide its assessment activities"
+        },
+        {
+          "codigo": "PC13",
+          "texto": "A instituição identifica e trata possíveis pontos de resistência que possam afetar a trajetória de impacto.",
+          "texto_en": "The institution identifies and addresses potential points of resistance that may affect the path to impact"
+        },
+        {
+          "codigo": "PC14",
+          "texto": "A instituição avalia e aprimora a qualidade das interações com as partes interessadas para assegurar contribuições à trajetória de impacto.",
+          "texto_en": "The institution evaluates and improves the quality of interactions with stakeholders to ensure contributions to the impact path"
+        }
+      ]
+    },
+    {
+      "id": "competencias",
+      "sigla": "DC",
+      "nome": "Desenvolvimento de competências",
+      "nome_en": "Skill Development",
+      "descricao": "Estratégias para desenvolver as competências necessárias para realizar e usar avaliações, como treinamento, assistência técnica, coaching e mentoria (Preskill; Boyle, 2008). Inclui a identificação das demandas de capacitação e a organização para atendê-las (Labin et al., 2012). Associa-se ao conceito de avaliação centrada na aprendizagem.",
+      "afirmacoes": [
+        {
+          "codigo": "DC1",
+          "texto": "A instituição identifica e mapeia de forma efetiva as principais demandas e necessidades de capacitação em avaliação.",
+          "texto_en": "The institution effectively identifies and maps the main demands and needs for evaluation training"
+        },
+        {
+          "codigo": "DC2",
+          "texto": "A instituição tem um processo para selecionar ou definir o espaço adequado para a realização das capacitações.",
+          "texto_en": "The institution has a process for selecting or defining the appropriate space to carry out training"
+        },
+        {
+          "codigo": "DC3",
+          "texto": "Os perfis dos participantes ou beneficiários das capacitações estão claramente definidos.",
+          "texto_en": "The profiles of training participants or beneficiaries are clearly defined"
+        },
+        {
+          "codigo": "DC4",
+          "texto": "O número de pessoas disponíveis para as avaliações é adequado.",
+          "texto_en": "The number of human resources needed for assessments is adequate"
+        },
+        {
+          "codigo": "DC5",
+          "texto": "A instituição realiza análises para definir o número adequado de pessoas necessárias às capacitações.",
+          "texto_en": "The institution carries out assessments to determine the appropriate number of human resources needed for training"
+        },
+        {
+          "codigo": "DC6",
+          "texto": "A instituição avalia as competências adquiridas pelos participantes após as capacitações.",
+          "texto_en": "The institution assesses the competence acquired by participants after the training"
+        },
+        {
+          "codigo": "DC7",
+          "texto": "A instituição adota estratégias específicas de capacitação, como treinamento, assistência técnica, coaching e mentoria.",
+          "texto_en": "The institution adopts specific training strategies, such as training, technical assistance, coaching and mentoring"
+        },
+        {
+          "codigo": "DC8",
+          "texto": "As capacitações são realizadas com frequência e regularidade adequadas.",
+          "texto_en": "Trainings are carried out with adequate frequency and regularity"
+        },
+        {
+          "codigo": "DC9",
+          "texto": "A instituição oferece um mecanismo de retorno após as capacitações, que permite aos participantes opinar sobre sua efetividade e relevância.",
+          "texto_en": "The institution offers a feedback mechanism after training, allowing participants to provide opinions on the effectiveness and relevance of the training"
+        },
+        {
+          "codigo": "DC10",
+          "texto": "A instituição avalia e aprimora a capacidade dos envolvidos de compreender e aplicar a teoria da mudança.",
+          "texto_en": "The institution evaluates and improves the capacity of those involved to understand and apply the theory of change"
+        },
+        {
+          "codigo": "DC11",
+          "texto": "A instituição utiliza ou desenvolveu métodos reconhecidos para avaliar o efeito das capacidades sobre a trajetória de impacto.",
+          "texto_en": "The institution uses or has developed recognized methods to evaluate the impact of capabilities on the path to impact"
+        },
+        {
+          "codigo": "DC12",
+          "texto": "A instituição emprega abordagens transparentes e reconhecidas para ajustar suas atividades e assegurar o alinhamento com a trajetória de impacto desejada.",
+          "texto_en": "The institution employs transparent and recognized approaches to adjust its activities and ensure alignment with the desired impact path"
+        }
+      ]
+    },
+    {
+      "id": "cultura",
+      "sigla": "CA",
+      "nome": "Promoção de uma cultura de avaliação",
+      "nome_en": "Promotion of an Evaluation Culture",
+      "descricao": "Estratégias para institucionalizar a avaliação e consolidar uma cultura organizacional que valorize a avaliação e a tomada de decisão baseada em evidências. Inclui espaços de diálogo sobre os resultados das avaliações e comunidades de prática para o compartilhamento de conhecimento e experiências. Associa-se aos conceitos de avaliação focada na utilização e de avaliação sensível ao contexto.",
+      "afirmacoes": [
+        {
+          "codigo": "CA1",
+          "texto": "A instituição alinha de forma efetiva sua estratégia à promoção de uma cultura de avaliação.",
+          "texto_en": "The institution effectively aligns its strategy with the promotion of a culture of evaluation"
+        },
+        {
+          "codigo": "CA2",
+          "texto": "A instituição utiliza mecanismos e plataformas adequados para criar espaços de discussão sobre as avaliações e seus resultados.",
+          "texto_en": "The institution uses appropriate mechanisms and platforms to create spaces for discussion about evaluations and their results"
+        },
+        {
+          "codigo": "CA3",
+          "texto": "A instituição documenta sistematicamente o processo e os resultados das avaliações, com foco nas necessidades dos usuários.",
+          "texto_en": "The institution systematically documents the process and results of assessments, ensuring that they are centered on users' needs"
+        },
+        {
+          "codigo": "CA4",
+          "texto": "A instituição compartilha de forma efetiva os resultados das avaliações com seus potenciais usuários.",
+          "texto_en": "The institution effectively shares the results of the evaluations with its potential users"
+        },
+        {
+          "codigo": "CA5",
+          "texto": "A instituição tem um processo institucional consolidado que conecta a avaliação à gestão de PD&I e à estratégia geral da instituição.",
+          "texto_en": "The institution has a well-established institutional process that connects assessment to R&D management and the institution's overall strategy"
+        },
+        {
+          "codigo": "CA6",
+          "texto": "A instituição sistematiza e padroniza adequadamente seu processo de avaliação.",
+          "texto_en": "The institution adequately systematizes and standardizes its evaluation process"
+        },
+        {
+          "codigo": "CA7",
+          "texto": "A instituição incentiva ativamente a formação de comunidades de prática voltadas à avaliação.",
+          "texto_en": "The institution actively encourages the formation of communities of practice focused on evaluation"
+        },
+        {
+          "codigo": "CA8",
+          "texto": "A instituição estabelece mecanismos efetivos de reconhecimento de boas práticas de avaliação.",
+          "texto_en": "The institution establishes effective recognition mechanisms for successful evaluation practices"
+        },
+        {
+          "codigo": "CA9",
+          "texto": "A instituição oferece capacitações regulares sobre a importância e as práticas de avaliação.",
+          "texto_en": "The institution offers regular training to train members on the importance and practices of assessment"
+        },
+        {
+          "codigo": "CA10",
+          "texto": "A instituição promove a transparência como valor central de suas práticas de avaliação.",
+          "texto_en": "The institution promotes transparency as a core value in its assessment practices"
+        },
+        {
+          "codigo": "CA11",
+          "texto": "A instituição oferece acesso aberto e irrestrito aos relatórios e resultados das avaliações.",
+          "texto_en": "The institution provides open and unrestricted access to evaluation reports and results, ensuring their transparency"
+        },
+        {
+          "codigo": "CA12",
+          "texto": "A instituição avalia e promove a conscientização interna sobre a importância da trajetória de impacto.",
+          "texto_en": "The institution evaluates and promotes internal awareness about the importance of the path to impact"
+        },
+        {
+          "codigo": "CA13",
+          "texto": "As lições aprendidas são incorporadas às práticas organizacionais cotidianas para reforçar a trajetória de impacto.",
+          "texto_en": "Lessons learned are integrated into daily organizational practices to reinforce the impact path"
+        }
+      ]
+    },
+    {
+      "id": "retroalimentacao",
+      "sigla": "RA",
+      "nome": "Retroalimentação e adaptação contínua",
+      "nome_en": "Feedback and Continuous Adaptation",
+      "descricao": "Mecanismos para obter retorno sobre os resultados das avaliações e adaptar o processo avaliativo a partir desse retorno, de modo que a avaliação responda às necessidades e prioridades das partes interessadas e promova aprendizagem contínua. Associa-se ao conceito de avaliação para o desenvolvimento.",
+      "afirmacoes": [
+        {
+          "codigo": "RA1",
+          "texto": "A instituição dispõe de mecanismos efetivos para coletar retorno sobre os resultados das avaliações.",
+          "texto_en": "The institution has effective mechanisms to collect feedback on assessment results"
+        },
+        {
+          "codigo": "RA2",
+          "texto": "A instituição identifica com eficiência os atores-chave para fornecer retorno.",
+          "texto_en": "The institution efficiently identifies key actors to provide feedback"
+        },
+        {
+          "codigo": "RA3",
+          "texto": "A instituição utiliza de forma proativa o retorno recebido para definir suas agendas e prioridades de avaliação.",
+          "texto_en": "The institution proactively uses the feedback received to define its evaluation agendas and priorities"
+        },
+        {
+          "codigo": "RA4",
+          "texto": "A instituição tem critérios claros para analisar e selecionar o retorno relevante.",
+          "texto_en": "The institution has clear criteria for analyzing and selecting relevant feedback"
+        },
+        {
+          "codigo": "RA5",
+          "texto": "A instituição solicita retorno sobre o processo de avaliação com frequência adequada.",
+          "texto_en": "The institution requests feedback on the assessment process with appropriate frequency"
+        },
+        {
+          "codigo": "RA6",
+          "texto": "A instituição tem processos estabelecidos que asseguram a incorporação efetiva do retorno às práticas de avaliação.",
+          "texto_en": "The institution has established processes that ensure feedback is effectively incorporated into assessment practices"
+        },
+        {
+          "codigo": "RA7",
+          "texto": "A instituição comunica às partes interessadas, de forma transparente e efetiva, as mudanças ou adaptações feitas com base no retorno recebido.",
+          "texto_en": "The institution communicates in a transparent and effective way to interested parties the changes or adaptations made based on the feedback received"
+        },
+        {
+          "codigo": "RA8",
+          "texto": "A instituição comunica de forma transparente as justificativas das mudanças ou adaptações feitas com base no retorno recebido.",
+          "texto_en": "The institution transparently communicates the justifications for any changes or adaptations made based on the feedback received"
+        },
+        {
+          "codigo": "RA9",
+          "texto": "A instituição acompanha o efeito do retorno recebido sobre suas atividades de avaliação.",
+          "texto_en": "The institution tracks the impact of feedback received on its assessment activities"
+        },
+        {
+          "codigo": "RA10",
+          "texto": "A instituição demonstra capacidade de adaptação quando surgem novas informações relevantes para a trajetória de impacto.",
+          "texto_en": "The institution demonstrates the ability to adapt when new information relevant to the impact path emerges"
+        }
+      ]
+    },
+    {
+      "id": "planejamento",
+      "sigla": "PE",
+      "nome": "Integração ao planejamento estratégico",
+      "nome_en": "Integration with Strategic Planning",
+      "descricao": "Integração da avaliação e de seus resultados ao planejamento estratégico da instituição, de modo que os resultados orientem a estratégia, a priorização de investimentos e o realinhamento de projetos, em especial na gestão de PD&I. Associa-se ao conceito de avaliação prática de políticas.",
+      "afirmacoes": [
+        {
+          "codigo": "PE1",
+          "texto": "A instituição tem uma estratégia clara para incorporar a avaliação ao planejamento estratégico, especialmente em relação à PD&I.",
+          "texto_en": "The institution has a clear strategy to incorporate evaluation into strategic planning, especially in relation to R&D"
+        },
+        {
+          "codigo": "PE2",
+          "texto": "Os avaliadores mantêm interação e diálogo efetivos com os gestores estratégicos da instituição.",
+          "texto_en": "Evaluators maintain effective interaction and dialogue with the institution's strategic managers"
+        },
+        {
+          "codigo": "PE3",
+          "texto": "Os avaliadores têm papel ativo e influente na seleção de projetos estratégicos.",
+          "texto_en": "Evaluators play an active and influential role in the selection of strategic projects"
+        },
+        {
+          "codigo": "PE4",
+          "texto": "A instituição documenta os resultados das avaliações e os direciona de forma efetiva aos usuários.",
+          "texto_en": "The institution documents and directs assessment results effectively to users"
+        },
+        {
+          "codigo": "PE5",
+          "texto": "A instituição assegura que os resultados das avaliações sejam compartilhados em tempo oportuno com os potenciais usuários.",
+          "texto_en": "The institution ensures that assessment results are promptly shared with potential users"
+        },
+        {
+          "codigo": "PE6",
+          "texto": "A instituição tem indicadores-chave de desempenho específicos e efetivos para o processo de avaliação, usados e atualizados regularmente.",
+          "texto_en": "The institution has specific and effective KPIs related to the assessment process, and they are used and updated regularly"
+        },
+        {
+          "codigo": "PE7",
+          "texto": "Os resultados das avaliações têm efeito significativo no reajuste das estratégias e dos planos da instituição.",
+          "texto_en": "The results of the assessments have a significant impact on the readjustment of the institution's strategies and plans"
+        },
+        {
+          "codigo": "PE8",
+          "texto": "A trajetória de impacto é considerada nas discussões estratégicas da instituição.",
+          "texto_en": "The path to impact is considered in the institution's strategic discussions"
+        },
+        {
+          "codigo": "PE9",
+          "texto": "As decisões estratégicas são informadas ou modificadas com base na trajetória de impacto.",
+          "texto_en": "Strategic decisions are informed or modified by the path to impact"
+        }
+      ]
+    },
+    {
+      "id": "monitoramento",
+      "sigla": "MR",
+      "nome": "Monitoramento da implementação das recomendações",
+      "nome_en": "Monitoring of Recommendation Implementation",
+      "descricao": "Acompanhamento da implementação das recomendações resultantes da avaliação, para assegurar que as ações e decisões propostas sejam postas em prática e que desafios e obstáculos sejam identificados e tratados. Envolve indicadores claros, retorno das partes interessadas e alinhamento com os objetivos estratégicos e de impacto. Associa-se ao conceito de avaliação interativa.",
+      "afirmacoes": [
+        {
+          "codigo": "MR1",
+          "texto": "A instituição tem um sistema ou processo estabelecido e eficiente para monitorar as recomendações após a avaliação.",
+          "texto_en": "The institution has an established and efficient system or process for monitoring recommendations after assessment"
+        },
+        {
+          "codigo": "MR2",
+          "texto": "As recomendações das avaliações são revisadas regularmente e seu andamento é acompanhado de forma consistente.",
+          "texto_en": "Assessment recommendations are regularly reviewed, and your progress is consistently tracked"
+        },
+        {
+          "codigo": "MR3",
+          "texto": "A instituição utiliza métricas ou indicadores claros e efetivos para avaliar a implementação das recomendações.",
+          "texto_en": "The institution uses clear and effective metrics or indicators to evaluate the implementation of recommendations"
+        },
+        {
+          "codigo": "MR4",
+          "texto": "A instituição recebe retorno constante das principais partes interessadas sobre o andamento e a efetividade das recomendações implementadas.",
+          "texto_en": "The institution receives constant feedback from key stakeholders on the progress and effectiveness of implemented recommendations"
+        },
+        {
+          "codigo": "MR5",
+          "texto": "A instituição tem estratégias efetivas para lidar com desafios ou obstáculos encontrados na implementação das recomendações.",
+          "texto_en": "The institution has effective strategies to deal with challenges or obstacles encountered during the implementation of recommendations"
+        },
+        {
+          "codigo": "MR6",
+          "texto": "O processo de monitoramento é documentado, revisado e atualizado periodicamente.",
+          "texto_en": "The monitoring process is documented, reviewed and updated periodically"
+        },
+        {
+          "codigo": "MR7",
+          "texto": "A instituição tem mecanismos consistentes para adaptar ou revisar as recomendações com base no retorno recebido ou em mudanças de contexto.",
+          "texto_en": "The institution has robust mechanisms to adapt or revise recommendations based on feedback or changes in context"
+        },
+        {
+          "codigo": "MR8",
+          "texto": "A equipe de avaliação incorpora de forma efetiva o retorno obtido no monitoramento às suas ações ou avaliações futuras.",
+          "texto_en": "The assessment team effectively incorporates feedback collected from monitoring into its future actions or assessments"
+        },
+        {
+          "codigo": "MR9",
+          "texto": "Durante o monitoramento, há colaboração contínua e produtiva entre a equipe de avaliação e a gestão de PD&I.",
+          "texto_en": "During the monitoring process, there is continuous and productive collaboration between the evaluation team and RD&I management"
+        },
+        {
+          "codigo": "MR10",
+          "texto": "A instituição avalia o efeito das recomendações implementadas sobre a trajetória de impacto.",
+          "texto_en": "The institution evaluates the effect of implemented recommendations on the path to impact"
+        },
+        {
+          "codigo": "MR11",
+          "texto": "A instituição utiliza indicadores para monitorar o avanço ao longo da trajetória de impacto, e esses indicadores são revisados periodicamente.",
+          "texto_en": "The institution uses indicators to monitor progress along the path to impact and these are reviewed periodically"
+        }
+      ]
+    },
+    {
+      "id": "ambiente",
+      "sigla": "AE",
+      "nome": "Ambiente externo",
+      "nome_en": "External Environment",
+      "descricao": "Fatores externos que influenciam as decisões e as operações das instituições de PD&I agropecuária, como políticas públicas, tendências tecnológicas, demandas de mercado, agendas afirmativas, questões críticas de produtividade, como as mudanças climáticas, questões socioeconômicas e pressões das partes interessadas. Esses fatores afetam a orientação da pesquisa e a aceitação e aplicação dos resultados das avaliações. Associa-se aos conceitos de avaliação responsiva e de análise situacional.",
+      "afirmacoes": [
+        {
+          "codigo": "AE1",
+          "texto": "A instituição identifica suas principais partes interessadas e se relaciona com elas de forma efetiva.",
+          "texto_en": "The institution identifies and effectively engages with its main stakeholders"
+        },
+        {
+          "codigo": "AE2",
+          "texto": "A instituição tem um processo sistemático e efetivo para acompanhar e responder ao contexto externo, especialmente em relação ao setor produtivo.",
+          "texto_en": "The institution has a systematic and effective process to monitor and respond to the external context, especially in relation to the productive sector"
+        },
+        {
+          "codigo": "AE3",
+          "texto": "A instituição conhece e considera adequadamente as principais políticas públicas que afetam suas atividades de PD&I.",
+          "texto_en": "The institution is aware of and adequately addresses the main public policies that impact its R&D activities"
+        },
+        {
+          "codigo": "AE4",
+          "texto": "A instituição mantém-se atualizada e proativa em relação às tendências tecnológicas e às inovações do setor agropecuário.",
+          "texto_en": "The institution remains up to date and proactive in relation to technological trends and innovations in the agricultural sector"
+        },
+        {
+          "codigo": "AE5",
+          "texto": "A instituição tem um processo consistente para avaliar as demandas de mercado e alinhá-las aos objetivos e às atividades de PD&I.",
+          "texto_en": "There is a robust process at the institution to evaluate and align market demands with R&D objectives and activities"
+        },
+        {
+          "codigo": "AE6",
+          "texto": "A instituição adota medidas significativas para assegurar sensibilidade às agendas afirmativas e tratar questões críticas.",
+          "texto_en": "The institution takes significant measures to ensure sensitivity to affirmative agendas and address critical issues"
+        },
+        {
+          "codigo": "AE7",
+          "texto": "A instituição tem um mecanismo efetivo para acompanhar e responder a questões socioeconômicas que possam afetar suas atividades de PD&I.",
+          "texto_en": "The institution has an effective mechanism to monitor and respond to socioeconomic issues that may impact its R&D activities"
+        },
+        {
+          "codigo": "AE8",
+          "texto": "A instituição coleta e incorpora de forma efetiva o retorno das partes interessadas às suas atividades e decisões de PD&I.",
+          "texto_en": "The institution effectively collects and integrates stakeholder feedback into its R&D activities and decisions"
+        },
+        {
+          "codigo": "AE9",
+          "texto": "A instituição mantém parcerias estratégicas ou colaborações efetivas com outros atores do setor agropecuário para enfrentar desafios comuns e compartilhar conhecimento.",
+          "texto_en": "The institution maintains effective strategic partnerships or collaborations with other players in the agricultural sector to address common challenges and share insights"
+        },
+        {
+          "codigo": "AE10",
+          "texto": "A instituição analisa e responde a fatores externos que podem modificar a trajetória de impacto.",
+          "texto_en": "The institution analyzes and responds to external factors that can modify the path to impact"
+        },
+        {
+          "codigo": "AE11",
+          "texto": "A instituição tem processos para avaliar e responder a mudanças externas relevantes para suas atividades de avaliação de impacto.",
+          "texto_en": "The institution has processes in place to assess and respond to external changes relevant to its impact assessment activities"
+        }
+      ]
+    },
+    {
+      "id": "comunicacao",
+      "sigla": "CO",
+      "nome": "Comunicação",
+      "nome_en": "Communication",
+      "descricao": "Dimensão transversal, presente em todo o processo e condição para que o uso ocorra. Trata das estratégias, dos canais e das práticas de divulgação e compartilhamento dos resultados das avaliações, para que sejam acessíveis, compreensíveis e aplicáveis pelas diferentes partes interessadas. Associa-se aos conceitos de avaliação transparente e de tradução do conhecimento.",
+      "afirmacoes": [
+        {
+          "codigo": "CO1",
+          "texto": "A instituição adota estratégias efetivas para comunicar os resultados das avaliações.",
+          "texto_en": "The institution adopts effective strategies to communicate assessment results"
+        },
+        {
+          "codigo": "CO2",
+          "texto": "A instituição identifica e utiliza os canais de comunicação mais efetivos para os diferentes grupos de partes interessadas.",
+          "texto_en": "The institution identifies and uses the most effective communication channels for different groups of stakeholders"
+        },
+        {
+          "codigo": "CO3",
+          "texto": "A comunicação dos resultados das avaliações pela instituição é efetiva e clara.",
+          "texto_en": "The institution's communication of assessment results is effective and clear"
+        },
+        {
+          "codigo": "CO4",
+          "texto": "A instituição adota estratégia de comunicação diferenciada, considerando o perfil do público-alvo.",
+          "texto_en": "The institution adopts a differentiated communication strategy, taking into account the profile of the target audience"
+        },
+        {
+          "codigo": "CO5",
+          "texto": "A instituição assegura acesso e compreensão adequados dos resultados pelas partes diretamente interessadas.",
+          "texto_en": "The institution guarantees adequate access and understanding of results by directly interested parties"
+        },
+        {
+          "codigo": "CO6",
+          "texto": "Os resultados das avaliações são disponibilizados pela instituição em meios e plataformas adequados e acessíveis.",
+          "texto_en": "The results of the assessments are made available by the institution in appropriate and accessible means/platforms"
+        },
+        {
+          "codigo": "CO7",
+          "texto": "A instituição revisa e aprimora suas práticas de comunicação com base no retorno das partes interessadas.",
+          "texto_en": "The institution reviews and improves its communication practices based on feedback from stakeholders"
+        },
+        {
+          "codigo": "CO8",
+          "texto": "Há mecanismos efetivos na instituição para medir a efetividade da comunicação e o nível de engajamento das partes interessadas com os resultados divulgados.",
+          "texto_en": "There are effective mechanisms in place in the institution to measure the effectiveness of communication and the level of engagement of interested parties with the published results"
+        },
+        {
+          "codigo": "CO9",
+          "texto": "A comunicação dos resultados das avaliações pela instituição ocorre com frequência adequada.",
+          "texto_en": "Communication of assessment results by the institution occurs with an adequate and effective frequency"
+        },
+        {
+          "codigo": "CO10",
+          "texto": "A instituição trata de forma proativa e efetiva o retorno e as dúvidas que surgem após a divulgação dos resultados.",
+          "texto_en": "The institution deals proactively and effectively with feedback and questions that arise after the results are released"
+        },
+        {
+          "codigo": "CO11",
+          "texto": "A instituição assegura que a linguagem e o formato dos resultados das avaliações sejam transparentes e de fácil compreensão para todas as partes interessadas.",
+          "texto_en": "The institution ensures that the language and format of assessment results are transparent and easily understood by all interested parties"
+        },
+        {
+          "codigo": "CO12",
+          "texto": "A instituição se compromete a comunicar tanto os sucessos quanto os desafios ou falhas identificados nas avaliações.",
+          "texto_en": "The institution is committed to communicating both successes and challenges or failures identified in the evaluations, ensuring total transparency"
+        },
+        {
+          "codigo": "CO13",
+          "texto": "A instituição adota estratégias para comunicar a trajetória de impacto às partes interessadas.",
+          "texto_en": "The institution adopts strategies to communicate the impact path to stakeholders"
+        },
+        {
+          "codigo": "CO14",
+          "texto": "A instituição coleta e utiliza retorno para melhorar a clareza e a utilidade de sua comunicação sobre a trajetória de impacto.",
+          "texto_en": "The institution collects and uses feedback to improve the clarity and usefulness of its communications about the path to impact"
+        }
+      ]
+    }
+  ]
+}

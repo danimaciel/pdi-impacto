@@ -10,8 +10,9 @@ Site: https://danimaciel.github.io/pdi-impacto/
 |---|---|---|
 | `index.html` | Página de abertura | Publicada |
 | `terimpact/` | TerImpact: análise ex ante do impacto de propostas de pesquisa, com modos Conceber e Revisar | Em desenvolvimento |
+| `agroradareval/` | AgroRadarEval: diagnóstico do processo de avaliação em organizações de PD&I agropecuária, com consolidação de respondentes | Nova versão |
 
-Estão previstas camadas para o AgroRadarEval e para o Plano de Transferência de Tecnologia orientado ao impacto.
+Está prevista uma camada para o Plano de Transferência de Tecnologia orientado ao impacto.
 
 ## TerImpact
 
@@ -22,3 +23,10 @@ Estão previstas camadas para o AgroRadarEval e para o Plano de Transferência d
 Após alterar o instrumento ou o código, execute `python terimpact/tools/build.py`.
 
 A versão 1, derivada da planilha original, está preservada no histórico do repositório, na marcação `terimpact-v1`.
+
+## AgroRadarEval
+
+- `agroradareval/instrumento/agroradareval.json`: pilares, dimensões, 94 afirmações (português e texto original em inglês), escala e valor de referência.
+- `agroradareval/src/` e `agroradareval/tools/build.py`: código e geração de `agroradareval/index.html`.
+
+A versão original (Pinto et al., 2024), com dados e código em R/Shiny, está em https://github.com/danimaciel/agroradareval.
