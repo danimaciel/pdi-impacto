@@ -10,3 +10,7 @@ Thumbs.db
 # Documentos de trabalho mantidos apenas localmente
 PROJETO.md
 estudos/
+
+# Textos de referência (direitos autorais) mantidos apenas localmente
+referencias/
+*.pdf
