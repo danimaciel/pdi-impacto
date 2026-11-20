@@ -14,3 +14,8 @@ estudos/
 # Textos de referência (direitos autorais) mantidos apenas localmente
 referencias/
 *.pdf
+
+# Documentos Markdown de trabalho mantidos apenas localmente
+*.md
+!README.md
+proposta/
