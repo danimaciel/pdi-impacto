@@ -1,0 +1,11 @@
+# Planilha original contém dados pessoais (LGPD) — mantida apenas localmente
+*.xlsx
+~$*
+.Rproj.user/
+.Rhistory
+.RData
+.DS_Store
+Thumbs.db
+
+# Documentos de trabalho mantidos apenas localmente
+PROJETO.md
