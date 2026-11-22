@@ -1140,7 +1140,7 @@ input[type="month"] { width: 100%; border: 1px solid var(--line); border-radius:
     if (!ENDPOINT || S.exemplo) return "";
     var nome = autor();
     var campoNome = '<div class="field"><label for="eq-autor">Seu nome ou função</label><input type="text" id="eq-autor" value="' + esc(nome) + '" placeholder="Identifica quem salvou cada versão"></div>';
-    var aceite = '<label class="opts"><span><input type="checkbox" id="eq-aceite"> Concordo em enviar o plano, com o nome ou a função informados, para a planilha mantida pela coordenação deste site.</span></label>';
+    var aceite = '<label class="opts"><span><input type="checkbox" id="eq-aceite"' + (lsGet("planott.aceite") === "1" ? " checked" : "") + '> Concordo em enviar o plano, com o nome ou a função informados, para a planilha mantida pela coordenação deste site.</span></label>';
     var h = '<div class="panel no-print"><h3>Plano em equipe</h3>';
     if (!S.grupo) {
       h += '<p class="small">Crie um link para que a equipe edite o mesmo plano. Cada pessoa abre o link, faz as alterações e salva uma nova versão. Se duas pessoas editarem ao mesmo tempo, quem salvar por último é avisado e escolhe entre carregar a versão mais recente ou manter a sua.</p>' +
@@ -1174,7 +1174,8 @@ input[type="month"] { width: 100%; border: 1px solid var(--line); border-radius:
     var nome = a ? txt(a.value) : autor();
     if (!nome) { eqMsg("Informe seu nome ou função."); return false; }
     lsSet("planott.autor", nome);
-    if (ac && !ac.checked) { eqMsg("Marque a concordância com o envio para a planilha."); return false; }
+    if (ac && !ac.checked) { lsSet("planott.aceite", ""); eqMsg("Marque a concordância com o envio para a planilha."); return false; }
+    lsSet("planott.aceite", "1");
     return true;
   }
 
