@@ -1,0 +1,103 @@
+{
+  "versao": "2026-11-22",
+  "observacao": "Somente nomes. Unidades sem lista de empregados podem ser acrescentadas com este script.",
+  "unidades": [
+    {
+      "nome": "Embrapa Territorial",
+      "areas": [
+        {
+          "nome": "Área de TT"
+        },
+        {
+          "nome": "Área de Comunicação"
+        },
+        {
+          "nome": "Área de Tecnologia da Informação"
+        },
+        {
+          "nome": "Área de Pesquisa",
+          "grupos": [
+            "Grupo de Gestão Territorial Estratégica",
+            "Grupo de Inteligência Territorial Estratégica",
+            "Grupo de Monitoramento Territorial"
+          ]
+        }
+      ],
+      "empregados": [
+        "Alan Rodrigues dos Santos",
+        "Alexandre Rita da Conceicao",
+        "Ana Lucia Filardi",
+        "Ana Raquel de Paula",
+        "Anderson Soares Ferreira",
+        "Andre Luiz dos Santos Furtado",
+        "Andre Rodrigo Farias",
+        "Angelo Mansur Mendes",
+        "Antonio Carlos da Cruz de Marchi",
+        "Arnaldo Jose dos Santos",
+        "Bibiana Teixeira de Almeida",
+        "Carlos Alberto Coutinho Junior",
+        "Carlos Alberto de Carvalho",
+        "Carlos Cesar Ronquim",
+        "Carlos Fernando Quartaroli",
+        "Carmen Silvia Pereira Brazolin",
+        "Celina Maki Takemura",
+        "Cristiaini Kano",
+        "Cristina Aparecida Goncalves Rodrigues",
+        "Cristina Criscuolo",
+        "Daniela Maciel Pinto",
+        "Daniela Tatiane de Souza",
+        "Davi de Oliveira Custodio",
+        "Denise Ming Valent",
+        "Devanir Sebastiao dos Santos",
+        "Edlene Aparecida Monteiro Garcon",
+        "Fabio Marcolino Santos",
+        "Felipe Garcia dos Santos",
+        "Fernando Antonio de Padua Paim",
+        "Gisele Freitas Vilela",
+        "Guilherme Ferraz dos Santos Caetano",
+        "Gustavo Daniel de Oliveira",
+        "Gustavo Spadotti Amaral Castro",
+        "Helena Maria Caiola Molinari",
+        "Hilton Luis Ferraz da Silveira",
+        "Ivan Severino da Silva",
+        "Jaime Costa Mota",
+        "Janice Freitas Leivas",
+        "Jaudete Daltio",
+        "Joao Alfredo de Carvalho Mangabeira",
+        "Jorge Lulu",
+        "Jorge Moreira do Nascimento",
+        "Jose Dilcio Rocha",
+        "Jose Diniz Ferreira de Lima",
+        "Jose Gilberto Jardine",
+        "Jose Paulo Franzin",
+        "Juan Diego Ferelli de Souza",
+        "Julio Cesar Bogiani",
+        "Lauro Rodrigues Nogueira Junior",
+        "Lidiane Graziela dos Santos Pereira",
+        "Luciane Dourado",
+        "Luciola Alves Magalhaes",
+        "Luis Gonzaga Alves de Souza",
+        "Luiz Roberto Bailoni",
+        "Marcelo Fernando Fonseca",
+        "Marcia Helena Rocha",
+        "Marcio Provenci",
+        "Marcos Fernando Ninomiya",
+        "Meire Volotao da Silva",
+        "Nicole Costa Resende Ferreira",
+        "Osvaldo Tadatomo Oshiro",
+        "Paulo Roberto Rodrigues Martinho",
+        "Pedro Romildo da Costa",
+        "Rafael Mingoti",
+        "Roberson Santos Marcelo",
+        "Rogerio Resende Martins Ferreira",
+        "Rosangela do Nascimento Pereira",
+        "Sergio Gomes Tosto",
+        "Suzilei Francisca de Almeida Gomes Carneiro",
+        "Valter Gobato",
+        "Vera Lucia Joao Telles",
+        "Vera Viana dos Santos Brandao",
+        "Vivian Chies"
+      ]
+    }
+  ]
+}

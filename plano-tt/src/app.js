@@ -18,6 +18,17 @@
   var NIVIND = INST.niveis_indicador, NI = {}; NIVIND.forEach(function (n) { NI[n.id] = n; });
   var DIM = {}; DIMS.forEach(function (d) { DIM[d.id] = d; });
   var ORGS = LISTAS.organizacoes.map(function (o) { return o.nome; });
+  var EQUIPES = { unidades: [] }; try { EQUIPES = JSON.parse(document.getElementById("equipes").textContent); } catch (e) {}
+  var VARIAS_UNIDADES = EQUIPES.unidades.filter(function (u) { return (u.empregados || []).length; }).length > 1;
+  var EMPREGADOS = [];
+  EQUIPES.unidades.forEach(function (u) { (u.empregados || []).forEach(function (n) { EMPREGADOS.push({ v: n, extra: VARIAS_UNIDADES ? u.nome : "" }); }); });
+  EMPREGADOS.sort(function (a, b) { return a.v.localeCompare(b.v, "pt-BR"); });
+  /* Áreas que podem coordenar o plano: [rótulo do grupo de opções, [valores]] por Unidade. */
+  var AREAS = EQUIPES.unidades.filter(function (u) { return (u.areas || []).length; }).map(function (u) {
+    var simples = [], grupos = [];
+    u.areas.forEach(function (a) { if (a.grupos && a.grupos.length) grupos.push([a.nome, a.grupos.map(function (g) { return a.nome + ": " + g; })]); else simples.push(a.nome); });
+    return [u.nome, simples, grupos];
+  });
 
   var STEPS = [
     { id: "inicio", nome: "Início" },
@@ -37,7 +48,7 @@
     var crl = {}; DIMS.forEach(function (d) { crl[d.id] = { nivel: 0, na: false, obs: "" }; });
     return {
       instrumento: INST.instrumento, versao: INST.versao, criado: new Date().toISOString(), atualizado: null, exemplo: false,
-      tec: { nome: "", tipo: "", momento: "", descricao: "", endereco: "", unidade: "", projeto: "", equipe: "", responsavel: "", trl: "", inicio: mesAtual(), duracao: 24, objetivos: [], parceiros: [] },
+      tec: { nome: "", tipo: "", momento: "", descricao: "", endereco: "", unidade: "", projeto: "", equipe: [], responsavel: "", trl: "", inicio: mesAtual(), duracao: 24, objetivos: [], parceiros: [] },
       crl: crl,
       valor: { problema: "", beneficios: "", diferencial: "", casos: "", publicos: [], territorios: "" },
       traj: {},
@@ -53,6 +64,8 @@
     var b = blank();
     Object.keys(b).forEach(function (k) { if (s[k] === undefined) s[k] = b[k]; });
     ["tec", "valor", "aval", "sust"].forEach(function (g) { Object.keys(b[g]).forEach(function (k) { if (s[g][k] === undefined) s[g][k] = b[g][k]; }); });
+    /* Planos anteriores guardavam a equipe como texto livre; cada parte separada por ";" vira um nome. */
+    if (!Array.isArray(s.tec.equipe)) s.tec.equipe = String(s.tec.equipe || "").split(/[;\n]/).map(function (x) { return x.trim(); }).filter(Boolean);
     DIMS.forEach(function (d) { if (!s.crl[d.id]) s.crl[d.id] = { nivel: 0, na: false, obs: "" }; });
     s.acoes.forEach(function (a) { if (!a.id) a.id = "a" + (++s.seq); if (!Array.isArray(a.publicos)) a.publicos = []; });
     return s;
@@ -111,7 +124,9 @@
   var DD = {};
   function multiSelect(path, base, cfg) {
     var sel = getP(path) || [], aberto = !!DD[path];
-    var todos = base.map(function (x) { return { v: x }; }).concat(sel.filter(function (x) { return base.indexOf(x) < 0; }).map(function (x) { return { v: x, extra: "incluído por você" }; }));
+    base = base.map(function (x) { return typeof x === "string" ? { v: x } : x; });
+    var vals = base.map(function (x) { return x.v; });
+    var todos = base.concat(sel.filter(function (x) { return vals.indexOf(x) < 0; }).map(function (x) { return { v: x, extra: "incluído por você" }; }));
     var chips = sel.length ? sel.map(function (p, i) { return '<span class="tag-chip">' + esc(p) + ' <button data-rm="' + esc(path) + '" data-i="' + i + '" aria-label="Remover ' + esc(p) + '">×</button></span>'; }).join("") : '<span class="small muted">Nenhum item selecionado.</span>';
     var k = path.replace(/[^a-z0-9]/gi, "_");
     return '<div class="field"><span class="small"><strong>' + esc(cfg.titulo) + "</strong></span>" + (cfg.ajuda ? '<span class="hint">' + esc(cfg.ajuda) + "</span>" : "") +
@@ -271,6 +286,20 @@
       '<p class="footer">Versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " Base: processo de Plano de Transferência de Tecnologias da Embrapa Territorial; Documento Orientador da Escala CRL da Embrapa; Outcome Mapping (Earl, Carden e Smutylo, 2001) para os marcadores de progresso. A ferramenta integra o conjunto PD&amp;I orientada ao impacto, com o TerImpact (ex ante) e a avaliação ex post pelo Ambitec.</p></div>";
   }
 
+  function campoCoordenacao() {
+    var v = S.tec.responsavel || "", achou = false;
+    function op(x, rot) { if (x === v) achou = true; return '<option value="' + esc(x) + '"' + (x === v ? " selected" : "") + ">" + esc(rot || x) + "</option>"; }
+    var corpo = AREAS.map(function (u) {
+      var h = u[1].map(function (x) { return op(x); }).join("") + u[2].map(function (g) {
+        return '<optgroup label="' + esc((AREAS.length > 1 ? u[0] + " · " : "") + g[0]) + '">' + g[1].map(function (x) { return op(x); }).join("") + "</optgroup>";
+      }).join("");
+      return AREAS.length > 1 ? '<optgroup label="' + esc(u[0]) + '">' + h + "</optgroup>" : h;
+    }).join("");
+    if (v && !achou) corpo = '<option value="' + esc(v) + '" selected>' + esc(v) + " (informado anteriormente)</option>" + corpo;
+    return '<div class="field field-top"><label for="f-coord">Coordenação do plano</label><span class="hint">Área responsável pelo plano.</span>' +
+      '<select id="f-coord" data-f="tec|responsavel"><option value="">Selecione</option>' + corpo + "</select></div>";
+  }
+
   function viewTecnologia() {
     var t = S.tec;
     return '<div class="stack-lg"><div class="stack"><p class="eyebrow">Etapa 1</p><h2>Tecnologia</h2><p>Identificação do ativo e do período de vigência do plano.</p></div>' +
@@ -279,7 +308,7 @@
       campo("tec|descricao", "Descrição resumida", { area: true, ph: "O que é a tecnologia e o que ela permite fazer." }) +
       '<div class="grid2">' + campo("tec|endereco", "Endereço de acesso", { ph: "https://", hint: "Quando houver." }) + campo("tec|trl", "Maturidade tecnológica (TRL/MRL)", { lista: ["1", "2", "3", "4", "5", "6", "7", "8", "9"], vazio: "Não se aplica ou não avaliada" }) + "</div>" +
       '<div class="grid2">' + campo("tec|unidade", "Unidade responsável") + campo("tec|projeto", "Projeto de origem") + "</div>" +
-      '<div class="grid2">' + campo("tec|equipe", "Equipe técnica", { hint: "Nomes ou funções." }) + campo("tec|responsavel", "Coordenação do plano") + "</div></div>" +
+      '<div class="grid2">' + multiSelect("tec|equipe", EMPREGADOS, { titulo: "Equipe técnica", ajuda: "Selecione os empregados da lista. Para pessoas de outras Unidades ou instituições, inclua o nome.", abrir: "Selecionar da lista de empregados", incluir: "Incluir nome de outra Unidade ou instituição", vazio: "Lista de empregados indisponível." }) + campoCoordenacao() + "</div></div>" +
       '<div class="panel"><h3>Período do plano</h3><div class="grid2">' + campo("tec|inicio", "Início", { tipo: "month" }) + campo("tec|duracao", "Duração (meses)", { tipo: "number", attrs: ' min="3" max="60"' }) + "</div>" +
       '<p class="small muted">Término previsto: <span id="fim-plano">' + esc(mesTxt(fimPlano())) + '</span>' + ". As datas sugeridas para as ações da biblioteca seguem esse período.</p></div>" +
       '<div class="panel">' + multiSelect("tec|objetivos", INST.objetivos, { titulo: "Objetivos do plano", ajuda: "Um plano pode ter mais de um objetivo.", lista: "objetivos-tt" }) + "</div>" +
@@ -528,7 +557,7 @@
 
   function exemplo() {
     var s = blank(); S = s; s.exemplo = true;
-    s.tec = { nome: "Painel de indicadores de uma cadeia produtiva (exemplo)", tipo: "Plataforma ou painel", momento: "Recém-disponibilizada", descricao: "Plataforma web que reúne dados de produção, mercado e logística de uma cadeia produtiva, com mapas e séries históricas por município.", endereco: "https://exemplo.org/painel", unidade: "Unidade de pesquisa (exemplo)", projeto: "Projeto de inteligência territorial (exemplo)", equipe: "Equipe técnica do painel", responsavel: "Área de TT", trl: "8", inicio: "2027-03", duracao: 24, objetivos: ["Lançar a tecnologia", "Ampliar o acesso contínuo", "Recrutar usuários para avaliação de impacto"], parceiros: ["Ministério da Agricultura e Pecuária (MAPA)"] };
+    s.tec = { nome: "Painel de indicadores de uma cadeia produtiva (exemplo)", tipo: "Plataforma ou painel", momento: "Recém-disponibilizada", descricao: "Plataforma web que reúne dados de produção, mercado e logística de uma cadeia produtiva, com mapas e séries históricas por município.", endereco: "https://exemplo.org/painel", unidade: "Unidade de pesquisa (exemplo)", projeto: "Projeto de inteligência territorial (exemplo)", equipe: ["Equipe técnica do painel"], responsavel: "Área de TT", trl: "8", inicio: "2027-03", duracao: 24, objetivos: ["Lançar a tecnologia", "Ampliar o acesso contínuo", "Recrutar usuários para avaliação de impacto"], parceiros: ["Ministério da Agricultura e Pecuária (MAPA)"] };
     s.crl.mercado.nivel = 6; s.crl.valor.nivel = 5; s.crl.negocio.nivel = 4; s.crl.parcerias.nivel = 6; s.crl.pi.na = true; s.crl.tt.nivel = 4; s.crl.regulatorio.na = true;
     s.crl.negocio.obs = "Não há definição de quem mantém e atualiza os dados após o término do projeto.";
     s.valor = { problema: "Informações sobre a cadeia estão dispersas em várias fontes e não permitem comparar regiões ao longo do tempo.", beneficios: "Consulta rápida a dados consolidados e comparáveis, para análise de mercado e para a formulação de políticas.", diferencial: "As bases oficiais estão dispersas e não integram produção, mercado e logística no mesmo recorte territorial.", casos: "Apoio à definição de áreas prioritárias de um programa público; análise de mercado por cooperativas.", publicos: ["Formuladores de políticas públicas", "Cooperativas e associações de produtores", "Pesquisadores e instituições de ensino"], territorios: "Regiões produtoras da cadeia" };
@@ -586,7 +615,7 @@
     folha(wb, "LEIA-ME", [["Plano de Transferência de Tecnologia orientado ao impacto"], [t.nome], [], ["Gerado em", new Date().toLocaleDateString("pt-BR")], ["Período", mesTxt(t.inicio) + " a " + mesTxt(fimPlano())], [],
       ["Aba", "Conteúdo"], ["Tecnologia", "Identificação do ativo, objetivos e parceiros"], ["Maturidade", "Nível por dimensão da escala CRL e dimensão limitante"], ["Trajetória", "Mudança esperada, marcadores de progresso e pressupostos por público"],
       ["Ações", "Ações do plano, com responsável, período, indicador e métrica"], ["Cronograma", "Meses de execução de cada ação"], ["Indicadores", "Indicadores por nível, linha de base e meta"], ["Sustentação", "Manutenção, atualização, evolução, recursos, avaliação ex post e ideias futuras"]], [22, 90]);
-    folha(wb, "Tecnologia", [["Campo", "Valor"], ["Nome", t.nome], ["Tipo de ativo", t.tipo], ["Momento", t.momento], ["Descrição", t.descricao], ["Endereço de acesso", t.endereco], ["TRL/MRL", t.trl], ["Unidade", t.unidade], ["Projeto de origem", t.projeto], ["Equipe técnica", t.equipe], ["Coordenação do plano", t.responsavel],
+    folha(wb, "Tecnologia", [["Campo", "Valor"], ["Nome", t.nome], ["Tipo de ativo", t.tipo], ["Momento", t.momento], ["Descrição", t.descricao], ["Endereço de acesso", t.endereco], ["TRL/MRL", t.trl], ["Unidade", t.unidade], ["Projeto de origem", t.projeto], ["Equipe técnica", t.equipe.join("; ")], ["Coordenação do plano", t.responsavel],
       ["Início do plano", mesTxt(t.inicio)], ["Duração (meses)", t.duracao], ["Objetivos", t.objetivos.join("; ")], ["Parceiros", t.parceiros.join("; ")], ["Problema", S.valor.problema], ["Benefícios", S.valor.beneficios], ["Alternativas e diferencial", S.valor.diferencial], ["Casos de uso", S.valor.casos], ["Públicos", S.valor.publicos.join("; ")], ["Territórios", S.valor.territorios]], [26, 100]);
     folha(wb, "Maturidade", [["Dimensão", "Pergunta orientadora", "Nível", "Descrição do nível", "Situação", "Observação", "Ações no plano"]].concat(DIMS.map(function (d) {
       var v = S.crl[d.id];
@@ -651,7 +680,7 @@
   function planoDocx() {
     var c = crlCalc(), t = S.tec, b = "";
     b += wp("Plano de Transferência de Tecnologia orientado ao impacto", "Title") + wp(t.nome, "Subtitle");
-    b += wp("1. Tecnologia", "Heading1") + wpb("Tipo de ativo", t.tipo) + wpb("Momento", t.momento) + wpb("Descrição", t.descricao) + wpb("Endereço de acesso", t.endereco) + wpb("TRL/MRL", t.trl) + wpb("Unidade", t.unidade) + wpb("Projeto de origem", t.projeto) + wpb("Equipe técnica", t.equipe) + wpb("Coordenação do plano", t.responsavel) + wpb("Período", mesTxt(t.inicio) + " a " + mesTxt(fimPlano()) + " (" + t.duracao + " meses)") + wpb("Objetivos", t.objetivos.join("; ")) + wpb("Parceiros", t.parceiros.join("; "));
+    b += wp("1. Tecnologia", "Heading1") + wpb("Tipo de ativo", t.tipo) + wpb("Momento", t.momento) + wpb("Descrição", t.descricao) + wpb("Endereço de acesso", t.endereco) + wpb("TRL/MRL", t.trl) + wpb("Unidade", t.unidade) + wpb("Projeto de origem", t.projeto) + wpb("Equipe técnica", t.equipe.join("; ")) + wpb("Coordenação do plano", t.responsavel) + wpb("Período", mesTxt(t.inicio) + " a " + mesTxt(fimPlano()) + " (" + t.duracao + " meses)") + wpb("Objetivos", t.objetivos.join("; ")) + wpb("Parceiros", t.parceiros.join("; "));
     b += wp("2. Maturidade mercadológica", "Heading1") + wp("Nível global: " + (c.global ? c.global + " (" + NIVEIS[c.global - 1] + ")" : "não informado") + ". Dimensão limitante: " + (c.limitantes.map(function (d) { return d.nome; }).join("; ") || "–") + ". " + INST.crl.regra);
     b += wtab(["Dimensão", "Nível", "Observação", "Ações"], DIMS.map(function (d) { var v = S.crl[d.id]; return [d.nome, v.na ? "Não requer ação" : v.nivel ? v.nivel + " · " + NIVEIS[v.nivel - 1] : "–", v.obs, String(S.acoes.filter(function (a) { return a.crl === d.id; }).length)]; }));
     b += wp("3. Valor e públicos", "Heading1") + wpb("Problema", S.valor.problema) + wpb("Benefícios", S.valor.beneficios) + wpb("Alternativas e diferencial", S.valor.diferencial) + wpb("Casos de uso", S.valor.casos) + wpb("Públicos", S.valor.publicos.join("; ")) + wpb("Territórios", S.valor.territorios);
