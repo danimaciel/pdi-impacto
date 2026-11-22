@@ -19,3 +19,4 @@ referencias/
 *.md
 !README.md
 proposta/
+.claude/
