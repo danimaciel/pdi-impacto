@@ -292,6 +292,9 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 .ref-prop summary { color: var(--accent); }
 .ref-txt { white-space: pre-line; font-size: 0.92rem; max-height: 320px; overflow-y: auto; text-align: justify; hyphens: auto; }
 
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.88rem; color: var(--muted); }
+.legend b { color: var(--accent); font-family: var(--font-mono); margin-right: 4px; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -1036,6 +1039,32 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       refProposta("mapa") + '<div class="stack">' + dims + "</div></div>" + nav();
   }
 
+  /* Radar das seis dimensões: nível mais alto de mudança pretendida (0 = fora do escopo; 1 conhecimento; 2 prática; 3 condição). */
+  function radarDimensoes(RM) {
+    var W = 540, H = 360, cx = 270, cy = 182, Rad = 112, n = RM.length, MAX = 3;
+    var niveis = MAPA.campos.nivel.opcoes;
+    function ang(i) { return (-90 + i * 360 / n) * Math.PI / 180; }
+    function pt(i, v) { var a = ang(i); return [cx + Rad * v / MAX * Math.cos(a), cy + Rad * v / MAX * Math.sin(a)]; }
+    var rings = "", axes = "", labels = "", dots = "", pts = [];
+    for (var k = 1; k <= MAX; k++) {
+      rings += '<polygon class="ring" points="' + RM.map(function (_, i) { return pt(i, k).map(function (x) { return x.toFixed(1); }).join(","); }).join(" ") + '"/>';
+      rings += '<text class="tick" x="' + (cx + 4) + '" y="' + (cy - Rad * k / MAX + 3).toFixed(1) + '">' + k + "</text>";
+    }
+    RM.forEach(function (x, i) {
+      var a = ang(i), e = pt(i, MAX), p = pt(i, x.nivel);
+      pts.push(p[0].toFixed(1) + "," + p[1].toFixed(1));
+      axes += '<line class="axis" x1="' + cx + '" y1="' + cy + '" x2="' + e[0].toFixed(1) + '" y2="' + e[1].toFixed(1) + '"/>';
+      if (x.nivel) dots += '<circle class="pt" cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="4"/>';
+      var lx = cx + (Rad + 16) * Math.cos(a), ly = cy + (Rad + 16) * Math.sin(a);
+      var cos = Math.cos(a), anchor = Math.abs(cos) < 0.2 ? "middle" : cos > 0 ? "start" : "end";
+      var dy = Math.sin(a) < -0.6 ? -20 : Math.sin(a) > 0.6 ? 14 : 0;
+      var sub = !x.n ? "fora do escopo" : (x.nivel ? niveis[x.nivel - 1].rotulo.split(" ")[0].toLowerCase() : "sem nível") + " (" + x.n + ")";
+      labels += '<text x="' + lx.toFixed(1) + '" y="' + (ly + dy).toFixed(1) + '" text-anchor="' + anchor + '"' + (x.n ? "" : ' class="na"') + '><tspan font-weight="600">' + esc(x.dim.nome) + '</tspan><tspan x="' + lx.toFixed(1) + '" dy="15" class="na">' + esc(sub) + "</tspan></text>";
+    });
+    return '<svg class="radar" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Perfil de impacto por dimensão: nível mais alto de mudança pretendida">' + rings + axes +
+      '<polygon class="shape" points="' + pts.join(" ") + '"/>' + dots + labels + "</svg>";
+  }
+
   function radar(eixos) {
     var W = 440, H = 340, cx = 220, cy = 172, Rad = 110, n = eixos.length;
     var pts = [], axes = "", labels = "", rings = "", dots = "";
@@ -1336,6 +1365,8 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       '<p class="muted small">' + [c.tipo, c.escala, c.duracao ? c.duracao + " meses" : ""].filter(Boolean).map(esc).join(" · ") + "</p></div>" +
       cards +
       '<div class="panel"><h3>Alertas</h3>' + alertHtml + "</div>" +
+      '<div class="panel"><h3>Perfil de impacto por dimensão</h3><p class="small muted">Para cada dimensão, o nível mais alto de mudança pretendida entre as mudanças marcadas no mapa de impactos: 1, conhecimento ou capacidade; 2, prática ou decisão; 3, condição. Dimensões sem mudança marcada ficam no centro, como fora do escopo da proposta. As dimensões correspondem à metodologia de referência de avaliação de impactos da Embrapa.</p>' + radarDimensoes(RM) +
+      '<div class="legend"><span><b>1</b> Conhecimento ou capacidade</span><span><b>2</b> Prática ou decisão</span><span><b>3</b> Condição</span></div></div>' +
       '<div class="panel"><h3>Mapa de impactos</h3><p class="small muted">Nível mais alto, maior alcance e horizonte mais longo entre as mudanças marcadas em cada dimensão.</p>' +
       '<div class="table-wrap"><table><thead><tr><th>Dimensão</th><th class="num">Mudanças</th><th>Nível</th><th>Alcance</th><th>Horizonte</th></tr></thead><tbody>' + linhas + "</tbody></table></div></div>" +
       avaliacao +
