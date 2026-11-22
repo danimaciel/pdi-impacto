@@ -295,6 +295,11 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.88rem; color: var(--muted); }
 .legend b { color: var(--accent); font-family: var(--font-mono); margin-right: 4px; }
 
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; justify-self: start; }
+.seg button { border: none; background: var(--surface); padding: 8px 14px; cursor: pointer; min-height: 40px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
@@ -642,7 +647,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       instrumento: INST.instrumento, versao: INST.versao,
       criado: new Date().toISOString(), atualizado: null, exemplo: false, modo: "conceber",
       contexto: { titulo: "", tipo: "", escala: "", duracao: "", transformacao: "", publicos: [], parceiros: [] },
-      respostas: {}, mapa: {}
+      respostas: {}, mapa: {}, respondente: ""
     };
   }
   function valid(s) { return s && typeof s === "object" && s.respostas && s.mapa && s.contexto; }
@@ -955,6 +960,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
     return exampleBanner() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Caracterização</p><h2>A proposta</h2><p class="muted">Nenhum campo é obrigatório. As informações orientam a leitura da devolutiva.</p></div>' +
       (S.modo === "revisar" ? painelImport() : "") +
+      '<div class="field"><label for="f-resp">Quem responde (opcional)</label><span class="hint">Nome ou função. Identifica as respostas quando a equipe consolida as avaliações.</span><input type="text" id="f-resp" data-respondente="1" value="' + esc(S.respondente || "") + '"></div>' +
       '<div class="field"><label for="f-titulo">Título da proposta</label><input type="text" id="f-titulo" data-ctx="titulo" value="' + esc(c.titulo) + '"></div>' +
       '<div class="grid2">' +
       '<div class="field"><label for="f-tipo">Tipo de projeto</label><select id="f-tipo" data-ctx="tipo">' + opts(L.tipos_projeto, c.tipo) + "</select></div>" +
@@ -1098,7 +1104,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
     if (it.tipo === "multipla") return (r.opcoes || []).length ? r.opcoes.join("; ") + "." : null;
     if (r.na) return "Não se aplica a esta proposta.";
     var partes = [];
-    if (S.modo === "revisar" && r.nota) partes.push(it.ancoras[r.nota - 1] + ".");
+    if (S.modo === "revisar" && r.nota) partes.push(it.ancoras[Math.round(r.nota) - 1] + (r.nota % 1 ? " (média " + fmt(r.nota) + ")" : "") + ".");
     if ((r.justificativa || "").trim()) partes.push(r.justificativa.trim());
     return partes.length ? partes.join(" ") : null;
   }
@@ -1293,7 +1299,139 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 
   /* ---------- Devolutiva ---------- */
 
+  /* ---------- Consolidação da equipe ---------- */
+
+  var CONS = null, VISTA = "minha";
+  function mediana(a) { var b = a.slice().sort(function (x, y) { return x - y; }); var m = Math.floor(b.length / 2); return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; }
+  function dp(a) { if (a.length < 2) return null; var m = avg(a); return Math.sqrt(a.reduce(function (x, v) { return x + (v - m) * (v - m); }, 0) / (a.length - 1)); }
+  function maisComum(a) { var c = {}, best = null; a.forEach(function (x) { c[x] = (c[x] || 0) + 1; if (best === null || c[x] > c[best]) best = x; }); return best; }
+  var PADRAO = {
+    polarizacao: ["Polarização", "Respostas divididas entre notas baixas e altas. Discussão necessária: indica entendimentos diferentes sobre a proposta ou sobre a pergunta."],
+    destoante: ["Avaliação destoante", "Uma resposta se afasta das demais. Convém ouvir a justificativa: pode indicar informação que o grupo não considerou."],
+    divergencia: ["Divergência", "Respostas dispersas na escala. Discussão recomendada."],
+    moderada: ["Divergência moderada", "Diferença de dois pontos entre respostas."]
+  };
+  function classificar(notas) {
+    var md = mediana(notas), ad = avg(notas.map(function (v) { return Math.abs(v - md); }));
+    var amp = Math.max.apply(null, notas) - Math.min.apply(null, notas);
+    var baixos = notas.filter(function (v) { return v <= 2; }).length, altos = notas.filter(function (v) { return v >= 4; }).length;
+    var padrao = "consenso";
+    if (baixos >= notas.length / 3 && altos >= notas.length / 3 && amp >= 2) padrao = "polarizacao";
+    else if (notas.filter(function (v) { return Math.abs(v - md) >= 2; }).length === 1 && notas.length >= 3) padrao = "destoante";
+    else if (amp >= 3 || ad > 0.83) padrao = "divergencia";
+    else if (amp === 2) padrao = "moderada";
+    return { mediana: md, ad: ad, amplitude: amp, padrao: padrao, dp: dp(notas), min: Math.min.apply(null, notas), max: Math.max.apply(null, notas) };
+  }
+
+  function consolidarEquipe(lista) {
+    var n = lista.length;
+    var rot = lista.map(function (x, i) { return (x.respondente || "").trim() || "Pessoa " + (i + 1); });
+    var agg = blank();
+    agg.contexto = JSON.parse(JSON.stringify(S.contexto));
+    agg.modo = lista.some(function (x) { return Object.keys(x.respostas).some(function (c) { return x.respostas[c] && x.respostas[c].nota; }); }) ? "revisar" : "conceber";
+    var disp = {};
+    function rotular(pares) { return pares.map(function (p) { return rot[p[0]] + ": " + p[1]; }).join("\n\n"); }
+    Object.keys(ITENS).forEach(function (c) {
+      var it = ITENS[c];
+      if (it.tipo === "escala") {
+        var notas = [], just = [], nas = 0;
+        lista.forEach(function (x, i) {
+          var r = x.respostas[c]; if (!r) return;
+          if (r.na) nas++; else if (r.nota) notas.push(r.nota);
+          if ((r.justificativa || "").trim()) just.push([i, r.justificativa.trim()]);
+        });
+        if (notas.length || just.length || nas) agg.respostas[c] = { nota: notas.length ? avg(notas) : null, na: !notas.length && nas > 0, justificativa: rotular(just) };
+        if (notas.length >= 2) { disp[c] = classificar(notas); disp[c].notas = notas; disp[c].n = notas.length; }
+      } else if (it.tipo === "texto") {
+        var ts = []; lista.forEach(function (x, i) { var r = x.respostas[c]; if (r && (r.texto || "").trim()) ts.push([i, r.texto.trim()]); });
+        if (ts.length) agg.respostas[c] = { texto: rotular(ts) };
+      } else {
+        var cont = {};
+        lista.forEach(function (x) { var r = x.respostas[c]; (r && r.opcoes || []).forEach(function (o) { cont[o] = (cont[o] || 0) + 1; }); });
+        if (Object.keys(cont).length) agg.respostas[c] = { opcoes: Object.keys(cont), contagem: cont };
+      }
+    });
+    var mapaDisp = {};
+    Object.keys(MUD).forEach(function (c) {
+      var quem = [], niveis = [], alc = [], hor = [], just = [];
+      lista.forEach(function (x, i) {
+        var m = x.mapa[c]; if (!m || !m.marcada) return;
+        quem.push(i); if (m.nivel) niveis.push(m.nivel); if (m.alcance) alc.push(m.alcance); if (m.horizonte) hor.push(m.horizonte);
+        if ((m.justificativa || "").trim()) just.push([i, m.justificativa.trim()]);
+      });
+      if (!quem.length) return;
+      agg.mapa[c] = { marcada: true, nivel: niveis.length ? Math.round(mediana(niveis)) : null, alcance: maisComum(alc), horizonte: maisComum(hor), justificativa: rotular(just) };
+      mapaDisp[c] = { k: quem.length, quem: quem.map(function (i) { return rot[i]; }), niveis: niveis };
+    });
+    return { n: n, rotulos: rot, agg: agg, disp: disp, mapaDisp: mapaDisp };
+  }
+
+  function comVista(fn) {
+    if (VISTA !== "equipe" || !CONS) return fn();
+    var orig = S; S = CONS.agg;
+    try { return fn(); } finally { S = orig; }
+  }
+
+  function painelEquipe() {
+    if (!CONS || VISTA !== "equipe") return "";
+    var ordem = { polarizacao: 0, destoante: 1, divergencia: 2, moderada: 3 };
+    var itens = Object.keys(CONS.disp).filter(function (c) { return CONS.disp[c].padrao !== "consenso"; })
+      .sort(function (a, b) { return ordem[CONS.disp[a].padrao] - ordem[CONS.disp[b].padrao] || CONS.disp[b].ad - CONS.disp[a].ad; });
+    var semConsenso = Object.keys(CONS.mapaDisp).filter(function (c) { return CONS.mapaDisp[c].k < CONS.n; });
+    var difNivel = Object.keys(CONS.mapaDisp).filter(function (c) { var v = CONS.mapaDisp[c].niveis; return v.length >= 2 && Math.max.apply(null, v) - Math.min.apply(null, v) >= 1; });
+    var h = '<div class="panel"><h3>Avaliação da equipe</h3><p class="small">Respostas de ' + CONS.n + " pessoas: " + CONS.rotulos.map(esc).join(", ") + ". Os resultados abaixo usam a média das notas, a mediana dos níveis do mapa e as respostas abertas de todos, identificadas por pessoa.</p></div>";
+    h += '<div class="panel"><h3>Perguntas para discussão</h3><p class="small muted">Sinalizadas pela dispersão das notas entre as pessoas (desvio médio em relação à mediana e padrão da distribuição). O número varia conforme as respostas e pode ser zero.</p>' +
+      (itens.length ? '<ul class="alerts">' + itens.map(function (c) {
+        var d = CONS.disp[c], pd = PADRAO[d.padrao];
+        return '<li class="' + (d.padrao === "polarizacao" ? "crit" : d.padrao === "moderada" ? "info" : "warn") + '"><span class="tag">' + esc(pd[0]) + " · " + c + "</span>" + esc(ITENS[c].pergunta) +
+          '<br><span class="small">Notas: ' + d.notas.slice().sort().join(", ") + " · mediana " + fmt(d.mediana) + " · desvio-padrão " + (d.dp === null ? "–" : fmt(d.dp)) + '</span><br><span class="small muted">' + esc(pd[1]) + "</span></li>";
+      }).join("") + "</ul>" : '<p class="muted">Nenhuma pergunta com divergência relevante entre as notas.</p>') + "</div>";
+    h += '<div class="panel"><h3>Mapa de impactos: diferenças entre as pessoas</h3>' +
+      (semConsenso.length || difNivel.length ? '<ul class="alerts">' +
+        semConsenso.map(function (c) { var m = CONS.mapaDisp[c]; return '<li class="warn"><span class="tag">Mudança marcada por ' + m.k + " de " + CONS.n + " · " + c + "</span>" + esc(MUD[c].rotulo) + '<br><span class="small muted">Marcada por: ' + m.quem.map(esc).join(", ") + ".</span></li>"; }).join("") +
+        difNivel.filter(function (c) { return semConsenso.indexOf(c) < 0; }).map(function (c) { var m = CONS.mapaDisp[c]; return '<li class="info"><span class="tag">Níveis diferentes · ' + c + "</span>" + esc(MUD[c].rotulo) + '<br><span class="small muted">Níveis indicados: ' + m.niveis.map(function (v) { return MAPA.campos.nivel.opcoes[v - 1].rotulo.toLowerCase(); }).join("; ") + ".</span></li>"; }).join("") +
+        "</ul>" : '<p class="muted">Todas as pessoas marcaram as mesmas mudanças, com o mesmo nível.</p>') + "</div>";
+    var stats = Object.keys(CONS.disp);
+    if (stats.length) h += '<div class="panel"><details><summary>Estatísticas por pergunta</summary><div><div class="table-wrap"><table><thead><tr><th>Pergunta</th><th class="num">n</th><th class="num">Média</th><th class="num">Mediana</th><th class="num">Desvio-padrão</th><th class="num">Mín.</th><th class="num">Máx.</th></tr></thead><tbody>' +
+      stats.map(function (c) { var d = CONS.disp[c]; return '<tr><td title="' + esc(ITENS[c].pergunta) + '">' + c + '</td><td class="num">' + d.n + '</td><td class="num">' + fmt(avg(d.notas)) + '</td><td class="num">' + fmt(d.mediana) + '</td><td class="num">' + (d.dp === null ? "–" : fmt(d.dp, 2)) + '</td><td class="num">' + d.min + '</td><td class="num">' + d.max + "</td></tr>"; }).join("") +
+      "</tbody></table></div></div></details></div>";
+    return h;
+  }
+
+  function painelConsolidar() {
+    return '<div class="panel no-print"><h3>Consolidar as avaliações da equipe</h3>' +
+      '<p class="small">Quando várias pessoas avaliam a mesma proposta, cada uma baixa ou copia suas respostas e as envia a quem coordena. A consolidação calcula a média das notas, reúne as respostas abertas identificadas por pessoa e indica as perguntas e as mudanças do mapa em que a equipe diverge.</p>' +
+      '<label class="small" for="eq-files">Arquivos de respostas (.json), um por pessoa</label><input type="file" id="eq-files" accept=".json,application/json" multiple>' +
+      '<label class="small" for="eq-txt">Ou cole as respostas copiadas, uma após a outra</label><textarea id="eq-txt"></textarea>' +
+      '<label class="opts"><span><input type="checkbox" id="eq-incluir" checked> Incluir as minhas respostas</span></label>' +
+      '<div class="actions"><button class="btn" data-act="consolidar-equipe">Consolidar</button>' + (CONS ? '<button class="btn" data-act="desfazer-equipe">Desfazer consolidação</button>' : "") + '</div><div id="eq-msg" class="msg" role="status"></div></div>';
+  }
+  function lerJsons(texto) {
+    var out = [], t = texto.trim(); if (!t) return out;
+    try { var x = JSON.parse(t); return Array.isArray(x) ? x : [x]; } catch (e) {}
+    var prof = 0, ini = -1, str = false, escp = false;
+    for (var i = 0; i < t.length; i++) {
+      var ch = t[i];
+      if (str) { if (escp) escp = false; else if (ch === "\\") escp = true; else if (ch === '"') str = false; continue; }
+      if (ch === '"') str = true; else if (ch === "{") { if (prof === 0) ini = i; prof++; } else if (ch === "}") { prof--; if (prof === 0 && ini >= 0) { try { out.push(JSON.parse(t.slice(ini, i + 1))); } catch (e) {} ini = -1; } }
+    }
+    return out;
+  }
+  function lerArquivosTexto(files) {
+    return Promise.all(Array.prototype.map.call(files || [], function (f) { return new Promise(function (res) { var r = new FileReader(); r.onload = function () { res(String(r.result)); }; r.onerror = function () { res(""); }; r.readAsText(f); }); }));
+  }
+
   function viewResultado() {
+    var html = comVista(viewResultadoBase);
+    var seletor = CONS ? '<div class="seg no-print" role="group" aria-label="Vista do resultado"><button data-vista="minha" aria-pressed="' + (VISTA === "minha") + '">Minhas respostas</button><button data-vista="equipe" aria-pressed="' + (VISTA === "equipe") + '">Equipe (' + CONS.n + " pessoas)</button></div>" : "";
+    html = html.replace('<div class="cards">', seletor + '<div class="cards">');
+    if (VISTA === "equipe" && CONS) html = html.replace(">Devolutiva e esboço<", ">Devolutiva da equipe e esboço<").replace(">Esboço do projeto<", ">Esboço do projeto (equipe)<");
+    html = html.replace('<div class="panel"><h3>Alertas</h3>', painelEquipe() + '<div class="panel"><h3>Alertas</h3>');
+    html = html.replace('<div class="panel no-print"><h3>Guardar e retomar</h3>', painelConsolidar() + '<div class="panel no-print"><h3>Guardar e retomar</h3>');
+    return html;
+  }
+
+  function viewResultadoBase() {
     var c = S.contexto;
     var conceber = S.modo === "conceber";
     var A = alertas();
@@ -1337,7 +1475,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       ITEM_BLOCOS.forEach(function (b) {
         b.itens.forEach(function (it) {
           var v = nota(it.codigo); if (!v) return;
-          var li = '<li><span class="code">' + it.codigo + "</span> " + esc(it.ancoras[v - 1]) + ' <span class="muted">(' + esc(b.nome) + ")</span></li>";
+          var li = '<li><span class="code">' + it.codigo + "</span> " + esc(it.ancoras[Math.round(v) - 1]) + ' <span class="muted">(' + esc(b.nome) + (v % 1 ? "; média " + fmt(v) : "") + ")</span></li>";
           if (v >= 4) destaques.push(li);
           if (v <= 2) fracos.push(li);
         });
@@ -1446,7 +1584,20 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       document.querySelectorAll('[data-nivel="' + mc + '"]').forEach(function (b) { b.setAttribute("aria-pressed", String(parseInt(b.dataset.v, 10) === mr.nivel)); });
       return;
     }
+    if (t.dataset.vista) { VISTA = t.dataset.vista; render(); return; }
     switch (t.dataset.act) {
+      case "consolidar-equipe": {
+        var ef = document.getElementById("eq-files"), et = document.getElementById("eq-txt").value, inc = document.getElementById("eq-incluir").checked;
+        lerArquivosTexto(ef.files).then(function (arqs) {
+          var lista = lerJsons(arqs.join("\n") + "\n" + et).filter(valid).map(normalize);
+          if (inc && (Object.keys(S.respostas).length || marcadas().length)) lista.unshift(S);
+          var em = document.getElementById("eq-msg");
+          if (lista.length < 2) { if (em) { em.textContent = "São necessárias as respostas de pelo menos duas pessoas para consolidar."; em.className = "msg err"; } return; }
+          CONS = consolidarEquipe(lista); VISTA = "equipe"; render(); window.scrollTo(0, 0);
+        });
+        break;
+      }
+      case "desfazer-equipe": CONS = null; VISTA = "minha"; render(); break;
       case "ler-proposta": {
         var fi = document.getElementById("imp-prop");
         if (!fi.files || !fi.files[0]) { IMPORT_MSG = "Selecione o arquivo da proposta."; var mm = document.getElementById("imp-msg"); if (mm) { mm.textContent = IMPORT_MSG; mm.className = "msg err"; } break; }
@@ -1483,7 +1634,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       case "novo": { var m1 = S.modo; try { localStorage.removeItem(KEY); } catch (e) {} S = blank(); S.modo = m1; save(); go(1); break; }
       case "copiar":
       case "copiar-esboco": {
-        var txt = t.dataset.act === "copiar" ? JSON.stringify(S, null, 2) : esbocoTexto(esboco());
+        var txt = t.dataset.act === "copiar" ? JSON.stringify(S, null, 2) : comVista(function () { return esbocoTexto(esboco()); });
         var okMsg = t.dataset.act === "copiar" ? "Respostas copiadas." : "Texto do esboço copiado.";
         var fb = function () { var ta = document.getElementById("copia"); ta.hidden = false; ta.value = txt; ta.focus(); ta.select(); msg("Não foi possível copiar automaticamente. O conteúdo foi selecionado no campo ao final da página; copie-o manualmente."); };
         try { navigator.clipboard.writeText(txt).then(function () { msg(okMsg, true); }, fb); } catch (e) { fb(); }
@@ -1492,7 +1643,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
       case "baixar": salvar(nomeArquivo("json"), JSON.stringify(S, null, 2)); break;
       case "baixar-docx": {
         if (typeof JSZip === "undefined") { msg("Não foi possível gerar o arquivo Word neste ambiente. Use a opção de copiar o texto."); break; }
-        docxBlob(esboco()).then(function (b) { return salvar(nomeArquivo("docx"), b); }, function () { msg("Não foi possível gerar o arquivo Word. Use a opção de copiar o texto."); });
+        docxBlob(comVista(esboco)).then(function (b) { return salvar(nomeArquivo("docx"), b); }, function () { msg("Não foi possível gerar o arquivo Word. Use a opção de copiar o texto."); });
         break;
       }
       case "imprimir": window.print(); break;
@@ -1522,6 +1673,7 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
     else if (t.dataset.texto) { R(t.dataset.texto).texto = t.value; save(); refreshStatus(); }
     else if (t.dataset.mjust) { (S.mapa[t.dataset.mjust] || (S.mapa[t.dataset.mjust] = {})).justificativa = t.value; save(); }
     else if (t.dataset.ctx) { S.contexto[t.dataset.ctx] = t.value; save(); }
+    else if (t.dataset.respondente) { S.respondente = t.value; save(); }
   });
 
   app.addEventListener("change", function (ev) {

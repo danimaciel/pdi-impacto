@@ -282,3 +282,8 @@ details > div { margin-top: 10px; display: grid; gap: 8px; }
 
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.88rem; color: var(--muted); }
 .legend b { color: var(--accent); font-family: var(--font-mono); margin-right: 4px; }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; justify-self: start; }
+.seg button { border: none; background: var(--surface); padding: 8px 14px; cursor: pointer; min-height: 40px; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); font-weight: 600; }
