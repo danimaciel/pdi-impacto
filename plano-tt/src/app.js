@@ -60,9 +60,10 @@
   function valid(s) { return s && typeof s === "object" && s.tec && s.crl && Array.isArray(s.acoes); }
   function load() { try { var raw = lsGet(KEY); if (!raw) return null; var s = JSON.parse(raw); return valid(s) ? normalize(s) : null; } catch (e) { return null; } }
   var saveOk = true;
-  function save() {
+  function save(sincronizado) {
     if (S.exemplo) return;
     S.atualizado = new Date().toISOString();
+    if (S.grupo) S.sujo = !sincronizado;
     try { localStorage.setItem(KEY, JSON.stringify(S)); saveOk = true; } catch (e) { MEMORIA[KEY] = JSON.stringify(S); saveOk = false; }
   }
   var S = load() || blank();
@@ -266,7 +267,7 @@
       '<div class="lists"><div class="panel"><h3>Partir do TerImpact</h3><p class="small">Se o projeto que gerou a tecnologia passou pelo TerImpact, carregue o arquivo de respostas (.json). Título, problema, públicos, parceiros, mudanças esperadas e pressupostos são trazidos para o plano.</p>' +
       '<div class="add-row"><input type="file" id="ti-file" accept=".json,application/json"><button class="btn" data-act="ler-terimpact">Carregar</button></div></div>' +
       '<div class="panel"><h3>Abrir um plano salvo</h3><p class="small">Arquivo .json salvo por esta ferramenta.</p><div class="add-row"><input type="file" id="plano-file" accept=".json,application/json"><button class="btn" data-act="abrir-plano">Abrir</button></div></div></div>' +
-      '<div class="msg" id="msg" role="status"></div>' +
+      '<div class="msg" id="msg" role="status"></div>' + (S.grupo ? painelEquipe("inicio") : "") +
       '<p class="footer">Versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " Base: processo de Plano de Transferência de Tecnologias da Embrapa Territorial; Documento Orientador da Escala CRL da Embrapa; Outcome Mapping (Earl, Carden e Smutylo, 2001) para os marcadores de progresso. A ferramenta integra o conjunto PD&amp;I orientada ao impacto, com o TerImpact (ex ante) e a avaliação ex post pelo Ambitec.</p></div>";
   }
 
@@ -472,7 +473,7 @@
       '<p class="small">O plano completo em Excel tem as abas LEIA-ME, Tecnologia, Maturidade, Trajetória, Ações, Cronograma, Indicadores e Sustentação. A exportação para o AppSheet segue as tabelas da base de acompanhamento de planos de TT (Tecnologias, Planos_TT, Acoes_TT, Indicadores, Monitoramento_Adocao e Avaliacoes_ExPost). O arquivo do plano (.json) permite continuar a edição em outro dispositivo.</p>' +
       (podeDL ? '<div class="actions"><button class="btn primary" data-act="xlsx">Plano em Excel</button><button class="btn" data-act="docx">Plano em Word</button><button class="btn" data-act="appsheet">Exportar para o AppSheet</button><button class="btn" data-act="json">Salvar arquivo do plano</button><button class="btn" data-act="imprimir">Imprimir</button></div>'
         : '<p class="small muted">Este ambiente não permite baixar arquivos. Abra a ferramenta no endereço público para salvar o plano.</p>') +
-      '<div class="msg" id="msg" role="status"></div></div>' + nav() + "</div>";
+      '<div class="msg" id="msg" role="status"></div></div>' + painelEquipe("plano") + nav() + "</div>";
   }
 
   /* ---------- Render ---------- */
@@ -482,7 +483,7 @@
     var v = id === "inicio" ? viewInicio() : id === "tecnologia" ? viewTecnologia() : id === "maturidade" ? viewMaturidade() : id === "valor" ? viewValor() :
       id === "trajetoria" ? viewTrajetoria() : id === "acoes" ? viewAcoes() : id === "monitoramento" ? viewMonitoramento() : viewPlano();
     var y = window.scrollY;
-    app.innerHTML = header() + '<main><div class="wrap">' + exemploAviso() + v + "</div></main>";
+    app.innerHTML = header() + '<main><div class="wrap">' + exemploAviso() + faixaEquipe() + v + "</div></main>";
     return y;
   }
   function go(i) { step = Math.max(0, Math.min(STEPS.length - 1, i)); render(); window.scrollTo(0, 0); }
@@ -611,10 +612,14 @@
     return blobXlsx(wb);
   }
 
+  function ids() {
+    var t = S.tec;
+    var b = (t.nome || "PLANO").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 20) || "PLANO";
+    return { b: b, tec: "TEC-" + b, plano: "PLANO-" + b + "-" + String(t.inicio).slice(0, 4) };
+  }
   function appsheetXlsx() {
-    var wb = XLSX.utils.book_new(), t = S.tec;
-    var b = (t.nome || "PLANO").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 20) || "PLANO";
-    var idTec = "TEC-" + b, idPlano = "PLANO-" + b + "-" + String(t.inicio).slice(0, 4);
+    var wb = XLSX.utils.book_new(), t = S.tec, I = ids();
+    var b = I.b, idTec = I.tec, idPlano = I.plano;
     var fim = fimPlano();
     folha(wb, "Tecnologias", [["ID_Tecnologia", "Nome_Tecnologia", "ID_Projeto", "Tipo_Tecnologia", "Maturidade", "Status_Tecnologia", "Data_Prevista_Disponibilizacao", "Precisa_Plano_TT", "ID_Plano_TT_Relacionado", "Publico_Alvo_Principal", "Parceiros", "Observacoes"],
       [idTec, t.nome, "", t.tipo, "CRL " + (crlCalc().global || "") + (t.trl ? "; TRL " + t.trl : ""), t.momento, "", "SIM", idPlano, S.valor.publicos.join("; "), t.parceiros.join("; "), t.descricao]]);
@@ -674,6 +679,145 @@
     return z.generateAsync({ type: "blob", mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
   }
 
+
+  /* ---------- Plano em equipe e registro ---------- */
+
+  var PARAMS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var EQ = { msg: "", ok: false, conflito: null, ocupado: false };
+  function api(metodo, dados) {
+    if (!ENDPOINT) return Promise.reject(new Error("Serviço não configurado."));
+    var req = metodo === "GET" ? fetch(ENDPOINT + "?" + new URLSearchParams(dados).toString()) : fetch(ENDPOINT, { method: "POST", body: JSON.stringify(dados) });
+    return req.then(function (x) { return x.json(); });
+  }
+  function linkPlano() { return location.origin + location.pathname + "?plano=" + S.grupo.codigo; }
+  function autor() { return lsGet("planott.autor") || ""; }
+  function dataHora(v) { try { return new Date(v).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }); } catch (e) { return ""; } }
+  function dadosEnvio() { var d = JSON.parse(JSON.stringify(S)); delete d.grupo; delete d.sujo; d.exemplo = false; return d; }
+
+  /* Versão legível do plano para as abas planos_tt e acoes_tt, nas colunas da base do AppSheet. */
+  function legivel() {
+    var t = S.tec, c = crlCalc(), I = ids(), al = alertas();
+    var plano = {
+      ID_Plano_TT: I.plano, ID_Tecnologia: I.tec, Nome_Plano: "Plano de TT - " + t.nome, Nome_Tecnologia: t.nome, Tipo_Tecnologia: t.tipo, Momento: t.momento,
+      Descricao: t.descricao, Endereco: t.endereco, TRL: t.trl, Unidade: t.unidade, Projeto: t.projeto, Equipe: t.equipe, Responsavel_TT: t.responsavel,
+      Objetivo_Plano: t.objetivos, Parceiros: t.parceiros, Publicos: S.valor.publicos, Territorios: S.valor.territorios,
+      Data_Inicio_Planejada: dataMes(t.inicio), Data_Fim_Planejada: dataMes(fimPlano()), Duracao_meses: t.duracao,
+      CRL_global: c.global || "", CRL_limitante: c.limitantes.map(function (d) { return d.nome; })
+    };
+    DIMS.forEach(function (d) { var v = S.crl[d.id]; plano["CRL_" + d.id] = v.na ? "não requer ação" : (v.nivel || ""); });
+    plano.Problema = S.valor.problema; plano.Beneficios = S.valor.beneficios; plano.Diferencial = S.valor.diferencial; plano.Casos_de_uso = S.valor.casos;
+    plano.N_acoes = S.acoes.length; plano.Metodo_ExPost = S.aval.metodo; plano.Data_Avaliacao_ExPost_Prevista = dataMes(S.aval.inicio);
+    plano.Manutencao = S.sust.manutencao; plano.Atualizacao = S.sust.atualizacao; plano.Evolucao = S.sust.evolucao; plano.Recursos = S.sust.recursos;
+    plano.Pontos_de_atencao = al.filter(function (x) { return x.nivel !== "info"; }).map(function (x) { return x.tag + ": " + x.t; }).join(" | ");
+    var acoes = S.acoes.map(function (a, i) {
+      return {
+        ID_Acao: "ACAO-" + I.b + "-" + ("00" + (i + 1)).slice(-3), ID_Plano_TT: I.plano, Fase: rotFase(a.fase), Tipo_Acao: a.tipo, Nome_Acao: a.acao, Descricao: a.descricao,
+        Publico_Texto: a.publicos, Data_Inicio: dataMes(a.inicio), Data_Fim: dataMes(a.fim), Responsavel_Texto: a.responsavel, Resultado_Esperado: a.resultado,
+        Indicador_Texto: a.indicador, Metrica_Texto: a.metrica, Nivel_Indicador: rotNivel(a.nivel), Dimensao_CRL: rotDim(a.crl), Mudanca_Visada: a.mudanca,
+        Linha_de_Base: a.base, Meta: a.meta, Status_Acao: "Planejada"
+      };
+    });
+    return { plano: plano, acoes: acoes };
+  }
+
+  function eqMsg(t, ok) { EQ.msg = t; EQ.ok = !!ok; var m = document.getElementById("eq-msg"); if (m) { m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); } }
+  var ESPERA = "Conectando à planilha. A primeira conexão do dia pode levar até 20 segundos.";
+  function ocupado(b) { EQ.ocupado = b; document.querySelectorAll("[data-eq]").forEach(function (x) { x.disabled = b; }); }
+
+  function enviarPlano(opcoes) {
+    opcoes = opcoes || {};
+    var nome = autor();
+    eqMsg(ESPERA, true); ocupado(true);
+    return api("POST", { acao: "salvar-plano", codigo: S.grupo.codigo, versao_base: S.grupo.versao || 0, forcar: !!opcoes.forcar, registrar: !!opcoes.registrar, autor: nome, dados: dadosEnvio(), legivel: legivel() })
+      .then(function (x) {
+        ocupado(false);
+        if (x.ok) {
+          S.grupo.versao = x.versao; S.grupo.salvo = x.salvo; S.grupo.autor = nome; S.grupo.situacao = x.situacao; EQ.conflito = null;
+          save(true); eqMsg(opcoes.registrar ? "Plano registrado na base da área de TT (versão " + x.versao + ")." : "Plano salvo no link (versão " + x.versao + ").", true);
+          rerender(); return;
+        }
+        if (x.erro === "conflito") { EQ.conflito = x; eqMsg(""); rerender(); return; }
+        eqMsg(x.erro === "grupo" ? "O plano compartilhado não foi encontrado na planilha." : x.erro === "tamanho" ? "O plano excede o tamanho permitido para envio." : "Não foi possível salvar: " + x.erro);
+      })
+      .catch(function () { ocupado(false); eqMsg("Não foi possível conectar à planilha. Verifique a conexão e tente novamente."); });
+  }
+  function criarLink(depois) {
+    eqMsg(ESPERA, true); ocupado(true);
+    return api("POST", { acao: "criar", ferramenta: "plano-tt", titulo: S.tec.nome || "Plano de TT" }).then(function (x) {
+      ocupado(false);
+      if (!x.ok) return eqMsg("Não foi possível criar o link: " + x.erro);
+      S.grupo = { codigo: x.codigo, versao: 0 }; save();
+      return enviarPlano(depois);
+    }).catch(function () { ocupado(false); eqMsg("Não foi possível conectar à planilha. Verifique a conexão e tente novamente."); });
+  }
+  function carregarDoLink(codigo, silencioso) {
+    if (!silencioso) { eqMsg(ESPERA, true); ocupado(true); }
+    return api("GET", { acao: "plano", codigo: codigo }).then(function (x) {
+      ocupado(false);
+      if (!x.ok) { eqMsg("Plano compartilhado não encontrado. Confira o link recebido."); return; }
+      if (!x.versao || !x.dados || !valid(x.dados)) {
+        if (!S.grupo || S.grupo.codigo !== codigo) { lsSet(KEY + ".anterior", JSON.stringify(S)); S = blank(); S.tec.nome = x.titulo || ""; }
+        S.grupo = { codigo: codigo, versao: 0 }; save(true); eqMsg("O plano compartilhado ainda não tem versão salva.", true); rerender(); return;
+      }
+      if ((!S.grupo || S.grupo.codigo !== codigo) && !S.exemplo && (txt(S.tec.nome) || S.acoes.length)) lsSet(KEY + ".anterior", JSON.stringify(S));
+      S = normalize(x.dados); S.exemplo = false;
+      S.grupo = { codigo: codigo, versao: x.versao, salvo: x.salvo, autor: x.autor, situacao: x.situacao }; EQ.conflito = null;
+      save(true); eqMsg("Versão " + x.versao + " carregada" + (x.autor ? " (salva por " + x.autor + " em " + dataHora(x.salvo) + ")" : "") + ".", true); rerender();
+    }).catch(function () { ocupado(false); eqMsg("Não foi possível conectar à planilha. Verifique a conexão e tente novamente."); });
+  }
+  /* Ao abrir um link de plano: carrega a versão do link, preservando alterações locais ainda não enviadas. */
+  function abrirLink(codigo) {
+    if (S.grupo && S.grupo.codigo === codigo && S.sujo) {
+      api("GET", { acao: "plano", codigo: codigo }).then(function (x) {
+        if (x.ok && x.versao > (S.grupo.versao || 0)) { EQ.conflito = { versao: x.versao, autor: x.autor, salvo: x.salvo, aoAbrir: true }; rerender(); }
+      }).catch(function () {});
+      return;
+    }
+    carregarDoLink(codigo, true);
+  }
+
+  function painelEquipe(onde) {
+    if (!ENDPOINT || S.exemplo) return "";
+    var nome = autor();
+    var campoNome = '<div class="field"><label for="eq-autor">Seu nome ou função</label><input type="text" id="eq-autor" value="' + esc(nome) + '" placeholder="Identifica quem salvou cada versão"></div>';
+    var aceite = '<label class="opts"><span><input type="checkbox" id="eq-aceite"> Concordo em enviar o plano, com o nome ou a função informados, para a planilha mantida pela coordenação deste site.</span></label>';
+    var h = '<div class="panel no-print"><h3>Plano em equipe</h3>';
+    if (!S.grupo) {
+      h += '<p class="small">Crie um link para que a equipe edite o mesmo plano. Cada pessoa abre o link, faz as alterações e salva uma nova versão. Se duas pessoas editarem ao mesmo tempo, quem salvar por último é avisado e escolhe entre carregar a versão mais recente ou manter a sua.</p>' +
+        campoNome + aceite + '<div class="actions"><button class="btn primary" data-eq="1" data-act="eq-criar">Criar link do plano</button></div>';
+    } else {
+      var g = S.grupo;
+      h += '<div class="stack"><p class="small"><strong>Link do plano</strong> (envie a quem vai editar)</p><div class="add-row"><input type="text" readonly id="eq-link" value="' + esc(linkPlano()) + '"><button class="btn" data-copiar="eq-link">Copiar</button></div>' +
+        '<p class="small muted">' + (g.versao ? "Versão " + g.versao + (g.autor ? ", salva por " + esc(g.autor) : "") + (g.salvo ? " em " + esc(dataHora(g.salvo)) : "") + "." : "Ainda não há versão salva no link.") +
+        (g.situacao === "registrado" ? " Plano registrado." : "") + (S.sujo ? ' <strong class="tag-warn">Há alterações neste navegador ainda não salvas no link.</strong>' : "") + "</p></div>";
+      if (EQ.conflito) {
+        var cf = EQ.conflito;
+        h += '<div class="confirm"><span>' + (cf.aoAbrir ? "O link tem uma versão mais recente (" : "Outra pessoa salvou uma versão mais recente (") + "versão " + cf.versao + (cf.autor ? ", por " + esc(cf.autor) : "") + (cf.salvo ? " em " + esc(dataHora(cf.salvo)) : "") + "). Carregar a versão do link descarta as alterações feitas neste navegador; manter a sua substitui a versão do link.</span>" +
+          '<button class="btn primary" data-eq="1" data-act="eq-carregar-forcado">Carregar a versão do link</button><button class="btn danger" data-eq="1" data-act="eq-sobrescrever">Manter a minha</button></div>';
+      }
+      h += campoNome + aceite + '<div class="actions"><button class="btn primary" data-eq="1" data-act="eq-salvar">Salvar no link</button><button class="btn" data-eq="1" data-act="eq-atualizar">Carregar a versão do link</button><button class="btn link" data-act="eq-sair">Deixar de usar o link</button></div>';
+    }
+    if (onde === "plano") {
+      h += '<div class="stack import-rev"><h3>Registrar o plano</h3><p class="small">Quando o plano estiver concluído, registre-o na base da área de TT. O plano passa a constar da planilha de acompanhamento, com uma linha por plano e uma linha por ação, nas colunas da base do AppSheet. Alterações posteriores podem ser salvas no mesmo link e atualizam o registro.</p>' +
+        (S.grupo && S.grupo.situacao === "registrado" ? '<p class="small tag-ok"><strong>Plano registrado.</strong></p>' : "") +
+        '<div class="actions"><button class="btn" data-eq="1" data-act="eq-registrar">' + (S.grupo && S.grupo.situacao === "registrado" ? "Atualizar o registro" : "Registrar plano concluído") + "</button></div></div>";
+    }
+    return h + '<div class="msg ' + (EQ.ok ? "ok" : "err") + '" id="eq-msg" role="status">' + esc(EQ.msg) + "</div></div>";
+  }
+  function faixaEquipe() {
+    if (!S.grupo || S.exemplo || step === 0) return "";
+    return '<div class="eq-faixa no-print"><span>Plano compartilhado · ' + (S.grupo.versao ? "versão " + S.grupo.versao : "sem versão salva") + (S.sujo ? ' · <strong>alterações não salvas no link</strong>' : "") + '</span>' +
+      (S.sujo ? '<button class="btn" data-eq="1" data-act="eq-salvar-rapido">Salvar no link</button>' : "") + "</div>";
+  }
+  function validarEnvio() {
+    var a = document.getElementById("eq-autor"), ac = document.getElementById("eq-aceite");
+    var nome = a ? txt(a.value) : autor();
+    if (!nome) { eqMsg("Informe seu nome ou função."); return false; }
+    lsSet("planott.autor", nome);
+    if (ac && !ac.checked) { eqMsg("Marque a concordância com o envio para a planilha."); return false; }
+    return true;
+  }
+
   /* ---------- Eventos ---------- */
 
   function incluirItem(path, valor, lista) {
@@ -700,8 +844,27 @@
     if (d.dup !== undefined) { var o = S.acoes[+d.dup], n = JSON.parse(JSON.stringify(o)); n.id = "a" + (++S.seq); n.acao = o.acao + " (cópia)"; S.acoes.splice(+d.dup + 1, 0, n); ABERTAS[n.id] = true; save(); return rerender(); }
     if (d.pedirm) { REMOVER = d.pedirm; return rerender(); }
     if (d.rmacao !== undefined) { S.acoes.splice(+d.rmacao, 1); REMOVER = null; save(); return rerender(); }
+    if (d.copiar) { var cp = document.getElementById(d.copiar); cp.select(); try { navigator.clipboard.writeText(cp.value).then(function () { eqMsg("Link copiado.", true); }, function () { document.execCommand("copy"); }); } catch (er) { document.execCommand("copy"); } return; }
     var act = d.act;
     if (!act) return;
+    if (EQ.ocupado && /^eq-/.test(act)) return;
+    if (act === "eq-criar") { if (validarEnvio()) criarLink(); return; }
+    if (act === "eq-salvar" || act === "eq-salvar-rapido") {
+      if (act === "eq-salvar" && !validarEnvio()) return;
+      if (act === "eq-salvar-rapido" && !autor()) { go(STEPS.length - 1); return eqMsg("Informe seu nome ou função e salve no link."); }
+      return enviarPlano();
+    }
+    if (act === "eq-registrar") {
+      if (!validarEnvio()) return;
+      return S.grupo ? enviarPlano({ registrar: true }) : criarLink({ registrar: true });
+    }
+    if (act === "eq-sobrescrever") { if (!validarEnvio()) return; return enviarPlano({ forcar: true }); }
+    if (act === "eq-atualizar") {
+      if (S.sujo) { EQ.conflito = { versao: "do link", aoAbrir: true }; return rerender(); }
+      return carregarDoLink(S.grupo.codigo);
+    }
+    if (act === "eq-carregar-forcado") { return carregarDoLink(S.grupo.codigo); }
+    if (act === "eq-sair") { S.grupo = null; S.sujo = false; EQ.conflito = null; EQ.msg = ""; save(); try { history.replaceState(null, "", location.pathname); } catch (er) {} return rerender(); }
     if (act === "cancelar-rm") { REMOVER = null; return rerender(); }
     if (act === "exemplo") { exemplo(); return go(STEPS.length - 1); }
     if (act === "novo-real") { S = load() || blank(); return go(1); }
@@ -709,7 +872,7 @@
       document.getElementById("confirm-slot").innerHTML = '<div class="confirm"><span>O plano atual será apagado deste navegador. Salve o arquivo antes, se quiser mantê-lo.</span><button class="btn danger" data-act="confirma-novo">Apagar e começar</button><button class="btn link" data-act="cancela-novo">Cancelar</button></div>';
       return;
     }
-    if (act === "confirma-novo") { S = blank(); save(); return go(1); }
+    if (act === "confirma-novo") { S = blank(); save(); try { history.replaceState(null, "", location.pathname); } catch (er) {} return go(1); }
     if (act === "cancela-novo") { document.getElementById("confirm-slot").innerHTML = ""; return; }
     if (act === "ler-terimpact") {
       return lerArquivo(document.getElementById("ti-file")).then(function (j) { aplicarTerImpact(j); go(1); }).catch(function (er) { msg(er.message); });
@@ -786,5 +949,7 @@
   });
 
   if (location.hash === "#exemplo") { exemplo(); step = STEPS.length - 1; }
+  var CODIGO_LINK = (PARAMS.get("plano") || "").replace(/[^a-z0-9]/gi, "").slice(0, 20);
+  if (CODIGO_LINK && ENDPOINT && location.hash !== "#exemplo") { if (S.exemplo) S = load() || blank(); EQ.msg = ESPERA; EQ.ok = true; step = STEPS.length - 1; abrirLink(CODIGO_LINK); }
   render();
 })();

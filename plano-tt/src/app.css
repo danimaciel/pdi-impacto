@@ -332,3 +332,5 @@ input[type="month"] { width: 100%; border: 1px solid var(--line); border-radius:
 .ref-ti ul { margin: 0; padding-left: 1.1em; }
 .cards { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
 @media (max-width: 520px) { .brand .draft { display: none; } }
+.eq-faixa { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; background: var(--accent-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; font-size: 0.9rem; }
+.eq-faixa .btn { min-height: 36px; padding: 6px 12px; }

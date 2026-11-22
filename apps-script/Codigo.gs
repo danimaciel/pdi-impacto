@@ -9,6 +9,10 @@
  * - grupos: cada avaliação em equipe, com o código de participação e o token de coordenação.
  * - respostas: uma linha por pessoa e grupo; o envio repetido da mesma pessoa substitui a linha anterior.
  * - inclusoes: itens incluídos pelos usuários nas listas (públicos, parceiros, organizações etc.).
+ * - planos: planos de TT editados em equipe; uma linha por plano, com a versão mais recente.
+ * - respostas_<ferramenta>: as mesmas respostas, com uma coluna por campo, para leitura.
+ * - planos_tt e acoes_tt: os planos de TT, com uma linha por plano e uma linha por ação,
+ *   nas colunas da base de acompanhamento do AppSheet.
  *
  * As respostas de um grupo só são devolvidas a quem apresenta o token de coordenação.
  */
@@ -16,7 +20,8 @@
 var ABAS = {
   grupos: ["codigo", "token", "ferramenta", "titulo", "criado"],
   respostas: ["codigo", "id_respondente", "ferramenta", "respondente", "enviado", "dados"],
-  inclusoes: ["data", "ferramenta", "lista", "valor", "situacao"]
+  inclusoes: ["data", "ferramenta", "lista", "valor", "situacao"],
+  planos: ["codigo", "versao", "autor", "salvo", "situacao", "dados"]
 };
 var LIMITE_CELULA = 45000;
 
@@ -53,6 +58,7 @@ function doGet(e) {
   try {
     var p = (e && e.parameter) || {};
     if (p.acao === "grupo") return json_(grupo_(texto_(p.codigo, 20)));
+    if (p.acao === "plano") return json_(plano_(texto_(p.codigo, 20)));
     if (p.acao === "respostas") return json_(respostas_(texto_(p.codigo, 20), texto_(p.token, 40)));
     return json_({ ok: true, servico: "PD&I orientada ao impacto" });
   } catch (err) {
@@ -70,6 +76,7 @@ function doPost(e) {
     if (b.acao === "criar") return json_(criar_(b));
     if (b.acao === "enviar") return json_(enviar_(b));
     if (b.acao === "incluir") return json_(incluir_(b));
+    if (b.acao === "salvar-plano") return json_(salvarPlano_(b));
     return json_({ ok: false, erro: "acao" });
   } catch (err) {
     return json_({ ok: false, erro: String(err) });
@@ -206,4 +213,85 @@ function incluir_(b) {
   if (!valor) return { ok: false, erro: "valor" };
   aba_("inclusoes").appendRow([new Date(), texto_(b.ferramenta, 40), texto_(b.lista, 40), valor, "novo"]);
   return { ok: true };
+}
+
+/* ---------- Plano de TT em equipe ---------- */
+
+function linhaPlano_(codigo) {
+  var sh = aba_("planos"), v = sh.getDataRange().getValues();
+  for (var i = 1; i < v.length; i++) if (v[i][0] === codigo) return { sh: sh, linha: i + 1, v: v[i] };
+  return { sh: sh, linha: 0, v: null };
+}
+
+function plano_(codigo) {
+  var g = linhaGrupo_(codigo);
+  if (!g || g[2] !== "plano-tt") return { ok: false, erro: "grupo" };
+  var p = linhaPlano_(codigo);
+  if (!p.v) return { ok: true, titulo: g[3], versao: 0 };
+  var dados = null;
+  try { dados = JSON.parse(p.v[5]); } catch (e) {}
+  return { ok: true, titulo: g[3], versao: Number(p.v[1]) || 0, autor: p.v[2], salvo: p.v[3], situacao: p.v[4], dados: dados };
+}
+
+/* Grava a nova versão do plano. Se outra pessoa salvou depois da versão em que a edição se baseou,
+   devolve "conflito" para que a pessoa decida entre carregar a versão do link ou sobrescrevê-la. */
+function salvarPlano_(b) {
+  var codigo = texto_(b.codigo, 20);
+  var g = linhaGrupo_(codigo);
+  if (!g || g[2] !== "plano-tt") return { ok: false, erro: "grupo" };
+  var dados = JSON.stringify(b.dados || {});
+  if (dados.length > LIMITE_CELULA) return { ok: false, erro: "tamanho" };
+  var p = linhaPlano_(codigo);
+  var atual = p.v ? Number(p.v[1]) || 0 : 0;
+  if (!b.forcar && Number(b.versao_base || 0) !== atual) {
+    return { ok: false, erro: "conflito", versao: atual, autor: p.v ? p.v[2] : "", salvo: p.v ? p.v[3] : "" };
+  }
+  var situacao = b.registrar ? "registrado" : (p.v && p.v[4] === "registrado" ? "registrado" : "rascunho");
+  var autor = texto_(b.autor, 120), salvo = new Date(), nova = atual + 1;
+  var linha = [codigo, nova, autor, salvo, situacao, dados];
+  if (p.linha) p.sh.getRange(p.linha, 1, 1, linha.length).setValues([linha]); else p.sh.appendRow(linha);
+  try { planoLegivel_(codigo, nova, autor, salvo, situacao, b.legivel || {}); } catch (e) {}
+  return { ok: true, versao: nova, salvo: salvo, situacao: situacao };
+}
+
+function cabecalho_(sh, base) {
+  if (sh.getLastRow() === 0) { sh.appendRow(base); sh.setFrozenRows(1); }
+  return sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+}
+function linhaDe_(sh, cab, obj) {
+  Object.keys(obj).forEach(function (k) { if (cab.indexOf(k) < 0) { cab.push(k); sh.getRange(1, cab.length).setValue(k); } });
+  return cab.map(function (k) {
+    var v = obj[k];
+    if (v == null) return "";
+    if (Array.isArray(v)) v = v.join("; ");
+    if (typeof v === "string" && v.length > LIMITE_CELULA) v = v.slice(0, LIMITE_CELULA);
+    return v;
+  });
+}
+
+function planoLegivel_(codigo, versao, autor, salvo, situacao, leg) {
+  var ss = SpreadsheetApp.getActive();
+  var base = { codigo: codigo, versao: versao, situacao: situacao, salvo: salvo, autor: autor };
+  var shp = ss.getSheetByName("planos_tt") || ss.insertSheet("planos_tt");
+  var cab = cabecalho_(shp, Object.keys(base));
+  var obj = {}; Object.keys(base).forEach(function (k) { obj[k] = base[k]; });
+  var pl = leg.plano || {}; Object.keys(pl).forEach(function (k) { obj[k] = pl[k]; });
+  var linha = linhaDe_(shp, cab, obj);
+  var v = shp.getDataRange().getValues(), feito = false;
+  for (var i = 1; i < v.length; i++) if (v[i][0] === codigo) { shp.getRange(i + 1, 1, 1, linha.length).setValues([linha]); feito = true; break; }
+  if (!feito) shp.appendRow(linha);
+
+  var sha = ss.getSheetByName("acoes_tt") || ss.insertSheet("acoes_tt");
+  var caba = cabecalho_(sha, ["codigo", "versao"]);
+  var va = sha.getDataRange().getValues();
+  for (var j = va.length - 1; j >= 1; j--) if (va[j][0] === codigo) sha.deleteRow(j + 1);
+  var linhas = (leg.acoes || []).map(function (a) {
+    var o = { codigo: codigo, versao: versao }; Object.keys(a).forEach(function (k) { o[k] = a[k]; });
+    return linhaDe_(sha, caba, o);
+  });
+  if (linhas.length) {
+    var w = caba.length;
+    linhas = linhas.map(function (l) { while (l.length < w) l.push(""); return l; });
+    sha.getRange(sha.getLastRow() + 1, 1, linhas.length, w).setValues(linhas);
+  }
 }
