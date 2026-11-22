@@ -9,6 +9,12 @@
   var REF = INST.referencia.percentual;
   var KEY = "agroradareval.v2.respostas";
   var app = document.getElementById("app");
+  var I18N = window.ARV_I18N ? window.ARV_I18N(INST) : null;
+  var LKEY = "agroradareval.idioma";
+  var LANG = (function () {
+    try { var h = (location.hash || "").replace("#", ""); if (h === "en" || h === "pt") return h; return localStorage.getItem(LKEY) || "pt"; } catch (e) { return "pt"; }
+  })();
+  function tr(t) { return LANG === "en" && I18N ? I18N.tr(t) : t; }
   var TOTAL = DIMS.reduce(function (a, d) { return a + d.afirmacoes.length; }, 0);
   var AFIRM = {};
   DIMS.forEach(function (d) { d.afirmacoes.forEach(function (a) { a.dim = d.id; AFIRM[a.codigo] = a; }); });
@@ -48,7 +54,7 @@
   /* ---------- Cálculo ---------- */
 
   function avg(a) { return a.reduce(function (x, y) { return x + y; }, 0) / a.length; }
-  function fmt(n, d) { return n === null || n === undefined || isNaN(n) ? "–" : n.toFixed(d === undefined ? 1 : d).replace(".", ","); }
+  function fmt(n, d) { if (n === null || n === undefined || isNaN(n)) return "–"; var t = n.toFixed(d === undefined ? 1 : d); return LANG === "en" ? t : t.replace(".", ","); }
 
   // respostas: código -> valor (1 a 5; 0 = não sei). Para dados consolidados, valor é a média.
   function porDimensao(resp) {
@@ -108,7 +114,7 @@
   /* ---------- Utilidades ---------- */
 
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function msg(t, ok) { var m = document.getElementById("msg"); if (m) { m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); } }
+  function msg(t, ok) { var m = document.getElementById("msg"); if (m) { m.textContent = tr(t); m.className = "msg " + (ok ? "ok" : "err"); } }
   function hoje() { var d = new Date(); return ("0" + d.getDate()).slice(-2) + "/" + ("0" + (d.getMonth() + 1)).slice(-2) + "/" + d.getFullYear(); }
 
   /* ---------- Cabeçalho e navegação ---------- */
@@ -120,12 +126,12 @@
       var idx = i + 1;
       return '<button class="chip" data-go="' + idx + '"' + (idx === step ? ' aria-current="step"' : "") + ">" + esc(s.nome) + "</button>";
     }).join("");
-    return '<header class="top"><div class="wrap"><div class="top-row"><div class="brand">Agro<span>RadarEval</span></div>' +
+    return '<header class="top"><div class="wrap"><div class="top-row"><div class="brand">Agro<span>RadarEval</span> <button class="lang-btn" data-lang="' + (LANG === "en" ? "pt" : "en") + '" lang="' + (LANG === "en" ? "pt-BR" : "en") + '">' + (LANG === "en" ? "Português" : "English") + "</button></div>" +
       '<div class="status" id="status">' + statusTxt() + '</div></div><div class="bar" aria-hidden="true"><i id="barfill" style="width:' + pct + '%"></i></div>' +
       (step > 0 ? '<nav class="chips" aria-label="Etapas">' + chips + "</nav>" : "") + "</div></header>";
   }
   function refreshStatus() {
-    var st = document.getElementById("status"); if (st) st.textContent = statusTxt();
+    var st = document.getElementById("status"); if (st) st.textContent = tr(statusTxt());
     var bf = document.getElementById("barfill"); if (bf) bf.style.width = Math.round(100 * contagem(S.respostas) / TOTAL) + "%";
   }
   function exampleBanner() {
@@ -195,7 +201,7 @@
       return '<button class="lk" data-code="' + a.codigo + '" data-v="' + n + '" aria-pressed="' + (v === n) + '" aria-label="' + n + ", " + esc(r) + '" title="' + esc(r) + '">' + n + "</button>";
     }).join("") + '<button class="lk ns" data-code="' + a.codigo + '" data-v="0" aria-pressed="' + (v === 0) + '" aria-label="' + esc(INST.escala.nao_sei) + '" title="' + esc(INST.escala.nao_sei) + '">NS</button>';
     return '<div class="lk-item' + (v !== undefined ? " feito" : "") + '" id="item-' + a.codigo + '"><p class="lk-q"><span class="code">' + a.codigo + "</span> " + esc(a.texto) +
-      (MOSTRAR_EN ? '<span class="lk-en">' + esc(a.texto_en) + "</span>" : "") + "</p>" +
+      (MOSTRAR_EN && LANG !== "en" ? '<span class="lk-en">' + esc(a.texto_en) + "</span>" : "") + "</p>" +
       '<div class="lk-row" role="group" aria-label="Resposta para ' + a.codigo + '">' + btns + '</div><span class="lk-sel" id="anc-' + a.codigo + '">' + (v ? esc(ESC[v - 1]) : v === 0 ? esc(INST.escala.nao_sei) : "") + "</span></div>";
   }
   function feitasDim(d) { return d.afirmacoes.filter(function (a) { return S.respostas[a.codigo] !== undefined; }).length; }
@@ -206,7 +212,7 @@
       '<details><summary class="small">Sobre esta dimensão</summary><div><p>' + esc(d.descricao) + '</p><p class="small muted">Princípios de RRI e RRA associados: ' + esc(d.principios.join(", ")) + ".</p></div></details>" +
       '<p class="small muted">Indique o grau de concordância com cada afirmação, considerando a prática atual da organização. Ao responder, a página avança para a próxima afirmação.</p></div>' +
       '<div class="lk-legenda" aria-hidden="true">' + legenda + "</div>" +
-      '<div class="lk-meta"><span id="dim-prog">' + feitasDim(d) + " de " + d.afirmacoes.length + ' respondidas</span><button class="btn link" data-act="en">' + (MOSTRAR_EN ? "Ocultar texto original em inglês" : "Mostrar texto original em inglês") + "</button></div>" +
+      '<div class="lk-meta"><span id="dim-prog">' + feitasDim(d) + " de " + d.afirmacoes.length + ' respondidas</span>' + (LANG === "en" ? "" : '<button class="btn link" data-act="en">' + (MOSTRAR_EN ? "Ocultar texto original em inglês" : "Mostrar texto original em inglês") + "</button>") + "</div>" +
       '<div class="lk-lista">' + d.afirmacoes.map(afirmHtml).join("") + "</div>" +
       '<div class="field"><label for="obs-' + d.id + '">Observações sobre esta dimensão</label><textarea id="obs-' + d.id + '" data-obs="' + d.id + '" placeholder="Registre exemplos, práticas existentes ou dificuldades que ajudem a interpretar as respostas.">' + esc(S.comentarios[d.id] || "") + "</textarea></div>" +
       "</div>" + nav();
@@ -365,6 +371,15 @@
     if (obs.length && !cons) secoes.push({ h: "Observações", blocos: obs });
     return { titulo: "AgroRadarEval: " + (o.nome || "diagnóstico"), subtitulo: "Diagnóstico do processo de avaliação. Gerado em " + hoje() + " com o instrumento versão " + INST.versao + (cons ? ", resultado consolidado de " + CONS.n + " respondentes." : "."), secoes: secoes };
   }
+  function traduzirRelatorio(E) {
+    if (LANG !== "en") return E;
+    return { titulo: tr(E.titulo), subtitulo: tr(E.subtitulo), secoes: E.secoes.map(function (sc) {
+      return { h: tr(sc.h), blocos: sc.blocos.map(function (b) {
+        if (b.sub) return { sub: tr(b.sub) };
+        var k = b.li ? "li" : "p", o = {}; o[k] = b[k].map(function (r) { return { t: tr(r.t), b: r.b }; }); return o;
+      }) };
+    }) };
+  }
   function relTexto(E) {
     var L = [E.titulo, E.subtitulo, ""];
     E.secoes.forEach(function (s) { L.push(s.h.toUpperCase()); s.blocos.forEach(function (b) { if (b.sub) L.push(b.sub); else if (b.li) L.push("- " + b.li.map(function (r) { return r.t; }).join("")); else L.push(b.p.map(function (r) { return r.t; }).join("")); }); L.push(""); });
@@ -379,7 +394,7 @@
     var W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
     var doc = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ' + W + "><w:body>" + body + '<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1417" w:right="1417" w:bottom="1417" w:left="1701" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>';
     function st(id, name, rpr, ppr) { return '<w:style w:type="paragraph" w:styleId="' + id + '"><w:name w:val="' + name + '"/><w:basedOn w:val="Normal"/><w:next w:val="Normal"/><w:qFormat/>' + (ppr ? "<w:pPr>" + ppr + "</w:pPr>" : "") + "<w:rPr>" + rpr + "</w:rPr></w:style>"; }
-    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles ' + W + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:lang w:val="pt-BR"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>' +
+    var styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles ' + W + '><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/><w:lang w:val="' + (LANG === "en" ? "en-US" : "pt-BR") + '"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="120" w:line="276" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style>' +
       st("Title", "Title", '<w:b/><w:sz w:val="36"/><w:color w:val="1C6A58"/>', '<w:spacing w:after="120"/>') + st("Subtitle", "Subtitle", '<w:i/><w:sz w:val="20"/><w:color w:val="586A63"/>', '<w:spacing w:after="240"/>') +
       st("Heading1", "heading 1", '<w:b/><w:sz w:val="28"/><w:color w:val="1C6A58"/>', '<w:keepNext/><w:spacing w:before="360" w:after="120"/><w:outlineLvl w:val="0"/>') + st("Heading2", "heading 2", '<w:b/><w:sz w:val="24"/>', '<w:keepNext/><w:spacing w:before="200" w:after="80"/><w:outlineLvl w:val="1"/>') + "</w:styles>";
     var z = new JSZip();
@@ -426,7 +441,8 @@
   function render() {
     var s = STEPS[step], body;
     if (s.id === "inicio") body = viewInicio(); else if (s.id === "identificacao") body = viewIdentificacao(); else if (s.id === "resultado") body = viewResultado(); else body = viewDim(s.dim, step);
-    app.innerHTML = header() + '<main><div class="wrap">' + body + "</div></main>";
+    app.innerHTML = tr(header() + '<main><div class="wrap">' + body + "</div></main>");
+    document.documentElement.lang = LANG === "en" ? "en" : "pt-BR";
     var cur = app.querySelector('.chip[aria-current="step"]'); if (cur && cur.scrollIntoView) cur.scrollIntoView({ block: "nearest", inline: "center" });
   }
   function go(i) { step = Math.max(0, Math.min(STEPS.length - 1, i)); render(); window.scrollTo(0, 0); }
@@ -440,6 +456,7 @@
     var t = ev.target.closest("button"); if (!t) return;
     if (t.dataset.go !== undefined) { go(parseInt(t.dataset.go, 10)); return; }
     if (t.dataset.vista) { VISTA = t.dataset.vista; render(); return; }
+    if (t.dataset.lang) { LANG = t.dataset.lang; try { localStorage.setItem(LKEY, LANG); } catch (e) {} var yl = window.scrollY; render(); window.scrollTo(0, yl); return; }
     if (t.dataset.code) {
       var c = t.dataset.code, v = parseInt(t.dataset.v, 10);
       if (S.respostas[c] === v) delete S.respostas[c]; else S.respostas[c] = v;
@@ -447,8 +464,8 @@
       var it = document.getElementById("item-" + c), cur = S.respostas[c];
       it.querySelectorAll(".lk").forEach(function (b) { b.setAttribute("aria-pressed", String(cur !== undefined && parseInt(b.dataset.v, 10) === cur)); });
       it.classList.toggle("feito", cur !== undefined);
-      document.getElementById("anc-" + c).textContent = cur ? ESC[cur - 1] : cur === 0 ? INST.escala.nao_sei : "";
-      var dd = STEPS[step].dim; if (dd) { var pg = document.getElementById("dim-prog"); if (pg) pg.textContent = feitasDim(dd) + " de " + dd.afirmacoes.length + " respondidas"; }
+      document.getElementById("anc-" + c).textContent = tr(cur ? ESC[cur - 1] : cur === 0 ? INST.escala.nao_sei : "");
+      var dd = STEPS[step].dim; if (dd) { var pg = document.getElementById("dim-prog"); if (pg) pg.textContent = tr(feitasDim(dd) + " de " + dd.afirmacoes.length + " respondidas"); }
       refreshStatus();
       if (cur !== undefined) {
         var prox = it.nextElementSibling;
@@ -470,11 +487,11 @@
       case "cancelar": document.getElementById("confirm-slot").innerHTML = ""; break;
       case "novo": try { localStorage.removeItem(KEY); } catch (e) {} S = blank(); CONS = null; VISTA = "minha"; save(); go(1); break;
       case "copiar": copiar(JSON.stringify(S, null, 2), "Respostas copiadas."); break;
-      case "copiar-relatorio": copiar(relTexto(relatorio()), "Texto do relatório copiado."); break;
+      case "copiar-relatorio": copiar(relTexto(traduzirRelatorio(relatorio())), "Texto do relatório copiado."); break;
       case "baixar": salvar(nomeArquivo("json"), JSON.stringify(S, null, 2)); break;
       case "baixar-docx":
         if (typeof JSZip === "undefined") { msg("Não foi possível gerar o arquivo Word neste ambiente. Use a opção de copiar o texto."); break; }
-        docxBlob(relatorio()).then(function (b) { return salvar(nomeArquivo("docx"), b); }, function () { msg("Não foi possível gerar o arquivo Word."); });
+        docxBlob(traduzirRelatorio(relatorio())).then(function (b) { return salvar(nomeArquivo("docx"), b); }, function () { msg("Não foi possível gerar o arquivo Word."); });
         break;
       case "imprimir": window.print(); break;
       case "importar": {

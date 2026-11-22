@@ -11,7 +11,15 @@
       "Concordo",
       "Concordo totalmente"
     ],
-    "nao_sei": "Não sei avaliar"
+    "nao_sei": "Não sei avaliar",
+    "rotulos_en": [
+      "Strongly disagree",
+      "Disagree",
+      "Neither agree nor disagree",
+      "Agree",
+      "Strongly agree"
+    ],
+    "nao_sei_en": "Unable to assess"
   },
   "referencia": {
     "percentual": 50,
@@ -26,19 +34,22 @@
       "nome": "Desenvolvimento de capacidades avaliativas",
       "nome_en": "Evaluation Capacity Building (ECB)",
       "descricao": "Estruturas, ferramentas, conhecimentos, habilidades e apoio organizacional para integrar a avaliação aos processos cotidianos (Preskill; Boyle, 2008; Labin et al., 2012).",
-      "id": "ecb"
+      "id": "ecb",
+      "descricao_en": "Structures, tools, knowledge, skills and organizational support to integrate evaluation into everyday processes (Preskill; Boyle, 2008; Labin et al., 2012)."
     },
     {
       "nome": "Cultura de avaliação orientada ao impacto",
       "nome_en": "Impact-Oriented Evaluation Culture",
       "descricao": "Práticas de pesquisa orientadas a resultados e impactos, com base em trajetórias de impacto, teoria da mudança e cultura de impacto (Douthwaite et al., 2003; Alvarez et al., 2010; Reed et al., 2021).",
-      "id": "cultura"
+      "id": "cultura",
+      "descricao_en": "Research practices oriented toward outcomes and impacts, based on impact pathways, theory of change and culture of impact (Douthwaite et al., 2003; Alvarez et al., 2010; Reed et al., 2021)."
     },
     {
       "nome": "Aprendizagem reflexiva",
       "nome_en": "Reflective Learning",
       "descricao": "Reflexão crítica, aprendizagem adaptativa e reflexividade organizacional, com retroalimentação e processos participativos (Weiss, 1998; Patton, 2020; Schuijff; Dijkstra, 2020).",
-      "id": "reflexiva"
+      "id": "reflexiva",
+      "descricao_en": "Critical reflection, adaptive learning and organizational reflexivity, supported by feedback and participatory processes (Weiss, 1998; Patton, 2020; Schuijff; Dijkstra, 2020)."
     }
   ],
   "perfil_respondente": [
@@ -140,6 +151,11 @@
       "principios": [
         "Ética e integridade",
         "Empoderamento"
+      ],
+      "descricao_en": "Implementing the strategies proposed by Preskill and Boyle (such as training, technical assistance, coaching, or mentoring) is essential to develop the necessary competencies to perform and use evaluations. This element includes the structure proposed by Labin et al. concerning needs (identification of the main demands for training and the entire arrangement for its realization). Directly associated with the concept of Learning-Centered Evaluation.",
+      "principios_en": [
+        "Ethics and Integrity",
+        "Empowerment"
       ]
     },
     {
@@ -198,6 +214,10 @@
       "pilar": "ecb",
       "principios": [
         "Antecipação"
+      ],
+      "descricao_en": "The ECB process focused on use must be integrated with the institution's strategic planning. This means that the results of the evaluations should be used to guide the institution's strategy and planning, and that the ECB process should be aligned with the strategic objectives and priorities of the institution, to contribute, especially, to the PD&I management process. Associated with the concept of Practical Policy Evaluation. .",
+      "principios_en": [
+        "Anticipation"
       ]
     },
     {
@@ -281,6 +301,10 @@
       "pilar": "ecb",
       "principios": [
         "Transparência"
+      ],
+      "descricao_en": "This element is cross-cutting. It occurs throughout the process and is the basis for use to occur. It specifically addresses the strategies, channels, and practices related to the dissemination and sharing of evaluation results with stakeholders. It seeks to ensure that the evaluation results are effectively communicated, understood, and used by the various stakeholders. In this sense, communication consists of making the evaluation results accessible, understandable, and actionable, providing clear and targeted messages. Associated with the concepts: Transparent Evaluation and Knowledge Translation .",
+      "principios_en": [
+        "Transparency"
       ]
     },
     {
@@ -365,6 +389,11 @@
       "principios": [
         "Diversidade",
         "Engajamento"
+      ],
+      "descricao_en": "As proposed by Labin et al., the ECB model should actively and continuously involve all stakeholders in the evaluation process. This includes not only the evaluation team but also managers, program staff, program beneficiaries, and other stakeholders. Active participation and collaboration can promote the ownership of evaluation results and increase the likelihood of their use. In this sense, this is the element that enables the identification of likely demands for use by each involved actor. Directly associated with the concepts: Empowerment Evaluation and Practical Participatory Collaborative Evaluation.",
+      "principios_en": [
+        "Diversity",
+        "Engagement"
       ]
     },
     {
@@ -443,6 +472,10 @@
       "pilar": "cultura",
       "principios": [
         "Ética e integridade"
+      ],
+      "descricao_en": "This element is directly associated with strategies for developing an evaluative process to seek the establishment of a new mindset. This is an aggregating element concerning evaluation. It seeks to promote an organizational culture that values evaluation and evidence-based decision-making. This includes creating spaces for dialogue and discussion about evaluation results, as well as forming communities of practice that promote the sharing of knowledge and experiences in evaluation. Associated with the concepts of Utilization-Focused Evaluation (UFE) and Context-Sensitive Evaluation. .",
+      "principios_en": [
+        "Ethics and Integrity"
       ]
     },
     {
@@ -514,6 +547,13 @@
         "Impacto",
         "Monitoramento do impacto",
         "Antecipação"
+      ],
+      "descricao_en": "After the completion of the impact assessment, it is important to closely monitor the implementation of the resulting recommendations from the evaluative process. This ensures that the proposed actions and decisions are effectively put into practice and that any challenges or obstacles are identified and addressed appropriately. Continuous monitoring also helps ensure that the improvements and changes resulting from the evaluation are effective and contribute to the effective management of PD&I. Associated with Interactive Evaluation. .",
+      "principios_en": [
+        "Transparency",
+        "Impact",
+        "Impact Monitoring",
+        "Anticipation"
       ]
     },
     {
@@ -578,6 +618,11 @@
       "principios": [
         "Reflexividade",
         "Adaptação"
+      ],
+      "descricao_en": "Includes mechanisms for providing feedback on evaluation results and adapting the evaluation process based on this feedback. This is crucial to ensure that the evaluation is always responding to the needs and priorities of stakeholders and to promote continuous learning and improvement. Associated with the concept of Developmental Evaluation. .",
+      "principios_en": [
+        "Reflexivity",
+        "Adaptation"
       ]
     },
     {
@@ -647,8 +692,41 @@
       "principios": [
         "Diversidade",
         "Impacto"
+      ],
+      "descricao_en": "As a strategic element, the external environment influences the decisions and operations of agricultural P&D institutions. Factors such as public policies, technological trends, market demands, affirmative agendas, critical issues related to productivity (such as climate change), and socioeconomic issues, and stakeholder pressures can impact both the direction of research and the acceptance and application of the results of evaluations. Associated with the concepts: Responsive Evaluation; Situational Analysis .",
+      "principios_en": [
+        "Diversity",
+        "Impact"
       ]
     }
   ],
-  "estrutura_fonte": "Pinto et al. (2024), Tabela 2: relação entre pilares, dimensões, princípios de RRI e RRA e número de questões."
+  "estrutura_fonte": "Pinto et al. (2024), Tabela 2: relação entre pilares, dimensões, princípios de RRI e RRA e número de questões.",
+  "perfil_respondente_en": [
+    [
+      "Knowledge of organizational processes",
+      "Understanding of all internal processes of the organization, especially in research, development and innovation."
+    ],
+    [
+      "Familiarity with internal assessment practices",
+      "Understanding of how assessments are carried out within the organization, including the metrics and indicators used."
+    ],
+    [
+      "Strategic vision of RD&I",
+      "Understanding of the organization's RD&I objectives and of the strategies designed to achieve them, including the construction of new RD&I programs and projects."
+    ],
+    [
+      "Knowledge of trends in the agricultural sector",
+      "Understanding of trends and challenges in the agricultural sector that can influence RD&I practices."
+    ],
+    [
+      "Critical evaluation capacity",
+      "Ability to critically evaluate internal practices and the organization's position regarding the use of evaluation evidence."
+    ],
+    [
+      "Familiarity with concepts of impact and innovation in research",
+      "Understanding of how research and its evidence can generate impact and innovation in the context of the organization."
+    ]
+  ],
+  "situacao_en": "Portuguese translation under review. The English statements are the original version.",
+  "estrutura_fonte_en": "Pinto et al. (2024), Table 2: relationship between pillars, dimensions, RRI and RRA principles and number of questions."
 }
