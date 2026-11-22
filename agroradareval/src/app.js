@@ -5,6 +5,19 @@
   var DIMS = INST.dimensoes;
   var PIL = {}; INST.pilares.forEach(function (p) { PIL[p.id] = p; });
   var LISTAS = JSON.parse(document.getElementById("listas").textContent);
+  var SERVICO = {}; try { SERVICO = JSON.parse(document.getElementById("servico").textContent); } catch (e) {}
+  var ENDPOINT = SERVICO.endpoint || "";
+  var PARAMS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var MEMORIA = {};
+  function lsGet(k) { var v = null; try { v = localStorage.getItem(k); } catch (e) {} return v !== null ? v : (MEMORIA[k] !== undefined ? MEMORIA[k] : null); }
+  function lsSet(k, v) { MEMORIA[k] = v; try { localStorage.setItem(k, v); } catch (e) {} }
+  var RID = lsGet("agroradareval.rid") || (function () { var r = Math.random().toString(36).slice(2) + Date.now().toString(36); lsSet("agroradareval.rid", r); return r; })();
+  var GRUPO_INFO = null;
+  function api(metodo, dados) {
+    if (!ENDPOINT) return Promise.reject(new Error("Serviço não configurado."));
+    var req = metodo === "GET" ? fetch(ENDPOINT + "?" + new URLSearchParams(dados).toString()) : fetch(ENDPOINT, { method: "POST", body: JSON.stringify(dados) });
+    return req.then(function (r) { return r.json(); });
+  }
   var ESC = INST.escala.rotulos;
   var REF = INST.referencia.percentual;
   var KEY = "agroradareval.v2.respostas";
@@ -30,7 +43,7 @@
 
   function blank() {
     return { instrumento: INST.instrumento, versao: INST.versao, criado: new Date().toISOString(), atualizado: null, exemplo: false,
-      organizacao: { nome: "", unidade: "", pais: "", funcao: "" }, respostas: {}, comentarios: {} };
+      organizacao: { nome: "", unidade: "", pais: "", funcao: "" }, respostas: {}, comentarios: {}, grupo: null, enviadoEm: null };
   }
   function valid(s) { return s && typeof s === "object" && s.instrumento === INST.instrumento && s.respostas && typeof s.respostas === "object"; }
   function normalize(s) {
@@ -47,6 +60,15 @@
     try { localStorage.setItem(KEY, JSON.stringify(S)); saveOk = true; } catch (e) { saveOk = false; }
   }
   var S = load() || blank();
+  (function () {
+    var g = PARAMS.get("g"), adm = PARAMS.get("adm");
+    if (g && /^[a-z0-9]{6,20}$/.test(g)) {
+      if (S.exemplo) S = blank();
+      if (S.grupo !== g) { S.grupo = g; S.enviadoEm = null; }
+      if (adm && /^[a-z0-9]{10,40}$/.test(adm)) lsSet("agroradareval.adm." + g, adm);
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+    }
+  })();
   var CONS = null;      // respostas consolidadas de vários respondentes
   var VISTA = "minha";  // "minha" ou "consolidada"
   var step = 0;
@@ -183,7 +205,7 @@
     function campo(id, rotulo, k, ajuda) {
       return '<div class="field"><label for="f-' + id + '">' + rotulo + "</label>" + (ajuda ? '<span class="hint">' + ajuda + "</span>" : "") + '<input type="text" id="f-' + id + '" data-org="' + k + '" value="' + esc(o[k]) + '"></div>';
     }
-    return exampleBanner() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">Identificação</p><h2>Organização e respondente</h2>' +
+    return exampleBanner() + bannerGrupo() + '<div class="stack-lg"><div class="stack"><p class="eyebrow">Identificação</p><h2>Organização e respondente</h2>' +
       '<p class="muted">Nenhum campo é obrigatório. O nome da organização é usado para reunir respostas de várias pessoas na consolidação.</p></div>' +
       '<div class="field"><label for="f-org">Organização</label><span class="hint">Digite para buscar na lista. Se a organização não estiver na lista, digite o nome completo. Pessoas da mesma organização devem usar o mesmo nome, para que as respostas possam ser consolidadas.</span><input type="text" id="f-org" data-org="nome" list="lista-orgs" value="' + esc(o.nome) + '">' +
       '<datalist id="lista-orgs">' + LISTAS.organizacoes.map(function (x) { return '<option value="' + esc(x.nome) + '">' + esc(x.pais) + "</option>"; }).join("") + "</datalist></div>" +
@@ -344,8 +366,37 @@
       statsHtml + divergHtml +
       '<div class="panel"><h3>Destaques e pontos a melhorar</h3><p class="small muted">Destaques: afirmações com resposta média igual ou superior a ' + INST.regras.destaque_min + ". Pontos a melhorar: resposta média igual ou inferior a " + INST.regras.melhorar_max + ". " + L.intermediarios + " afirmações ficaram na faixa intermediária.</p>" +
       '<div class="lists"><div class="stack"><h3 class="tag-ok">Destaques</h3>' + listaHtml(L.destaques, resp) + '</div><div class="stack"><h3 class="tag-warn">Pontos a melhorar</h3>' + listaHtml(L.melhorar, resp) + "</div></div></div>" +
-      consPanel + exportar + "</div>" + nav();
+      painelRemoto() + consPanel + exportar + "</div>" + nav();
   }
+
+  function linkBase() { return location.origin + location.pathname; }
+  function tokenAdm() { return S.grupo ? lsGet("agroradareval.adm." + S.grupo) : null; }
+  function bannerGrupo() {
+    if (!S.grupo) return "";
+    return '<div class="note no-print">Diagnóstico em grupo' + (GRUPO_INFO && GRUPO_INFO.titulo ? ": <strong>" + esc(GRUPO_INFO.titulo) + "</strong>" : "") + ". Responda de forma independente e, ao final, envie suas respostas na tela de resultado.</div>";
+  }
+  function painelRemoto() {
+    if (!ENDPOINT) return "";
+    var h = '<div class="panel no-print remoto"><h3>Diagnóstico em grupo com link</h3>';
+    if (!S.grupo) {
+      h += '<p class="small">Crie um link para que outras pessoas da organização respondam ao diagnóstico. Cada pessoa responde de forma independente e envia suas respostas; apenas quem tem o link de coordenação vê e consolida as respostas.</p>' +
+        '<div class="actions"><button class="btn primary" data-act="criar-grupo">Criar link para o grupo</button></div>';
+    } else {
+      var adm = tokenAdm();
+      if (adm) {
+        var lp = linkBase() + "?g=" + S.grupo, lc = lp + "&adm=" + adm;
+        h += '<div class="stack"><p class="small"><strong>Link de participação</strong> (envie às pessoas que vão responder)</p><div class="add-row"><input type="text" readonly id="lk-part" value="' + esc(lp) + '"><button class="btn" data-copiar="lk-part">Copiar</button></div>' +
+          '<p class="small"><strong>Link de coordenação</strong> (guarde; permite ver e consolidar as respostas)</p><div class="add-row"><input type="text" readonly id="lk-coord" value="' + esc(lc) + '"><button class="btn" data-copiar="lk-coord">Copiar</button></div></div>';
+      }
+      h += '<div class="stack"><label class="opts"><span><input type="checkbox" id="rm-aceite"> Concordo em enviar minhas respostas, incluindo a organização e a função informadas, para a planilha de respostas mantida pela coordenação deste site. As respostas são usadas apenas para a consolidação deste diagnóstico.</span></label>' +
+        '<div class="actions"><button class="btn primary" data-act="enviar-grupo">' + (S.enviadoEm ? "Reenviar minhas respostas" : "Enviar minhas respostas") + "</button>" +
+        (adm ? '<button class="btn" data-act="carregar-grupo">Carregar respostas do grupo</button>' : "") +
+        '<button class="btn link" data-act="sair-grupo">Sair deste diagnóstico em grupo</button></div>' +
+        (S.enviadoEm ? '<p class="small muted">Respostas enviadas em ' + esc(new Date(S.enviadoEm).toLocaleString(LANG === "en" ? "en-GB" : "pt-BR")) + ". Um novo envio substitui o anterior.</p>" : "") + "</div>";
+    }
+    return h + '<div id="rm-msg" class="msg" role="status"></div></div>';
+  }
+  function rmMsg(t, ok) { var m = document.getElementById("rm-msg"); if (m) { m.textContent = tr(t); m.className = "msg " + (ok ? "ok" : "err"); } }
 
   /* ---------- Relatório ---------- */
 
@@ -456,6 +507,11 @@
     var t = ev.target.closest("button"); if (!t) return;
     if (t.dataset.go !== undefined) { go(parseInt(t.dataset.go, 10)); return; }
     if (t.dataset.vista) { VISTA = t.dataset.vista; render(); return; }
+    if (t.dataset.copiar) {
+      var campoL = document.getElementById(t.dataset.copiar);
+      try { navigator.clipboard.writeText(campoL.value).then(function () { rmMsg("Link copiado.", true); }, function () { campoL.select(); rmMsg("Selecione o link e copie manualmente."); }); } catch (e) { campoL.select(); }
+      return;
+    }
     if (t.dataset.lang) { LANG = t.dataset.lang; try { localStorage.setItem(LKEY, LANG); } catch (e) {} var yl = window.scrollY; render(); window.scrollTo(0, yl); return; }
     if (t.dataset.code) {
       var c = t.dataset.code, v = parseInt(t.dataset.v, 10);
@@ -514,6 +570,46 @@
         break;
       }
       case "desfazer-cons": CONS = null; VISTA = "minha"; render(); break;
+      case "criar-grupo":
+        rmMsg("Criando o link. A primeira conexão pode levar até 20 segundos.", true);
+        api("POST", { acao: "criar", ferramenta: "agroradareval", titulo: S.organizacao.nome || "" }).then(function (r) {
+          if (!r.ok) throw new Error(r.erro);
+          S.grupo = r.codigo; S.enviadoEm = null; lsSet("agroradareval.adm." + r.codigo, r.token); save();
+          GRUPO_INFO = { titulo: S.organizacao.nome }; var y = window.scrollY; render(); window.scrollTo(0, y);
+          rmMsg("Link criado. Envie o link de participação às pessoas que vão responder e guarde o link de coordenação.", true);
+        }).catch(function () { rmMsg("Não foi possível criar o link. Verifique a conexão e tente novamente."); });
+        break;
+      case "enviar-grupo": {
+        var ac = document.getElementById("rm-aceite");
+        if (!ac || !ac.checked) { rmMsg("Para enviar, marque a concordância com o envio das respostas."); break; }
+        rmMsg("Enviando. A primeira conexão pode levar até 20 segundos.", true);
+        var dados = { instrumento: S.instrumento, versao: S.versao, organizacao: S.organizacao, respostas: S.respostas, comentarios: S.comentarios, enviado: new Date().toISOString() };
+        api("POST", { acao: "enviar", codigo: S.grupo, rid: RID, respondente: [S.organizacao.nome, S.organizacao.funcao].filter(Boolean).join(" · "), dados: dados }).then(function (r) {
+          if (!r.ok) throw new Error(r.erro);
+          S.enviadoEm = new Date().toISOString(); save(); var y = window.scrollY; render(); window.scrollTo(0, y);
+          rmMsg(r.atualizado ? "Respostas atualizadas." : "Respostas enviadas.", true);
+        }).catch(function (e) { rmMsg(e && e.message === "grupo" ? "Este diagnóstico em grupo não foi encontrado. Confira o link recebido." : "Não foi possível enviar. Verifique a conexão e tente novamente."); });
+        break;
+      }
+      case "carregar-grupo":
+        rmMsg("Carregando respostas. A primeira conexão pode levar até 20 segundos.", true);
+        api("GET", { acao: "respostas", codigo: S.grupo, token: tokenAdm() || "" }).then(function (r) {
+          if (!r.ok) throw new Error(r.erro);
+          var lista = (r.respostas || []).filter(valid).map(normalize);
+          if (lista.length < 2) { rmMsg(lista.length ? "Apenas uma pessoa enviou respostas até agora. A consolidação exige pelo menos duas." : "Nenhuma resposta foi enviada até agora."); return; }
+          CONS = consolidar(lista); VISTA = "consolidada"; render(); window.scrollTo(0, 0);
+        }).catch(function () { rmMsg("Não foi possível carregar as respostas. Verifique a conexão e o link de coordenação."); });
+        break;
+      case "sair-grupo": S.grupo = null; S.enviadoEm = null; save(); render(); break;
+    }
+  });
+  app.addEventListener("change", function (ev) {
+    var t = ev.target;
+    if (t.id === "f-org" && ENDPOINT) {
+      var v = (t.value || "").trim();
+      var naLista = LISTAS.organizacoes.some(function (o) { return o.nome.toLowerCase() === v.toLowerCase(); });
+      var jaEnviado = lsGet("agroradareval.inc." + v.toLowerCase());
+      if (v.length >= 3 && !naLista && !jaEnviado && !S.exemplo) { lsSet("agroradareval.inc." + v.toLowerCase(), "1"); api("POST", { acao: "incluir", ferramenta: "agroradareval", lista: "organizacoes", valor: v }).catch(function () {}); }
     }
   });
   app.addEventListener("input", function (ev) {
@@ -536,5 +632,6 @@
     return s;
   }
 
+  if (ENDPOINT && S.grupo) api("GET", { acao: "grupo", codigo: S.grupo }).then(function (r) { if (r.ok) { GRUPO_INFO = r; render(); } }).catch(function () {});
   render();
 })();

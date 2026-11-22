@@ -117,7 +117,32 @@
     ["As respostas salvas neste navegador serão apagadas.", "The answers saved in this browser will be deleted."], ["Apagar e começar de novo", "Delete and start over"], ["Cancelar", "Cancel"],
     ["Exemplo: instituto de pesquisa agropecuária", "Example: agricultural research institute"], ["Coordenação de avaliação", "Evaluation unit"], ["Brasil", "Brazil"], ["Gestão de PD&I", "RD&I management"],
     ["As recomendações das avaliações não têm responsável definido nem acompanhamento sistemático.", "Evaluation recommendations have no designated owner and no systematic follow-up."],
-    ["Neutro", "Neutral"]
+    ["Neutro", "Neutral"],
+    ["Diagnóstico em grupo com link", "Group diagnosis with a link"],
+    ["Crie um link para que outras pessoas da organização respondam ao diagnóstico. Cada pessoa responde de forma independente e envia suas respostas; apenas quem tem o link de coordenação vê e consolida as respostas.",
+     "Create a link so that other people in the organization can answer the diagnosis. Each person answers independently and submits their answers; only the holder of the coordination link can see and consolidate them."],
+    ["Criar link para o grupo", "Create a link for the group"],
+    ["Link de participação", "Participation link"], ["(envie às pessoas que vão responder)", "(send it to the people who will respond)"],
+    ["Link de coordenação", "Coordination link"], ["(guarde; permite ver e consolidar as respostas)", "(keep it; it allows you to see and consolidate the answers)"],
+    ["Copiar", "Copy"],
+    ["Concordo em enviar minhas respostas, incluindo a organização e a função informadas, para a planilha de respostas mantida pela coordenação deste site. As respostas são usadas apenas para a consolidação deste diagnóstico.",
+     "I agree to send my answers, including the organization and role provided, to the response spreadsheet maintained by the coordination of this site. The answers are used only to consolidate this diagnosis."],
+    ["Reenviar minhas respostas", "Resend my answers"], ["Enviar minhas respostas", "Send my answers"], ["Carregar respostas do grupo", "Load the group's answers"],
+    ["Sair deste diagnóstico em grupo", "Leave this group diagnosis"], ["Respostas enviadas em ", "Answers sent on "], [". Um novo envio substitui o anterior.", ". A new submission replaces the previous one."],
+    ["Diagnóstico em grupo", "Group diagnosis"], [". Responda de forma independente e, ao final, envie suas respostas na tela de resultado.", ". Answer independently and, at the end, send your answers from the results screen."],
+    ["Criando o link. A primeira conexão pode levar até 20 segundos.", "Creating the link. The first connection may take up to 20 seconds."],
+    ["Link criado. Envie o link de participação às pessoas que vão responder e guarde o link de coordenação.", "Link created. Send the participation link to the people who will respond and keep the coordination link."],
+    ["Não foi possível criar o link. Verifique a conexão e tente novamente.", "The link could not be created. Check your connection and try again."],
+    ["Para enviar, marque a concordância com o envio das respostas.", "To send, tick the agreement to send your answers."],
+    ["Enviando. A primeira conexão pode levar até 20 segundos.", "Sending. The first connection may take up to 20 seconds."],
+    ["Respostas atualizadas.", "Answers updated."], ["Respostas enviadas.", "Answers sent."],
+    ["Este diagnóstico em grupo não foi encontrado. Confira o link recebido.", "This group diagnosis was not found. Check the link you received."],
+    ["Não foi possível enviar. Verifique a conexão e tente novamente.", "Sending failed. Check your connection and try again."],
+    ["Carregando respostas. A primeira conexão pode levar até 20 segundos.", "Loading answers. The first connection may take up to 20 seconds."],
+    ["Apenas uma pessoa enviou respostas até agora. A consolidação exige pelo menos duas.", "Only one person has sent answers so far. Consolidation requires at least two."],
+    ["Nenhuma resposta foi enviada até agora.", "No answers have been sent yet."],
+    ["Não foi possível carregar as respostas. Verifique a conexão e o link de coordenação.", "The answers could not be loaded. Check your connection and the coordination link."],
+    ["Link copiado.", "Link copied."], ["Selecione o link e copie manualmente.", "Select the link and copy it manually."]
   ];
 
   var REGRAS_EN = [
