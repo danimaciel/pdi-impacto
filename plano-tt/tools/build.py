@@ -17,6 +17,7 @@ css = (RAIZ / "src" / "app.css").read_text(encoding="utf-8")
 js = (RAIZ / "src" / "app.js").read_text(encoding="utf-8")
 inst = json.loads((RAIZ / "instrumento" / "plano-tt.json").read_text(encoding="utf-8"))
 listas = json.loads((RAIZ.parent / "listas" / "listas.json").read_text(encoding="utf-8"))
+equipes = json.loads((RAIZ.parent / "listas" / "equipes.json").read_text(encoding="utf-8"))
 servico = json.loads((RAIZ.parent / "config" / "servico.json").read_text(encoding="utf-8"))
 ti = json.loads((RAIZ.parent / "terimpact" / "instrumento" / "terimpact_v2.json").read_text(encoding="utf-8"))
 rotulos = {m["codigo"]: m["rotulo"] for b in ti["blocos"] if b["tipo"] == "mapa" for d in b["dimensoes"] for m in d["mudancas"]}
@@ -36,6 +37,7 @@ body = (
     '<div id="app"></div>\n'
     f'<script type="application/json" id="instrumento">{emb(inst)}</script>\n'
     f'<script type="application/json" id="listas">{emb(listas)}</script>\n'
+    f'<script type="application/json" id="equipes">{emb(equipes)}</script>\n'
     f'<script type="application/json" id="servico">{emb(servico)}</script>\n'
     f'<script type="application/json" id="rotulos-ti">{emb(rotulos)}</script>\n'
     f"<script>\n{js}\n</script>\n"

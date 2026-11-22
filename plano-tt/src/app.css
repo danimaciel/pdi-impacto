@@ -334,3 +334,4 @@ input[type="month"] { width: 100%; border: 1px solid var(--line); border-radius:
 @media (max-width: 520px) { .brand .draft { display: none; } }
 .eq-faixa { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; background: var(--accent-soft); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 12px; font-size: 0.9rem; }
 .eq-faixa .btn { min-height: 36px; padding: 6px 12px; }
+.field-top { align-self: start; }

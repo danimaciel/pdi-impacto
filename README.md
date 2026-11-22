@@ -34,5 +34,6 @@ A versão original (Pinto et al., 2024), com dados e código em R/Shiny, está e
 
 - `plano-tt/instrumento/gera_instrumento.py`: gera `plano-tt.json` (dimensões e níveis da escala CRL, fases, níveis de indicador e biblioteca de ações).
 - `plano-tt/src/` e `plano-tt/tools/build.py`: código e geração de `plano-tt/index.html`.
+- `listas/equipes.json` (gerado por `listas/gera_equipes.py`): por Unidade, as áreas que podem coordenar um plano e os nomes dos empregados para a equipe técnica. Só os nomes são publicados. Para acrescentar outra Unidade: `python listas/gera_equipes.py planilha.xlsx "Embrapa Trigo"` (coluna `Nome`; ou uma coluna `Unidade` para várias de uma vez) e depois `python plano-tt/tools/build.py`.
 
 Saídas: plano em Excel e em Word, exportação para a base de acompanhamento de planos de TT no AppSheet e arquivo do plano (.json). Com o serviço da planilha configurado, a equipe pode editar o mesmo plano por um link (com controle de versão) e registrar o plano concluído, que passa a constar das abas `planos_tt` e `acoes_tt` da planilha. A ferramenta lê o arquivo de respostas do TerImpact para pré-preencher título, problema, públicos, parceiros, mudanças esperadas e pressupostos.
