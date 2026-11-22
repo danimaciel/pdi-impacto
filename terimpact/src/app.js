@@ -1042,7 +1042,7 @@
       }
       case "desfazer-equipe": CONS = null; VISTA = "minha"; render(); break;
       case "criar-grupo":
-        rmMsg("Criando o link…", true);
+        rmMsg("Criando o link. A primeira conexão pode levar até 20 segundos.", true);
         api("POST", { acao: "criar", ferramenta: "terimpact", titulo: S.contexto.titulo || "" }).then(function (r) {
           if (!r.ok) throw new Error(r.erro);
           S.grupo = r.codigo; S.enviadoEm = null; lsSet("terimpact.adm." + r.codigo, r.token); save();
@@ -1053,7 +1053,7 @@
       case "enviar-grupo": {
         var ac = document.getElementById("rm-aceite");
         if (!ac || !ac.checked) { rmMsg("Para enviar, marque a concordância com o envio das respostas."); break; }
-        rmMsg("Enviando…", true);
+        rmMsg("Enviando. A primeira conexão pode levar até 20 segundos.", true);
         api("POST", { acao: "enviar", codigo: S.grupo, rid: RID, respondente: S.respondente || "", dados: dadosParaEnvio() }).then(function (r) {
           if (!r.ok) throw new Error(r.erro);
           S.enviadoEm = new Date().toISOString(); save(); var y = window.scrollY; render(); window.scrollTo(0, y);
@@ -1062,7 +1062,7 @@
         break;
       }
       case "carregar-grupo":
-        rmMsg("Carregando respostas…", true);
+        rmMsg("Carregando respostas. A primeira conexão pode levar até 20 segundos.", true);
         api("GET", { acao: "respostas", codigo: S.grupo, token: tokenAdm() || "" }).then(function (r) {
           if (!r.ok) throw new Error(r.erro);
           var lista = (r.respostas || []).filter(valid).map(normalize);
