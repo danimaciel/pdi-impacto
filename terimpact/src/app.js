@@ -3,6 +3,19 @@
 
   var INST = JSON.parse(document.getElementById("instrumento").textContent);
   var LISTAS = JSON.parse(document.getElementById("listas").textContent);
+  var SERVICO = {}; try { SERVICO = JSON.parse(document.getElementById("servico").textContent); } catch (e) {}
+  var ENDPOINT = SERVICO.endpoint || "";
+  var PARAMS = (function () { try { return new URLSearchParams(location.search); } catch (e) { return { get: function () { return null; } }; } })();
+  var MEMORIA = {};
+  function lsGet(k) { var v = null; try { v = localStorage.getItem(k); } catch (e) {} return v !== null ? v : (MEMORIA[k] !== undefined ? MEMORIA[k] : null); }
+  function lsSet(k, v) { MEMORIA[k] = v; try { localStorage.setItem(k, v); } catch (e) {} }
+  var RID = lsGet("terimpact.rid") || (function () { var r = Math.random().toString(36).slice(2) + Date.now().toString(36); lsSet("terimpact.rid", r); return r; })();
+  var GRUPO_INFO = null;
+  function api(metodo, dados) {
+    if (!ENDPOINT) return Promise.reject(new Error("Serviço não configurado."));
+    var req = metodo === "GET" ? fetch(ENDPOINT + "?" + new URLSearchParams(dados).toString()) : fetch(ENDPOINT, { method: "POST", body: JSON.stringify(dados) });
+    return req.then(function (r) { return r.json(); });
+  }
   var ORGS = LISTAS.organizacoes.map(function (o) { return o.nome; });
   var BLOCOS = INST.blocos;
   var MAPA = BLOCOS.filter(function (b) { return b.tipo === "mapa"; })[0];
@@ -29,7 +42,7 @@
       instrumento: INST.instrumento, versao: INST.versao,
       criado: new Date().toISOString(), atualizado: null, exemplo: false, modo: "conceber",
       contexto: { titulo: "", tipo: "", escala: "", duracao: "", transformacao: "", publicos: [], parceiros: [] },
-      respostas: {}, mapa: {}, respondente: ""
+      respostas: {}, mapa: {}, respondente: "", grupo: null, enviadoEm: null
     };
   }
   function valid(s) { return s && typeof s === "object" && s.respostas && s.mapa && s.contexto; }
@@ -53,6 +66,16 @@
   }
 
   var S = load() || blank();
+  (function () {
+    var g = PARAMS.get("g"), adm = PARAMS.get("adm");
+    if (g && /^[a-z0-9]{6,20}$/.test(g)) {
+      if (S.exemplo) S = blank();
+      if (S.grupo !== g) { S.grupo = g; S.enviadoEm = null; }
+      if (adm && /^[a-z0-9]{10,40}$/.test(adm)) lsSet("terimpact.adm." + g, adm);
+      if (S.modo !== "revisar" && !Object.keys(S.respostas).length) S.modo = "revisar";
+      try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {}
+    }
+  })();
   var step = 0;
 
   function R(code) { return S.respostas[code] || (S.respostas[code] = {}); }
@@ -254,7 +277,7 @@
     var sel = S.contexto[campo], aberto = DD[campo];
     var nomes = cfg.base.map(function (x) { return x.v; });
     var todos = cfg.base.concat(sel.filter(function (x) { return nomes.indexOf(x) < 0; }).map(function (x) { return { v: x, extra: "incluído por você" }; }));
-    return '<div class="field"><span class="small"><strong>' + esc(cfg.titulo) + '</strong></span><span class="hint">' + esc(cfg.ajuda) + "</span>" +
+    return '<div class="field"><span class="small"><strong>' + esc(cfg.titulo) + '</strong></span><span class="hint">' + esc(cfg.ajuda) + (ENDPOINT ? " Os itens incluídos são registrados para a atualização das listas." : "") + "</span>" +
       '<div class="chips-list" id="chips-' + campo + '">' + chipsDe(campo) + "</div>" +
       '<div class="dropdown"><button class="btn dd-toggle" data-dd="' + campo + '" aria-expanded="' + aberto + '" aria-controls="dd-' + campo + '">' + esc(aberto ? cfg.fechar : cfg.abrir) + "</button>" +
       '<div class="dd-panel" id="dd-' + campo + '"' + (aberto ? "" : " hidden") + '><input type="search" id="busca-' + campo + '" data-busca="' + campo + '" placeholder="Buscar na lista" aria-label="Buscar">' +
@@ -339,7 +362,7 @@
 
   function viewProposta() {
     var c = S.contexto, L = INST.contexto;
-    return exampleBanner() + '<div class="stack-lg">' +
+    return exampleBanner() + bannerGrupo() + '<div class="stack-lg">' +
       '<div class="stack"><p class="eyebrow">Caracterização</p><h2>A proposta</h2><p class="muted">Nenhum campo é obrigatório. As informações orientam a leitura da devolutiva.</p></div>' +
       (S.modo === "revisar" ? painelImport() : "") +
       '<div class="field"><label for="f-resp">Quem responde (opcional)</label><span class="hint">Nome ou função. Identifica as respostas quando a equipe consolida as avaliações.</span><input type="text" id="f-resp" data-respondente="1" value="' + esc(S.respondente || "") + '"></div>' +
@@ -780,6 +803,38 @@
     return h;
   }
 
+  function linkBase() { return location.origin + location.pathname; }
+  function tokenAdm() { return S.grupo ? lsGet("terimpact.adm." + S.grupo) : null; }
+  function bannerGrupo() {
+    if (!S.grupo) return "";
+    return '<div class="note no-print">Avaliação em equipe' + (GRUPO_INFO && GRUPO_INFO.titulo ? ": <strong>" + esc(GRUPO_INFO.titulo) + "</strong>" : "") + ". Responda de forma independente e, ao final, envie suas respostas à equipe na tela de resultado.</div>";
+  }
+  function painelRemoto() {
+    if (!ENDPOINT) return "";
+    var h = '<div class="panel no-print remoto"><h3>Avaliação em equipe com link</h3>';
+    if (!S.grupo) {
+      h += '<p class="small">Crie um link para que outras pessoas avaliem a mesma proposta. Cada pessoa responde de forma independente e envia suas respostas; apenas quem tem o link de coordenação vê e consolida as respostas.</p>' +
+        '<div class="actions"><button class="btn primary" data-act="criar-grupo">Criar link para a equipe</button></div>';
+    } else {
+      var adm = tokenAdm();
+      if (adm) {
+        var lp = linkBase() + "?g=" + S.grupo, lc = lp + "&adm=" + adm;
+        h += '<div class="stack"><p class="small"><strong>Link de participação</strong> (envie à equipe)</p><div class="add-row"><input type="text" readonly id="lk-part" value="' + esc(lp) + '"><button class="btn" data-copiar="lk-part">Copiar</button></div>' +
+          '<p class="small"><strong>Link de coordenação</strong> (guarde; permite ver e consolidar as respostas)</p><div class="add-row"><input type="text" readonly id="lk-coord" value="' + esc(lc) + '"><button class="btn" data-copiar="lk-coord">Copiar</button></div></div>';
+      }
+      h += '<div class="stack"><label class="opts"><span><input type="checkbox" id="rm-aceite"> Concordo em enviar minhas respostas, incluindo o nome ou a função informados, para a planilha de respostas mantida pela coordenação deste site. As respostas são usadas apenas para a consolidação desta avaliação.</span></label>' +
+        '<div class="actions"><button class="btn primary" data-act="enviar-grupo">' + (S.enviadoEm ? "Reenviar minhas respostas" : "Enviar minhas respostas à equipe") + "</button>" +
+        (adm ? '<button class="btn" data-act="carregar-grupo">Carregar respostas da equipe</button>' : "") +
+        '<button class="btn link" data-act="sair-grupo">Sair desta avaliação em equipe</button></div>' +
+        (S.enviadoEm ? '<p class="small muted">Respostas enviadas em ' + esc(new Date(S.enviadoEm).toLocaleString("pt-BR")) + ". Um novo envio substitui o anterior.</p>" : "") + "</div>";
+    }
+    return h + '<div id="rm-msg" class="msg" role="status"></div></div>';
+  }
+  function rmMsg(t, ok) { var m = document.getElementById("rm-msg"); if (m) { m.textContent = t; m.className = "msg " + (ok ? "ok" : "err"); } }
+  function dadosParaEnvio() {
+    return { instrumento: S.instrumento, versao: S.versao, modo: S.modo, respondente: S.respondente, contexto: S.contexto, respostas: S.respostas, mapa: S.mapa, enviado: new Date().toISOString() };
+  }
+
   function painelConsolidar() {
     return '<div class="panel no-print"><h3>Consolidar as avaliações da equipe</h3>' +
       '<p class="small">Quando várias pessoas avaliam a mesma proposta, cada uma baixa ou copia suas respostas e as envia a quem coordena. A consolidação calcula a média das notas, reúne as respostas abertas identificadas por pessoa e indica as perguntas e as mudanças do mapa em que a equipe diverge.</p>' +
@@ -809,7 +864,7 @@
     html = html.replace('<div class="cards">', seletor + '<div class="cards">');
     if (VISTA === "equipe" && CONS) html = html.replace(">Devolutiva e esboço<", ">Devolutiva da equipe e esboço<").replace(">Esboço do projeto<", ">Esboço do projeto (equipe)<");
     html = html.replace('<div class="panel"><h3>Alertas</h3>', painelEquipe() + '<div class="panel"><h3>Alertas</h3>');
-    html = html.replace('<div class="panel no-print"><h3>Guardar e retomar</h3>', painelConsolidar() + '<div class="panel no-print"><h3>Guardar e retomar</h3>');
+    html = html.replace('<div class="panel no-print"><h3>Guardar e retomar</h3>', painelRemoto() + painelConsolidar() + '<div class="panel no-print"><h3>Guardar e retomar</h3>');
     return html;
   }
 
@@ -934,6 +989,7 @@
       if (alvo === "publico") { if (S.contexto.publicos.indexOf(novo) < 0) S.contexto.publicos.push(novo); DD.publicos = true; }
       else if (alvo === "parceiro") { if (S.contexto.parceiros.indexOf(novo) < 0) S.contexto.parceiros.push(novo); DD.parceiros = true; }
       else { var ra = R(alvo); ra.opcoes = ra.opcoes || []; if (ra.opcoes.indexOf(novo) < 0) ra.opcoes.push(novo); }
+      if (ENDPOINT) api("POST", { acao: "incluir", ferramenta: "terimpact", lista: alvo, valor: novo }).catch(function () {});
       save(); var y = window.scrollY; render(); window.scrollTo(0, y);
       var c2 = document.getElementById("add-" + alvo); if (c2) c2.focus();
       return;
@@ -967,6 +1023,11 @@
       return;
     }
     if (t.dataset.vista) { VISTA = t.dataset.vista; render(); return; }
+    if (t.dataset.copiar) {
+      var campoL = document.getElementById(t.dataset.copiar);
+      try { navigator.clipboard.writeText(campoL.value).then(function () { rmMsg("Link copiado.", true); }, function () { campoL.select(); rmMsg("Selecione o link e copie manualmente."); }); } catch (e) { campoL.select(); }
+      return;
+    }
     switch (t.dataset.act) {
       case "consolidar-equipe": {
         var ef = document.getElementById("eq-files"), et = document.getElementById("eq-txt").value, inc = document.getElementById("eq-incluir").checked;
@@ -980,6 +1041,36 @@
         break;
       }
       case "desfazer-equipe": CONS = null; VISTA = "minha"; render(); break;
+      case "criar-grupo":
+        rmMsg("Criando o link…", true);
+        api("POST", { acao: "criar", ferramenta: "terimpact", titulo: S.contexto.titulo || "" }).then(function (r) {
+          if (!r.ok) throw new Error(r.erro);
+          S.grupo = r.codigo; S.enviadoEm = null; lsSet("terimpact.adm." + r.codigo, r.token); save();
+          GRUPO_INFO = { titulo: S.contexto.titulo }; var y = window.scrollY; render(); window.scrollTo(0, y);
+          rmMsg("Link criado. Envie o link de participação à equipe e guarde o link de coordenação.", true);
+        }).catch(function () { rmMsg("Não foi possível criar o link. Verifique a conexão e tente novamente."); });
+        break;
+      case "enviar-grupo": {
+        var ac = document.getElementById("rm-aceite");
+        if (!ac || !ac.checked) { rmMsg("Para enviar, marque a concordância com o envio das respostas."); break; }
+        rmMsg("Enviando…", true);
+        api("POST", { acao: "enviar", codigo: S.grupo, rid: RID, respondente: S.respondente || "", dados: dadosParaEnvio() }).then(function (r) {
+          if (!r.ok) throw new Error(r.erro);
+          S.enviadoEm = new Date().toISOString(); save(); var y = window.scrollY; render(); window.scrollTo(0, y);
+          rmMsg(r.atualizado ? "Respostas atualizadas." : "Respostas enviadas à equipe.", true);
+        }).catch(function (e) { rmMsg(e && e.message === "grupo" ? "Esta avaliação em equipe não foi encontrada. Confira o link recebido." : "Não foi possível enviar. Verifique a conexão e tente novamente."); });
+        break;
+      }
+      case "carregar-grupo":
+        rmMsg("Carregando respostas…", true);
+        api("GET", { acao: "respostas", codigo: S.grupo, token: tokenAdm() || "" }).then(function (r) {
+          if (!r.ok) throw new Error(r.erro);
+          var lista = (r.respostas || []).filter(valid).map(normalize);
+          if (lista.length < 2) { rmMsg(lista.length ? "Apenas uma pessoa enviou respostas até agora. A consolidação exige pelo menos duas." : "Nenhuma resposta foi enviada até agora."); return; }
+          CONS = consolidarEquipe(lista); VISTA = "equipe"; render(); window.scrollTo(0, 0);
+        }).catch(function () { rmMsg("Não foi possível carregar as respostas. Verifique a conexão e o link de coordenação."); });
+        break;
+      case "sair-grupo": S.grupo = null; S.enviadoEm = null; save(); render(); break;
       case "ler-proposta": {
         var fi = document.getElementById("imp-prop");
         if (!fi.files || !fi.files[0]) { IMPORT_MSG = "Selecione o arquivo da proposta."; var mm = document.getElementById("imp-msg"); if (mm) { mm.textContent = IMPORT_MSG; mm.className = "msg err"; } break; }
@@ -1127,5 +1218,6 @@
     return s;
   }
 
+  if (ENDPOINT && S.grupo) api("GET", { acao: "grupo", codigo: S.grupo }).then(function (r) { if (r.ok) { GRUPO_INFO = r; render(); } }).catch(function () {});
   render();
 })();
