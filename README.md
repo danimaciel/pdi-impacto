@@ -22,7 +22,7 @@ Está prevista uma camada para o Plano de Transferência de Tecnologia orientado
 
 Após alterar o instrumento ou o código, execute `python terimpact/tools/build.py`.
 
-A versão 1, derivada da planilha original, está preservada no histórico do repositório, na marcação `terimpact-v1`.
+A versão 1, derivada da planilha original, está em `terimpact/v1/` (gerada por `python terimpact/v1/tools/build.py`) e publicada em https://danimaciel.github.io/pdi-impacto/terimpact/v1/.
 
 ## AgroRadarEval
 

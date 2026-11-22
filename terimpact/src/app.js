@@ -241,7 +241,7 @@
       '<p class="small muted">As respostas são as mesmas nos dois modos: é possível começar concebendo e depois revisar.</p></div>' +
       '<div class="actions">' + (tem ? '<button class="btn" data-act="pedir-novo">Nova avaliação</button>' : "") +
       '<button class="btn" data-act="exemplo">Ver exemplo preenchido</button></div><div id="confirm-slot"></div>' +
-      '<p class="footer">Instrumento versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " As dimensões do mapa de impactos correspondem à metodologia de referência de avaliação de impactos da Embrapa.</p></div>";
+      '<p class="footer">Instrumento versão ' + esc(INST.versao) + ". " + esc(INST.situacao) + " As dimensões do mapa de impactos correspondem à metodologia de referência de avaliação de impactos da Embrapa. A <a href=\"v1/\">versão 1</a>, com o instrumento original derivado da planilha, permanece disponível para consulta.</p></div>";
   }
 
   var DD = { publicos: false, parceiros: false };
